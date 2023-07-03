@@ -46,6 +46,9 @@ namespace chrindex::andren::base
         }
 
     public:
+
+        /// @brief 设置获取时间(MSecond)的函数
+        /// @param _func 
         void setTimeGetter(std::function<uint64_t()> _func)
         {
             m_msecFunc = std::move(_func);

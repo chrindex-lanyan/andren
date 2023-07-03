@@ -1,14 +1,11 @@
-﻿#pragma once
+﻿
 
-#include "minheap.hpp"
-
-
-#include "fourwayheap.hpp"
 
 #include <functional>
 #include <stdio.h>
 
-#include "example_test_macro.hh" 
+#include "../include/andren.hh"
+
 
 using namespace chrindex::andren::base;
 
@@ -47,3 +44,7 @@ int test4x()
     return 0;
 }
 
+int main(int argc ,char ** argv){
+    test4x();
+    return 0;
+}

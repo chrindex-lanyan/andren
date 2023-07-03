@@ -1,5 +1,5 @@
 ﻿#pragma once
 
-#include "andren_base.hh"
+#include "../src/base/andren_base.hh"
 
-#include "andren_network.hh"
+#include "../src/network/andren_network.hh"

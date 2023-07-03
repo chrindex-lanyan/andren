@@ -1,31 +1,30 @@
 ﻿#pragma once
 
 
-#include <stdint.h>
-#include <string.h>
-#include <sys/types.h>
-#include <type_traits>
+#include "noncopyable.hpp"
+#include "scoperun.hpp"
+#include "memclear.hpp"
+
+#include "blockque.hpp"
+#include "buffer.hh"
+#include "ufile.hh"
+#include "plog.hh"
+#include "zlibstream.hh"
+#include "json.hh"
+#include "thread.hh"
+#include "threadpool.hh"
+
+#include "KVPair.hpp"
+#include "binaryheap.hpp"
+#include "fourwayheap.hpp"
+#include "minheap.hpp"
+#include "timermanager.hpp"
+
+#include "pipe.hh"
+#include "signal.hh"
+#include "smem.hh"
 
 
 
-namespace chrindex::andren::base
-{
-    /// @brief 清空POD对象内存
-    /// @tparam T
-    /// @tparam
-    /// @param t
-    template <typename T, class = std::enable_if<std::is_pod<T>::value>>
-    inline void ZeroMemRef(T &t)
-    {
-        ::memset(&t, 0, sizeof(T));
-    }
 
-    /// @brief 清空缓冲区
-    /// @param ptr
-    /// @param size
-    inline void ZeroMemPtr(void *ptr, size_t size)
-    {
-        ::memset(ptr, 0, size);
-    }   
 
-}

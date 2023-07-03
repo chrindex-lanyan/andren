@@ -1,18 +1,12 @@
-﻿#pragma once
+﻿
 
 
-
-#include "timermanager.hpp"
-
-#include "binaryheap.hpp"
-#include "minheap.hpp"
-#include "KVPair.hpp"
 
 #include <stdio.h>
 #include <chrono>
 #include <thread>
 
-#include "example_test_macro.hh" 
+#include "../include/andren.hh"
 
 using namespace chrindex::andren::base;
 
@@ -61,6 +55,10 @@ int test_timer()  {
 } 
 
 
+int main(int argc ,char ** argv){
+    test_timer();
+    return 0;
+}
 
 
 
