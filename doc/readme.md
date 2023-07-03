@@ -1,27 +1,14 @@
-﻿#来自Chrndex Family‘s Library的Andren库
+﻿#来自Chrndex Serials Library的Andren库
 
-Chrndex Family‘s Library指Chrindex系列的库，通常使用C/C++编写，但也可能以其他语言的形式提供。
-
-Chrindex 系列库包含多个库，以下为他们的代号：
-
-1. [Andren] (安卷) 基础库、网络库、协程库部分功能整合。 
-
-2. [Kinser] (镜法)计算库、数据库连接池。OpenCV、OpenCL库的部分功能整合、PostgreSql、Mysql、SQLServer的Client SDK功能的部分整合。
-
-3. [MengLenxy]  简单GUI库、LUA虚拟机库。 Vulkan库功能整合、LUA功能的部分整合。
-
-4. [Lanyan] 流媒体库。FFMPEG + [Andren] + RSTP。
+Chrndex Serials Library指chrindex系列的库，通常使用C/C++编写，但也可能以其他语言的形式提供，如Rust（未授权），Java，Python或其他。
 
 
-Andren库为Chrindex系列库的网络库，当前版本为0.1.001.L-dev
+# Andren
+一个库，由两部分组成，分别为base部分和network部分。
 
-当前版本仅支持Linux。
-版本号说明：主版本号.子版本号.修补序号.系统支援-状态描述
-
-Andren库具有以下特性：
-1. Base Classes 集合
-    指的是一些基本类库的集合，要求编译器不能低于C++20。
-    一般有File库、Thread库、Thread Pool库、Log库、GZIP File库、Json、
+1. Base 
+    一些基本的class的集合，要求编译器不能低于C++20。
+    有File库、Thread库、Thread Pool库、Log库、GZIP File库、Json、
     Timer库、协程库、Singal库、Pipe库、ShareMem库。
 
     File库: {
@@ -33,55 +20,60 @@ Andren库具有以下特性：
     } OK
 
     Thread Pool库:{
-        管理多个Thread对象。
+        管理多个Thread对象。每一个对象一个任务队列，可对特定线程指派任务。
     } OK
 
     Log库：{
         使用File提供异步日志功能。日志仅提供4个等级(Err、Warn、Debug、Info)，并打印行数。
-        可选使用GZip压缩Log文件。
     } OK
 
     GZip File库：{
         用GNU的库，提供一些压缩能力。至少Log库会用到。
-    } 
+    } （暂时先不实现）
 
     Json库：{
-        使用nlohmann 的Json库。
+        不造轮子了，直接使用nlohmann 的Json库。
     } OK
 
     Timer库：{
-        Loop Tick + 时间轮， 类似Libuv的做法。 
+        Loop Tick + 最小堆。 有二叉堆和四叉堆可选。
     } OK
 
     协程库：{
-        使用C++20的协程做。目前优先级排在最后。
-    } 
+        使用C++20的协程做。
+    } （比较费时间，暂时先不实现）
 
     Signal库：{
-        只做Linux 信号量的基本包装。
+        只做Linux 信号量的基本包装。使用Posix信号量，包括有名信号和内存信号。
+        用以提供进程或线程间通信。
     } 
 
     Pipe库：{
-        只做Linux 有名管道的基本包装。
+        只做Linux 有名管道的基本包装。使用Linux提供的管道，包括匿名和具名管道。
+        用以提供进程或线程间通信。
     } 
 
     ShareMem库：{
-        只做Linux共享内存库的基本包装。
-        提供进程锁（由pthread_mutex升格）。
-    } 
+        只做Linux共享内存的基本包装。使用Posix共享内存，且具名。
+    }
+
+    进程锁：{
+      使用pthread_mutex达成。
+    }
 
 
-2. Network Classes 集合
-    指的是网络库的集合。
-    一般有Socket、TCP、UDP、IPv4 End Point、IO_Uring、Epoll、Event Loop、
-    HiRedis库。
+3. Network Classes 集合
+    指的是提供网络功能的类的集合。
+    有Socket、TCP、UDP、IPv4 End Point、IO_Uring、Epoll、Event Loop、
+    HiRedis相关的类。
     
     Socket库：{
         只做Socket的基本包装。不保证提供所有操作方法。
     }
 
     TCP/UDP库：{
-        只做两者的基本包装。提供TCP Server ， TCP Client ， UDP Stream Manager。
+        只做Socket的基本包装。提供TCP Stream ， TCP Stream Manager ， UDP Stream Manager。
+        Accept、Read、Write是可非阻塞的。
     }
 
     IPV4 EndPoint库：{
@@ -98,13 +90,13 @@ Andren库具有以下特性：
 
     EventLoop库：{
         Eventloop每次循环按顺序处理各类事件：{
-            0. EventLoop基于ThreadPool 。各线程依照顺序标记为1~n
-            1. 定时器事件（仅线程3~n）。 截取且仅截取一次当前时间，并取出所有超时任务进行执行。
-            2. 网络IO任务（仅线程1）。 处理网络断开事件，新连接事件、可读事件、可写事件。断开的网络在此一次性清理。
-            3. 文件IO事件（仅线程2）。 处理IO可读可写事件。
-            4. 普通任务事件（仅线程4~n）。 处理任务队列里的任务。
-            5. 当且仅当线程无事可做时等待1MS（实际可能会更久）。
-            6. 处理不同任务的线程使用不同的线程函数。
+            1. EventLoop基于ThreadPool 。各线程依照顺序标记为1 ~ n，线程池中线程数量不能少于两个。
+            2. 定时器任务（线程1 ~ n）。 截取且仅截取一次当前时间，并取出所有超时任务进行执行。
+            3. 网络IO任务（仅线程1）。 处理网络断开事件，新连接事件、可读事件、可写事件。断开的网络在此一次性清理。
+            4. 文件IO任务（仅线程1）。 处理IO可读可写事件。
+            5. 普通任务（线程1 ~ n）。 处理任务队列里的任务。
+            6. 当且仅当线程无事可做时等待1MS（实际可能会更久）。
+            7. 定时器任务、普通任务优先选择其他线程，然后才选择线程1。
         }
     }
 
@@ -113,5 +105,5 @@ Andren库具有以下特性：
     } 
 
     Redis库：{
-        Redis Client SDK 库。使用hiredis为基础，只做基本的包装。
+        Redis 客户端。以hiredis为基础，只做基本的包装。
     }
