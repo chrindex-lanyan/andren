@@ -3,104 +3,74 @@
 #include <stdint.h>
 #include <string>
 
+#include <fcntl.h>
+
 #include "noncopyable.hpp"
 
 namespace chrindex::andren::base
 {
-    enum class PipeFDType : int
-    {
-        READ_FD = 0,
-        WRITE_FD = 1,
-        READ_WRITE_FD = 2,
-    };
-
-    enum class PipeType: int 
-    {
-        UNNAMED_PIPE = 1,
-        FIFO_PIPE = 2,
-    };
-
-    struct PipeHandle
-    {
-        PipeHandle (){}
-        virtual ~PipeHandle(){}
-        virtual PipeFDType mode() const = 0;
-        virtual PipeType type() const = 0;
-        virtual int PipeRDFD() const= 0;
-        virtual int PipeWRFD() const =0;
-    };
-
-    class SysUnnamedPipe : public PipeHandle , public noncopyable
+    class SysUnnamedPipe 
     {
     public:
 
-        SysUnnamedPipe(bool packageMode = false, bool noblock = false );
-
-        SysUnnamedPipe(SysUnnamedPipe &&);
-
-        SysUnnamedPipe & operator=(SysUnnamedPipe &&);
+        SysUnnamedPipe();
 
         ~SysUnnamedPipe();
 
-        int PipeRDFD() const override;
+        struct pipe_result_t
+        {
+            int rfd;
+            int wfd;
+            int ret;
+            int eno;
+        };
 
-        int PipeWRFD() const override;  
+        static pipe_result_t pipe();
 
-        PipeFDType mode() const override;
+        static pipe_result_t pipe2(int flags = O_DIRECT | O_NONBLOCK);
 
-        PipeType type() const override;
-
-    private:
-        int m_fd[2];
     };
 
-    class SysNamedPipe: public PipeHandle , public noncopyable
+    class SysNamedPipe
     {
     public:
         SysNamedPipe();
 
-        SysNamedPipe(const std::string &path ,int mode , PipeFDType rwType, bool noblock = false);
-
-        SysNamedPipe(SysNamedPipe &&);
-
-        SysNamedPipe & operator=(SysNamedPipe &&);
-
         ~SysNamedPipe();
 
-        
-        int PipeRDFD() const override;
+        struct pipe_result_t{
+            int fd;
+            int ret;
+            int eno;
+        };
 
-        int PipeWRFD() const override;  
+        static pipe_result_t mkfifo(const std::string &path, int mode = S_IRWXU  );
 
-        PipeFDType mode() const override;
+        static pipe_result_t mkfifoat(int dirfd ,const std::string &path,  int mode);
 
-        PipeType type() const override;
+        static pipe_result_t open(const std::string &path, int flags  , int mode  );
 
-        std::string path()const ;
+        static pipe_result_t open(const std::string &path, int flags  );
 
-    private:
+        static int access(const std::string &path, int type);
 
-        int m_fd;
-        std::string m_path;
-        PipeFDType m_rwType;
     };
 
-    class SysPipe : public noncopyable
+    class SysPipe 
     {
     public:
         SysPipe();
-        SysPipe(SysPipe &&);
-
-        SysPipe & operator=(SysPipe &&);
         ~SysPipe();
 
-        ssize_t write(const std::string & data);
+        static ssize_t write(int fd , const std::string & data);
 
-        ssize_t read(std::string &data);
+        static ssize_t read(int fd, std::string &data);
+
+        static void close(int fd);
+
+        static int fcntl(int fd , int cmd , ... );
 
     private:
-
-        PipeHandle *m_handle;
 
     };
 

@@ -8,256 +8,176 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <limits.h>
+#include <stdarg.h>
 
 namespace chrindex::andren::base
 {
 
-    SysUnnamedPipe::SysUnnamedPipe(bool packageMode, bool noblock)
+    SysUnnamedPipe::SysUnnamedPipe()
     {
-        int ret, flags = 0;
-        if (packageMode)
-        {
-            flags = O_DIRECT;
-        }
-        if (noblock)
-        {
-            flags |= O_NONBLOCK;
-        }
-        if (flags)
-        {
-            ret = ::pipe2(m_fd, flags);
-        }
-        else
-        {
-            ret = ::pipe(m_fd);
-        }
-        if (ret != 0)
-        {
-            m_fd[0] = -1;
-            m_fd[1] = -1;
-        }
-    }
-
-    SysUnnamedPipe::SysUnnamedPipe(SysUnnamedPipe &&_)
-    {
-        m_fd[0] = _.m_fd[0];
-        m_fd[1] = _.m_fd[1];
-        _.m_fd[0] = -1;
-        _.m_fd[1] = -1;
-    }
-
-    SysUnnamedPipe &SysUnnamedPipe::operator=(SysUnnamedPipe &&_)
-    {
-        if (m_fd[0] > 0 && m_fd[1] > 0)
-        {
-            ::close(m_fd[0]);
-            ::close(m_fd[1]);
-        }
-        m_fd[0] = _.m_fd[0];
-        m_fd[1] = _.m_fd[1];
-        _.m_fd[0] = -1;
-        _.m_fd[1] = -1;
     }
 
     SysUnnamedPipe::~SysUnnamedPipe()
     {
-        if (m_fd[0] > 0 && m_fd[1] > 0)
+    }
+
+    SysUnnamedPipe::pipe_result_t SysUnnamedPipe::pipe()
+    {
+        pipe_result_t result;
+
+        result.ret = ::pipe((int *)&result);
+        if (result.ret)
         {
-            ::close(m_fd[0]);
-            ::close(m_fd[1]);
+            result.eno = errno;
         }
+
+        return result;
     }
 
-    int SysUnnamedPipe::PipeRDFD() const
+    SysUnnamedPipe::pipe_result_t SysUnnamedPipe::pipe2(int flags)
     {
-        return m_fd[0];
-    }
+        pipe_result_t result;
 
-    int SysUnnamedPipe::PipeWRFD() const
-    {
-        return m_fd[1];
-    }
+        result.ret = ::pipe2((int *)&result, flags);
+        if (result.ret)
+        {
+            result.eno = errno;
+        }
 
-    PipeFDType SysUnnamedPipe::mode() const
-    {
-        return PipeFDType::READ_WRITE_FD;
-    }
-
-    PipeType SysUnnamedPipe::type() const
-    {
-        return PipeType::UNNAMED_PIPE;
+        return result;
     }
 
     SysNamedPipe::SysNamedPipe()
     {
-        m_fd = -1;
-    }
-
-    SysNamedPipe::SysNamedPipe(const std::string &path, int mode,
-                               PipeFDType rwType, bool noblock )
-    {
-        int ret, flags = 0;
-        if (noblock)
-        {
-            flags |= O_NONBLOCK;
-        }
-        if (rwType == PipeFDType::READ_FD)
-        {
-            flags |= O_RDONLY;
-        }
-        else if (rwType == PipeFDType::WRITE_FD)
-        {
-            flags |= O_WRONLY;
-        }
-        else if (rwType == PipeFDType::READ_WRITE_FD)
-        {
-            flags |= O_RDWR;
-        }
-
-        ret = ::mkfifoat(AT_FDCWD, path.c_str(), mode);
-
-        if (flags && ret > 0)
-        {
-            ret = ::open(path.c_str(), O_RDWR | flags);
-            if (ret >= 0)
-            {
-                m_fd = ret;
-            }
-            else
-            {
-                m_fd = -1;
-            }
-        }
-        else
-        {
-            m_fd = -1;
-        }
-        m_rwType = rwType;
-    }
-
-    SysNamedPipe::SysNamedPipe(SysNamedPipe &&_)
-    {
-        m_fd = _.m_fd;
-        _.m_fd = -1;
-        m_path = _.m_path;
-        m_rwType = _.m_rwType;
-        _.m_path = {};
-    }
-
-    SysNamedPipe &SysNamedPipe::operator=(SysNamedPipe &&_)
-    {
-        if (m_fd >= 0)
-        {
-            ::close(m_fd);
-        }
-        m_fd = _.m_fd;
-        _.m_fd = -1;
-        m_path = _.m_path;
-        m_rwType = _.m_rwType;
-        _.m_path = {};
     }
 
     SysNamedPipe::~SysNamedPipe()
     {
-        if (m_fd >= 0)
+    }
+
+    SysNamedPipe::pipe_result_t SysNamedPipe::mkfifo(const std::string &path, int mode)
+    {
+        pipe_result_t result;
+
+        result.ret = ::mkfifo(path.c_str(), mode);
+        if (result.ret)
         {
-            ::close(m_fd);
+            result.eno = errno;
         }
+
+        return result;
     }
 
-    int SysNamedPipe::PipeRDFD() const
+    SysNamedPipe::pipe_result_t SysNamedPipe::mkfifoat(int dirfd, const std::string &path, int mode)
     {
-        if (m_rwType == PipeFDType::READ_FD ||
-            m_rwType == PipeFDType::READ_WRITE_FD)
+        pipe_result_t result;
+
+        result.ret = ::mkfifoat(dirfd, path.c_str(), mode);
+        if (result.ret)
         {
-            return m_fd;
+            result.eno = errno;
         }
-        return -1;
+
+        return result;
     }
 
-    int SysNamedPipe::PipeWRFD() const
+    SysNamedPipe::pipe_result_t SysNamedPipe::open(const std::string &path, int flags)
     {
-        if (m_rwType == PipeFDType::WRITE_FD ||
-            m_rwType == PipeFDType::READ_WRITE_FD)
+
+        pipe_result_t result;
+
+        result.ret = ::open(path.c_str(), flags);
+        if (result.ret<=0)
         {
-            return m_fd;
+            result.eno = errno;
+        }else {
+            result.fd = result.ret;
+            result.ret = 0;
         }
-        return -1;
+    
+        return result;
     }
 
-    PipeFDType SysNamedPipe::mode() const
+    SysNamedPipe::pipe_result_t SysNamedPipe::open(const std::string &path, int flags, int mode)
     {
-        return m_rwType;
+
+        pipe_result_t result;
+
+        result.ret = ::open(path.c_str(), flags, mode);
+        if (result.ret<=0)
+        {
+            result.eno = errno;
+        }else {
+            result.fd = result.ret;
+            result.ret = 0;
+        }
+
+        return result;
     }
 
-    PipeType SysNamedPipe::type() const
+    int SysNamedPipe::access(const std::string &path, int type)
     {
-        return PipeType::FIFO_PIPE;
-    }
-
-    std::string SysNamedPipe::path() const
-    {
-        return m_path;
+        return ::access(path.c_str(),type);
     }
 
     SysPipe::SysPipe()
     {
-        m_handle = 0;
-    }
-
-    SysPipe::SysPipe(SysPipe &&_)
-    {
-        m_handle = _.m_handle;
-        _.m_handle = 0;
-    }
-
-    SysPipe &SysPipe::operator=(SysPipe &&_)
-    {
-        m_handle = _.m_handle;
-        _.m_handle = 0;
+        //
     }
 
     SysPipe::~SysPipe()
     {
     }
 
-    ssize_t SysPipe::write(const std::string &data)
+    ssize_t SysPipe::write(int fd, const std::string &data)
     {
-        if (m_handle && (m_handle->mode() == PipeFDType::WRITE_FD ||
-                         m_handle->mode() == PipeFDType::READ_WRITE_FD))
+        if (fd >= 0 && data.size() > 0)
         {
-            int fd = m_handle->PipeWRFD();
-            if (fd>=0 && data.size()>0){
-                ssize_t ret = 0;
-                size_t count = data.size() / PIPE_BUF ;
-                size_t freecount = data.size() % PIPE_BUF;
-                for (size_t i =0 ; i < count  ; i++){
-                    ret += ::write(fd,&data[(i * PIPE_BUF)],PIPE_BUF);
-                }
-                if ( freecount > 0){
-                    ret += ::write(fd,&data[(count * PIPE_BUF)],freecount);
-                }
-                return ret;
-            }
-        }
-        return -1;
-    }
-
-    ssize_t SysPipe::read(std::string &data)
-    {
-        int fd = m_handle->PipeRDFD();
-        if (fd>0)
-        {
-            std::string _data;
-            ssize_t ret=0;
-            _data.resize(PIPE_BUF);
-            while((ret = ::read(fd, &_data[0] , _data.size()))>0)
+            ssize_t ret = 0;
+            size_t count = data.size() / PIPE_BUF;
+            size_t freecount = data.size() % PIPE_BUF;
+            for (size_t i = 0; i < count; i++)
             {
-                data += _data;
+                ret += ::write(fd, &data[(i * PIPE_BUF)], PIPE_BUF);
+            }
+            if (freecount > 0)
+            {
+                ret += ::write(fd, &data[(count * PIPE_BUF)], freecount);
             }
             return ret;
         }
         return -1;
+    }
+
+    ssize_t SysPipe::read(int fd, std::string &data)
+    {
+        if (fd > 0)
+        {
+            ssize_t ret = 0;
+            data.resize(PIPE_BUF);
+            if ((ret = ::read(fd, &data[0], data.size())) > 0)
+            {
+                data.resize(ret);
+            }else {
+                data.clear();
+            }
+            return ret;
+        }
+        return -1;
+    }
+
+    void SysPipe::close(int fd)
+    {
+        ::close(fd);
+    }
+
+    int SysPipe::fcntl(int fd, int cmd, ...)
+    {
+        va_list va;
+        va_start(va, cmd);
+        int ret = ::fcntl(fd, cmd, va);
+        va_end(va);
+        return ret;
     }
 
 }

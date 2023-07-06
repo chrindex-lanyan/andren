@@ -33,6 +33,7 @@ example_2x_pattern = example_src .. "./example_2xHeap.cpp"
 example_4x_pattern = example_src .. "./example_4xHeap.cpp"
 example_timer_pattern = example_src .. "./example_timer.cpp"
 example_signal_pattern = example_src .. "./example_signal.cpp"
+example_pipe_pattern = example_src .. "./example_pipe.cpp"
 
 
 target("andren")
@@ -107,3 +108,9 @@ target("test_signal")
     set_kind("binary")
     add_files(example_signal_pattern)
     add_deps("andren", {private = true})
+
+target("test_pipe")
+    set_kind("binary")
+    add_files(example_pipe_pattern)
+    add_deps("andren", {private = true})
+    

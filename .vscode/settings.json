@@ -73,6 +73,7 @@
         "bitset": "cpp",
         "complex": "cpp",
         "iostream": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "cfenv": "cpp"
     }
 }
