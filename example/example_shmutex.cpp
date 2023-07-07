@@ -2,12 +2,11 @@
 #include "../include/andren.hh"
 
 
-#define SHARED_MEM_NAME "/my_shared_memory"
-#define SHARED_MEM_SIZE sizeof(pthread_mutex_t)
+#define SHARED_MEM_NAME "/my_shared_mutex"
 
 using namespace chrindex::andren::base;
 
-int test_shmmutex()
+int test_shmmutex_owner()
 {   
     ShmMutex<ShmOwner> shmMutex;
 
@@ -34,6 +33,8 @@ int test_refshmutex()
 {
     ShmMutex<ShmReference> shmMutex;
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
     shmMutex = std::move(ShmMutex<ShmReference>(SHARED_MEM_NAME));
 
     if (shmMutex.valid())
@@ -52,7 +53,7 @@ int test_refshmutex()
 }
 
 
-int test_shmem()
+int test_shmemmutex()
 {
     int pid =0;
     if ((pid=fork())==0)
@@ -61,14 +62,14 @@ int test_shmem()
         test_refshmutex();
     }
     else {
-        test_shmmutex();
+        test_shmmutex_owner();
     }
     return 0;
 }
 
 int main(int argc, char ** argv)
 {
-    test_shmem();
+    test_shmemmutex();
     return 0;
 }
 
