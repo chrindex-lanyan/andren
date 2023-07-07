@@ -34,6 +34,7 @@ example_4x_pattern = example_src .. "./example_4xHeap.cpp"
 example_timer_pattern = example_src .. "./example_timer.cpp"
 example_signal_pattern = example_src .. "./example_signal.cpp"
 example_pipe_pattern = example_src .. "./example_pipe.cpp"
+example_shmutex_pattern = example_src .. "./example_shmutex.cpp"
 
 
 target("andren")
@@ -59,6 +60,7 @@ target("andren")
     add_links("ssl") -- open ssl
     add_links("hiredis") -- hiredis client sdk
     add_links("z")
+    add_links("rt")
     -- link lib dir list 
     -- add_linkdirs("your path")
 
@@ -114,3 +116,7 @@ target("test_pipe")
     add_files(example_pipe_pattern)
     add_deps("andren", {private = true})
     
+target("test_shmutex")
+    set_kind("binary")
+    add_files(example_shmutex_pattern)
+    add_deps("andren", {private = true})

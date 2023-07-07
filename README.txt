@@ -46,7 +46,7 @@
 
     进程锁：{
       使用pthread_mutex达成。
-    } 
+    } OK
 
     GZip File库：{
         用GNU的库，提供一些压缩能力。至少Log库会用到。

@@ -23,6 +23,7 @@
 #include "pipe.hh"
 #include "signal.hh"
 #include "smem.hh"
+#include "npsmem.hpp"
 
 
 
