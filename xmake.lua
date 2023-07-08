@@ -83,11 +83,12 @@ target("andren_a")
     add_files(llhttp_lib_src_pattern)
 
     -- link lib list
-    add_links("pthread") -- 
-    add_links("dl")  -- 
-    add_links("ssl") -- open ssl
-    add_links("hiredis") -- hiredis client sdk
-    add_links("z")
+    add_links("pthread") -- posix thread (System)
+    add_links("dl")  -- dynamic load (System)
+    add_links("ssl") -- open ssl (SSL)
+    add_links("hiredis") -- hiredis client sdk (Redis Client SDK)
+    add_links("z") -- libz (Zip Library)
+    --add_links("unistring") -- libunistring (TextCodec)
     -- link lib dir list 
     -- add_linkdirs("your path")
 

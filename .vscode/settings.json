@@ -74,6 +74,10 @@
         "complex": "cpp",
         "iostream": "cpp",
         "*.ipp": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "stddef.h": "c",
+        "uchar.h": "c",
+        "uintrintrin.h": "c",
+        "unistr.h": "c"
     }
 }

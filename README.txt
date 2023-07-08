@@ -4,7 +4,7 @@
 1. Base 
     一些基本的class的集合，要求编译器不能低于C++20。
     有File库、Thread库、Thread Pool库、Log库、GZIP File库、Json、
-    Timer库、协程库、Singal库、Pipe库、ShareMem库。
+    Timer库、协程库、Singal库、Pipe库、ShareMem库、Socket库、Epoll库。
 
     File库: {
         对Linux FD进行RAII封装， 不保证提供所有IO操作方法。
@@ -42,15 +42,23 @@
 
     ShareMem库：{
         只做Linux共享内存的基本包装。使用Posix共享内存，且具名。
-    } 
+    } OK
 
     进程锁：{
       使用pthread_mutex达成。
     } OK
+    
+    Socket库：{
+        只做Socket的基本包装。不保证提供所有操作方法。
+    }
 
     GZip File库：{
         用GNU的库，提供一些压缩能力。至少Log库会用到。
     } （暂时先不实现）
+
+    Epoll库：{
+        只做Epoll接口的基本包装。
+    }
 
     协程库：{
         使用C++20的协程做。
@@ -59,28 +67,16 @@
 
 3. Network Classes 集合
     指的是提供网络功能的类的集合。
-    有Socket、TCP、UDP、IPv4 End Point、IO_Uring、Epoll、Event Loop、
+    有TCP、UDP、IO_Uring、Event Loop、PGSQL库、
     HiRedis相关的类。
     
-    Socket库：{
-        只做Socket的基本包装。不保证提供所有操作方法。
-    }
-
     TCP/UDP库：{
         只做Socket的基本包装。提供TCP Stream ， TCP Stream Manager ， UDP Stream Manager。
         Accept、Read、Write是可非阻塞的。
     }
 
-    IPV4 EndPoint库：{
-        提供在网络序和主机序之间的IPV4表示和转换。
-    }
-
     io_uring库：{
         只做Linux的io_uring的基本包装。
-    }
-
-    Epoll库：{
-        只做Epoll接口的基本包装。
     }
 
     EventLoop库：{
@@ -102,3 +98,8 @@
     Redis库：{
         Redis 客户端。以hiredis为基础，只做基本的包装。
     }
+
+    PGSQL库：{
+        PostgreSQL 客户端。只做基本包装。不保证提供所有接口。
+    }
+
