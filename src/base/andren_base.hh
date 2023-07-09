@@ -25,6 +25,11 @@
 #include "smem.hh"
 #include "npsmem.hpp"
 
+#include "base64codec.hh"
+#include "textcode.h"
+#include "socket.hh"
+#include "coroutine.hpp"
+#include "epoll.hh"
 
 
 

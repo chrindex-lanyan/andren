@@ -4,7 +4,8 @@
 1. Base 
     一些基本的class的集合，要求编译器不能低于C++20。
     有File库、Thread库、Thread Pool库、Log库、GZIP File库、Json、
-    Timer库、协程库、Singal库、Pipe库、ShareMem库、Socket库、Epoll库。
+    Timer库、协程库、Singal库、Pipe库、ShareMem库、Socket库、Epoll库、
+    编码转换、Base64编码、PGSQL库、MYSQL库、LLHTTP库、HiRedis。
 
     File库: {
         对Linux FD进行RAII封装， 不保证提供所有IO操作方法。
@@ -50,25 +51,48 @@
     
     Socket库：{
         只做Socket的基本包装。不保证提供所有操作方法。
-    }
+    } OK
+    
+    Epoll库：{
+        只做Epoll接口的基本包装。
+    } OK
 
     GZip File库：{
         用GNU的库，提供一些压缩能力。至少Log库会用到。
     } （暂时先不实现）
 
-    Epoll库：{
-        只做Epoll接口的基本包装。
-    }
-
-    协程库：{
+    协程库 Coroutine：{
         使用C++20的协程做。
     } （比较费时间，暂时先不填坑）
+
+    编码转换库TextCodec:{
+        UTF8、UTF16、UTF32、GBK编码互转支持。
+    }（暂时先不实现）
+
+    编码转换BASE64库：{
+        依赖第三方库，导出第三方库接口。
+    } OK
+
+    HTTP库：{
+        使用llhttp库。只做基本包装。
+    } 
+
+    Redis库：{
+        Redis 客户端。以hiredis为基础，只做基本的包装。
+    }
+
+    PGSQL库：{
+        PostgreSQL 客户端。只做基本包装。不保证提供所有接口。
+    }
+
+    MYSQL库：{
+        MYSQL C API 简单包装。不保证提供所有接口。
+    }
 
 
 3. Network Classes 集合
     指的是提供网络功能的类的集合。
-    有TCP、UDP、IO_Uring、Event Loop、PGSQL库、
-    HiRedis相关的类。
+    有TCP、UDP、IO_Uring、Event Loop相关的类。
     
     TCP/UDP库：{
         只做Socket的基本包装。提供TCP Stream ， TCP Stream Manager ， UDP Stream Manager。
@@ -91,15 +115,5 @@
         }
     }
 
-    HTTP库：{
-        使用llhttp库。只做基本包装。
-    } 
-
-    Redis库：{
-        Redis 客户端。以hiredis为基础，只做基本的包装。
-    }
-
-    PGSQL库：{
-        PostgreSQL 客户端。只做基本包装。不保证提供所有接口。
-    }
+    
 

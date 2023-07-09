@@ -7,6 +7,15 @@
 
 #include "noncopyable.hpp"
 
+/// 前向声明
+
+struct sockaddr;
+struct msghdr;
+struct mmsghdr;
+struct timespec;
+struct timeval;
+
+
 namespace chrindex::andren::base
 {
 
@@ -168,11 +177,22 @@ namespace chrindex::andren::base
                          struct sockaddr *src_addr,
                          uint32_t *addrlen);
 
-        /// @brief 从指定的套接字接收多个数据块，并获取其他相关信息。
+        /// @brief 通用的数据接收函数，支持流式和非流式套接字。从指定的套接字接收数据，并获取其他相关信息。
         /// @param msg 指向 struct msghdr 结构的指针，其中包含了接收数据的缓冲区指针、长度等信息。
         /// @param flags 可选的标志参数，用于指定接收操作的选项，如 MSG_WAITALL、MSG_OOB 等。
         /// @return 见函数 ssize_t recv(...)
         ssize_t recvmsg(struct msghdr *msg, int flags);
+
+        /// @brief recvmmsg()系统调用是recvmsg()的扩展，它允许调用者使用单个系统调用从套接字接收多个消息。 
+        /// （这对某些应用程序具有性能优势。）对于recvmsg()的进一步扩展是对接收操作的超时支持。
+        /// @param msgvec 保存接收数据的缓冲区数组
+        /// @param vlen 缓冲区数量
+        /// @param flags 可选的标志参数，用于指定发送操作的选项。
+        /// @param timeout 超时接受结构。
+        /// @return 成功时，recvmmsg()返回在msgvec中接收到的消息数量；
+        /// 发生错误时返回-1，并设置errno以指示错误原因。
+        int recvmmsg(struct mmsghdr *msgvec, unsigned int vlen,
+                     int flags, struct timespec *timeout);
 
         /// @brief 从指定的套接字发送数据，多用于TCP。
         /// @param buf 指向要发送数据的缓冲区的指针。
@@ -191,11 +211,23 @@ namespace chrindex::andren::base
         ssize_t sendto(void const *buf, size_t len, int flags,
                        struct sockaddr const *dest_addr, uint32_t addrlen);
 
-        /// @brief 从指定的套接字发送多个数据块。
+        /// @brief 通用的数据发送函数，支持流式和非流式套接字。从指定的套接字发送数据块。
         /// @param msg 指向 struct msghdr 结构的指针，其中包含了要发送的多个数据块的信息，如缓冲区指针、长度等。
         /// @param flags 可选的标志参数，用于指定发送操作的选项，如 MSG_DONTWAIT、MSG_OOB 等。
         /// @return 见函数 ssize_t send(...)
         ssize_t sendmsg(struct msghdr const *msg, int flags);
+
+        /// @brief sendmmsg()系统调用是sendmsg(2)的扩展，
+        ///  它允许调用者使用单个系统调用在套接字上传输多个消息。
+        /// （这对某些应用程序具有性能优势。）
+        /// @param msgvec 发送缓冲区数组（in/out）。
+        /// @param vlen 缓冲区数量
+        /// @param flags 可选的标志，用于指定发送选项
+        /// @return 成功时，sendmmsg()返回从msgvec发送的消息数量；
+        /// 如果这个值小于vlen，则调用者可以使用另一个sendmmsg()调用重试发送剩余的消息。
+        /// 发生错误时，返回-1，并设置errno以指示错误原因。
+        int sendmmsg(struct mmsghdr *msgvec, unsigned int vlen,
+                     int flags);
 
         /// @brief 关闭套接字的一部分或全部连接：通知对方关闭连接或禁止继续进行数据传输。
         /// @param how SHUT_RD：关闭套接字的读取（接收）功能。
