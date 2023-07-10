@@ -12,6 +12,8 @@ namespace chrindex ::andren::base
     class Thread : public noncopyable
     {
     public:
+        using func_t = std::function<void()>;
+
         /// @brief empty construction
         Thread();
 
@@ -30,7 +32,7 @@ namespace chrindex ::andren::base
         /// @brief create a new pthread and run task
         /// @param  task function
         /// @return 0 is ok else failed
-        int create(std::function<void()>);
+        int create(func_t);
 
         /// @brief set name for thread
         /// @param  name
@@ -70,6 +72,9 @@ namespace chrindex ::andren::base
         /// @brief get caller's posix thread handle
         /// @return posix thread handle
         static pthread_t self();
+
+        /// @brief call pthread_exit()
+        static void pthread_self_exit();
 
     protected:
     private:

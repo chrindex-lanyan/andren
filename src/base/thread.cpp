@@ -9,7 +9,7 @@
 namespace chrindex ::andren::base
 {
 
-    Thread::Thread() : m_pthread(0),m_detach(0) {}
+    Thread::Thread() : m_pthread(0), m_detach(0) {}
 
     Thread::Thread(Thread &&_thread)
     {
@@ -34,15 +34,15 @@ namespace chrindex ::andren::base
 
     Thread::~Thread()
     {
-        if (m_pthread > 0 && m_detach!=0)
+        if (m_pthread > 0 && m_detach != 0)
         {
             join();
         }
     }
 
-    int Thread::create(std::function<void()> func)
+    int Thread::create(func_t func)
     {
-        auto _pfunc = new decltype(func)(std::move(func));
+        func_t *_pfunc = new decltype(func)(std::move(func));
         pthread_t ptfd = 0;
         int ret =
             pthread_create(&ptfd,
@@ -54,7 +54,7 @@ namespace chrindex ::andren::base
         {
             m_pthread = ptfd;
         }
-        return 0;
+        return ret;
     }
 
     int Thread::set_name(const std::string &name)
@@ -77,7 +77,7 @@ namespace chrindex ::andren::base
     int Thread::detach()
     {
         int ret = pthread_detach(m_pthread);
-        m_detach = (ret ==0);
+        m_detach = (ret == 0);
         return ret;
     }
 
@@ -119,8 +119,8 @@ namespace chrindex ::andren::base
 
     void *Thread::work(void *arg)
     {
-        std::function<void()> func;
-        if (arg!=nullptr)
+        func_t func;
+        if (arg != nullptr)
         {
             auto _pfunc =
                 reinterpret_cast<decltype(func) *>(arg);
@@ -132,6 +132,12 @@ namespace chrindex ::andren::base
             func();
         }
         return 0;
+    }
+
+    void Thread::pthread_self_exit()
+    {
+        void * arg = 0;
+        ::pthread_exit(&arg);
     }
 
 }

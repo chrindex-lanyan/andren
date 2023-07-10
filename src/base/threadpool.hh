@@ -16,7 +16,7 @@ namespace chrindex::andren::base
 {
 /// @brief 获取处理器虚拟线程数
     /// @return
-    int32_t hardware_vcore_count();
+    uint32_t hardware_vcore_count();
 
     /// @brief 简单的线程池
     class ThreadPool
@@ -26,9 +26,11 @@ namespace chrindex::andren::base
 
         ThreadPool(ThreadPool &&) = default;
 
-        ThreadPool(int32_t threadCount);
+        ThreadPool(uint32_t threadCount);
 
         ~ThreadPool();
+
+        ThreadPool & operator=(ThreadPool && _);
 
         template <typename T>
         auto exec(T &&task , uint32_t threadno) -> bool
@@ -52,18 +54,15 @@ namespace chrindex::andren::base
             std::mutex mut;
             std::condition_variable cond;
             std::queue<std::function<void()>> tasks;
+
+            perthread_data_t()= default;
+            ~perthread_data_t();
         };
 
         struct data_t
         {
-            data_t(int _thread_count){
-                isExit = false;
-                perthread_data = new perthread_data_t [_thread_count];
-                thread_count = _thread_count;
-            }
-            ~data_t(){
-                delete [] perthread_data;
-            }
+            data_t(uint32_t _thread_count);
+            ~data_t();
             std::atomic<bool> isExit;
             perthread_data_t* perthread_data;
             uint32_t thread_count;

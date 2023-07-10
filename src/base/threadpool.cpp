@@ -1,28 +1,31 @@
 ﻿
 
-
 #include <pthread.h>
+#include <sys/sysinfo.h>
+#include <unistd.h>
 
 #include "threadpool.hh"
 #include "thread.hh"
 
+#include <assert.h>
+
 namespace chrindex::andren::base
 {
-    int32_t hardware_vcore_count()
+    uint32_t hardware_vcore_count()
     {
-        return pthread_getconcurrency();
+        return (uint32_t)sysconf(_SC_NPROCESSORS_CONF);
     }
 
-    ThreadPool::ThreadPool(int32_t threadCount)
+    ThreadPool::ThreadPool(uint32_t threadCount)
+    {
+        m_data = std::make_shared<data_t>(threadCount);
+
+        for (int i = 0; i < threadCount; i++)
         {
-            m_data = std::make_shared<data_t>(threadCount);
-            m_data->isExit=false;
-           
-            for(int i = 0 ; i < threadCount ; i++)
-            {
-                Thread t;
-                t.create([data = m_data, threadno = i] /*注意保活*/ 
-                {
+            int ret = 0;
+            Thread t;
+            ret = t.create([data = m_data, threadno = i] /*注意保活*/
+                     {
                     // 不要把锁提到for里面
                     std::unique_lock<std::mutex> locker(data->perthread_data[threadno].mut);
                     for(;;)
@@ -43,28 +46,49 @@ namespace chrindex::andren::base
                         else if(data->isExit) 
                         {
                             /// 当且仅当任务为空时才判断要不要退出
-                            break;
+                            printf("Thread %d Will Be Exit.\n",threadno);
+                            return;
                         }
                         else 
                         {
-                            data->perthread_data[threadno].cond.wait(locker);
+                            printf("Thread %d Will Be Wait.\n",threadno);
+                            data->perthread_data[threadno].cond.wait_for(locker,std::chrono::milliseconds(10));
                         }
-                    }
-                });
-                t.detach();
-            }
+                    } });
+            t.detach();
+            assert(ret ==0);
         }
+    }
 
-        ThreadPool::~ThreadPool()
-        {
-            if(!m_data)
-            {
-                return ;
-            }
-            m_data->isExit=true;
-            for (uint32_t i =0 ; i< m_data->thread_count;i++){
-                m_data->perthread_data[i].cond.notify_all();
-            }
+    ThreadPool::~ThreadPool()
+    {
+        if (m_data){
+            m_data->isExit = true;
         }
+    }
+
+    ThreadPool &ThreadPool::operator=(ThreadPool &&_)
+    {
+        this->~ThreadPool();
+        m_data = std::move(_.m_data);
+        return *this;
+    }
+
+    ThreadPool::data_t::data_t(uint32_t _thread_count)
+    {
+        isExit = false;
+        perthread_data = new perthread_data_t[_thread_count];
+        thread_count = _thread_count;
+    }
+    ThreadPool::data_t::~data_t()
+    {
+        isExit = true;
+        delete[] perthread_data;
+    }
+
+    ThreadPool::perthread_data_t::~perthread_data_t() 
+    { 
+        cond.notify_one(); 
+    }
 
 }

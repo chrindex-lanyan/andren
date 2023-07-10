@@ -129,19 +129,65 @@ namespace chrindex ::andren::base
     class ZStreamDecompressPrivate
     {
     public:
-        ZStreamDecompressPrivate(uint32_t chunkSize = 4)
+        ZStreamDecompressPrivate(uint32_t CHUNK_SIZE = 4)
         {
-            m_valid = false;
+            tmp.resize(CHUNK_SIZE);
+            memset(&stream, 0, sizeof(stream));
+            if (inflateInit(&stream) != Z_OK)
+            {
+                m_valid = false;
+            }
+            else
+            {
+                m_valid = true;
+            }
         }
-        ~ZStreamDecompressPrivate() {}
-        ZStreamDecompressPrivate(ZStreamDecompressPrivate &&_) {}
-        ZStreamDecompressPrivate &operator=(ZStreamDecompressPrivate &&_) { return *this; }
+        ~ZStreamDecompressPrivate()
+        {
+            finished();
+        }
+
+        std::string finished()
+        {
+            if (!m_valid)
+            {
+                return {};
+            }
+
+            stream.next_in = 0;
+            stream.avail_in = 0;
+            int ret = inflate(&stream, Z_FINISH);
+            ret = inflateEnd(&stream);
+            m_valid = false;
+            return ret == 0 ? std::move(m_data) : std::string{};
+        }
+
+        int decompress(std::string const &data)
+        {
+            if (m_valid == false && data.size() <= 0)
+            {
+                return -1;
+            }
+
+            stream.next_in = reinterpret_cast<Bytef *>(const_cast<char *>(data.c_str()));
+            stream.avail_in = data.size();
+
+            while (stream.avail_in > 0)
+            {
+                stream.next_out = reinterpret_cast<uint8_t *>(&tmp[0]);
+                stream.avail_out = tmp.size();
+                int ret = inflate(&stream, Z_NO_FLUSH);
+                if (ret != Z_OK && ret != Z_STREAM_END)
+                {
+                    return -2;
+                }
+                size_t usedSize = tmp.size() - stream.avail_out;
+                m_data.append(&tmp[0], usedSize);
+            }
+            return 0;
+        }
 
         bool isValid() const { return m_valid; }
-
-        std::string finished() { return m_data; }
-
-        int decompress(std::string const &data) { return 0; }
 
     private:
         z_stream stream;
@@ -150,7 +196,7 @@ namespace chrindex ::andren::base
         bool m_valid;
     };
 
-    ZStreamDecompress::ZStreamDecompress(uint32_t chunkSize )
+    ZStreamDecompress::ZStreamDecompress(uint32_t chunkSize)
     {
         m_handle = new ZStreamDecompressPrivate(chunkSize);
     }

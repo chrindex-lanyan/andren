@@ -37,6 +37,7 @@ example_pipe_pattern = example_src .. "./example_pipe.cpp"
 example_shmutex_pattern = example_src .. "./example_shmutex.cpp"
 example_shmem_pattern = example_src .. "./example_shmem.cpp"
 example_zlibstream_pattern = example_src .. "./example_zlibstream.cpp"
+example_threadpool_pattern = example_src .. "./example_threadpool.cpp"
 
 
 target("andren")
@@ -132,5 +133,10 @@ target("test_shmem")
 target("test_zlibstream")
     set_kind("binary")
     add_files(example_zlibstream_pattern)
+    add_deps("andren", {private = true})
+    
+target("test_threadpool")
+    set_kind("binary")
+    add_files(example_threadpool_pattern)
     add_deps("andren", {private = true})
     
