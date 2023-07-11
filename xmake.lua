@@ -22,10 +22,10 @@ main_ext_head_pattern = main_project_src .. "./include/**.h"
 
 --- third part pattern
 base64_lib_src_pattern = third_part_dir .. "./base64_src/base64.cpp"
-llhttp_lib_src_pattern = third_part_dir .. "./llhttp_src/generate_src/*.c"
+-- llhttp_lib_src_pattern = third_part_dir .. "./llhttp_src/generate_src/*.c"
 
 base64_lib_head_pattern = third_part_dir .. "./base64_src/base64.h"
-llhttp_lib_head_pattern = third_part_dir .. "./llhttp_src/generate_src/*.h"
+-- llhttp_lib_head_pattern = third_part_dir .. "./llhttp_src/generate_src/*.h"
 nlohmannJson_lib_hea_pattern = third_part_dir .. "./nlohmann_json/*.hpp"
 
 --- example pattern
@@ -48,22 +48,27 @@ target("andren")
     add_headerfiles(main_ext_head_pattern)
 
     add_headerfiles(base64_lib_head_pattern)
-    add_headerfiles(llhttp_lib_head_pattern)
+    -- add_headerfiles(llhttp_lib_head_pattern)
     add_headerfiles(nlohmannJson_lib_hea_pattern)
 
     -- src list
     add_files(main_cpp_src_pattern)
     add_files(main_c_src_pattern)
     add_files(base64_lib_src_pattern)
-    add_files(llhttp_lib_src_pattern)
+    -- add_files(llhttp_lib_src_pattern)
 
     -- link lib list
-    add_links("pthread") -- 
-    add_links("dl")  -- 
-    add_links("ssl") -- open ssl
-    add_links("hiredis") -- hiredis client sdk
-    add_links("z")
-    add_links("rt")
+    add_links("pthread") -- posix thread library (System)
+    add_links("dl")  -- dynamic linking library (System)
+    add_links("curl") -- CURL Library (With SSL) 
+    add_links("ssl") -- curl need. (OpenSSL)
+    add_links("hiredis") -- Hiredis library (A minimalistic C client library for the Redis database)
+    add_links("z") -- libz (GnuZip library)
+    add_links("pq") -- libpq-dev (C application programmer's interface to PostgreSQL)
+    add_links("mysqlclient") --libmysqlclient (A mysql client library for C development)
+    add_links("uuid") -- uuid-dev (uuid library)
+    add_links("grpc") -- libgrpc-dev (grpc library)
+    add_links("grpc++") -- libgrpc++-dev (grpc++ library)
     -- link lib dir list 
     -- add_linkdirs("your path")
 
@@ -75,22 +80,28 @@ target("andren_a")
     add_headerfiles(main_ext_head_pattern)
 
     add_headerfiles(base64_lib_head_pattern)
-    add_headerfiles(llhttp_lib_head_pattern)
+    -- add_headerfiles(llhttp_lib_head_pattern)
     add_headerfiles(nlohmannJson_lib_hea_pattern)
 
     -- src list
     add_files(main_cpp_src_pattern)
     add_files(main_c_src_pattern)
     add_files(base64_lib_src_pattern)
-    add_files(llhttp_lib_src_pattern)
+    -- add_files(llhttp_lib_src_pattern)
 
     -- link lib list
-    add_links("pthread") -- posix thread (System)
-    add_links("dl")  -- dynamic load (System)
-    add_links("ssl") -- open ssl (SSL)
-    add_links("hiredis") -- hiredis client sdk (Redis Client SDK)
-    add_links("z") -- libz (Zip Library)
-    --add_links("unistring") -- libunistring (TextCodec)
+    add_links("pthread") -- posix thread library (System)
+    add_links("dl")  -- dynamic linking library (System)
+    add_links("curl") -- CURL Library (With SSL) 
+    add_links("ssl") -- curl need. (OpenSSL)
+    add_links("hiredis") -- Hiredis library (A minimalistic C client library for the Redis database)
+    add_links("z") -- libz (GnuZip library)
+    add_links("pq") -- libpq-dev (C application programmer's interface to PostgreSQL)
+    add_links("mysqlclient") --libmysqlclient (A mysql client library for C development)
+    add_links("uuid") -- uuid-dev (uuid library)
+    add_links("grpc") -- libgrpc-dev (grpc library)
+    add_links("grpc++") -- libgrpc++-dev (grpc++ library)
+
     -- link lib dir list 
     -- add_linkdirs("your path")
 
