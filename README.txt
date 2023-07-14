@@ -58,7 +58,7 @@
     } OK
 
     GZip Stream库：{
-        用GNU的gzip库，提供数据流压缩能力。文件压缩解压功能暂时不提供。
+        用使用gzip库和archive库，提供数据流压缩能力，文件压缩解压能力（7zip）。
     } OK
 
     协程库 Coroutine：{
