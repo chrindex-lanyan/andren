@@ -1,9 +1,9 @@
 ﻿
 
-
 #include <unistd.h>
 #include <sys/errno.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #include "ufile.hh"
 
@@ -41,13 +41,15 @@ namespace chrindex ::andren::base
         {
             fd = ::open(path.c_str(), flags);
         }
-        else {
+        else
+        {
             fd = ::open(path.c_str(), flags, createMode);
         }
-        if (!(fd < 0)){
+        if (!(fd < 0))
+        {
             m_fd = fd;
         }
-        return !(fd < 0); 
+        return !(fd < 0);
     }
 
     void File::close()
@@ -94,22 +96,39 @@ namespace chrindex ::andren::base
 
     int File::fcntl(int fd, int cmd)
     {
-        return ::fcntl(fd,cmd);
+        return ::fcntl(fd, cmd);
     }
 
     int File::fcntl(int fd, int cmd, long arg)
     {
-        return ::fcntl(fd,cmd,arg);
+        return ::fcntl(fd, cmd, arg);
     }
 
     int File::fcntl(int fd, int cmd, struct flock *lock)
     {
-        return ::fcntl(fd,cmd,lock);
+        return ::fcntl(fd, cmd, lock);
     }
 
     void File::sync(void)
     {
         ::sync();
+    }
+
+    int File::createDirectories(const std::string &path, int mode , bool ignoreErr)
+    {
+        std::string dir;
+        size_t pos = 0;
+        while ((pos = path.find_first_of('/', pos + 1)) != std::string::npos)
+        {
+            dir = path.substr(0, pos);
+            if (dir == ".")
+            {
+                continue;
+            }
+            int ret = ::mkdir(dir.c_str(), mode);
+            if (!ignoreErr && ret){return -1;}
+        }
+        return 0;
     }
 
 }

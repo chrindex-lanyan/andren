@@ -102,6 +102,11 @@ namespace chrindex ::andren::base
         /// @return 即newfd
         static int dup2(int oldfd, int newfd);
 
+        /// @brief 递归创建路径中的文件夹。
+        /// @param path 
+        /// @return 成功为0
+        static int createDirectories(std::string const &path, int mode, bool ignoreErr = false);
+
     private:
         int m_fd;
     };

@@ -5,6 +5,14 @@
 #include <string.h>
 #include <stdint.h>
 
+#include <archive.h>
+#include <archive_entry.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#include "ufile.hh"
+
 #include "zlibstream.hh"
 
 namespace chrindex ::andren::base
@@ -231,6 +239,125 @@ namespace chrindex ::andren::base
     int ZStreamDecompress::decompress(std::string const &data)
     {
         return m_handle->decompress(data);
+    }
+
+    Archive::Archive(ArchiveType type, const std::string &filePath, uint32_t bufferSize )
+        : type_(type), filePath_(filePath)
+    {
+        buffer.resize(bufferSize);
+        if (type_ == ArchiveType::COMPRESS)
+        {
+            archive_ = archive_write_new();
+            archive_write_set_format_7zip(archive_);
+            archive_write_open_filename(archive_, filePath.c_str());
+        }
+        else if (type_ == ArchiveType::DECOMPRESS)
+        {
+            archive_ = archive_read_new();
+            archive_read_support_format_7zip(archive_);
+            archive_read_open_filename(archive_, filePath.c_str(), bufferSize);
+        }
+    }
+
+    Archive::~Archive()
+    {
+        if (archive_)
+        {
+            if (type_ == ArchiveType::COMPRESS)
+            {
+                archive_write_close(archive_);
+                archive_write_free(archive_);
+            }
+            else if (type_ == ArchiveType::DECOMPRESS)
+            {
+                archive_read_close(archive_);
+                archive_read_free(archive_);
+            }
+        }
+    }
+
+    int Archive::compress(const std::string &filePath)
+    {
+        if (type_ != ArchiveType::COMPRESS)
+        {
+            return -1;
+        }
+        struct stat st;
+
+        if (stat(filePath.c_str(), &st) != 0)
+        {
+            return -2;
+        }
+
+        struct archive_entry *entry = archive_entry_new();
+        archive_entry_set_pathname(entry, filePath.c_str());
+        archive_entry_set_filetype(entry, AE_IFREG);
+        archive_entry_set_perm(entry, 0644);
+        archive_entry_set_size(entry, st.st_size);
+        archive_write_header(archive_, entry);
+
+        ssize_t rnbytes = 0;
+        File file;
+        file.open(filePath, O_RDWR);
+        while ((rnbytes = file.read(&buffer[0], buffer.size())) > 0)
+        {
+            archive_write_data(archive_, &buffer[0], rnbytes);
+        }
+
+        archive_entry_free(entry);
+        return 0;
+    }
+
+    int Archive::decompress(std::string const &_targetDir, std::vector<std::string> &outList)
+    {
+        if (type_ != ArchiveType::DECOMPRESS)
+        {
+            return -1;
+        }
+        struct archive_entry *entry;
+        std::string entryPath;
+        std::string targetDir = _targetDir;
+        if (targetDir.size() == 0)
+        {
+            targetDir = "./";
+        }
+        if (targetDir[targetDir.size() - 1] != '/')
+        {
+            targetDir.push_back('/');
+        }
+        while (archive_read_next_header(archive_, &entry) == ARCHIVE_OK)
+        {
+            if (archive_entry_size(entry) > 0)
+            {
+                constexpr int mode =  0775 ;
+                entryPath = targetDir + archive_entry_pathname(entry);
+                int ret = createDirectories(entryPath,mode);
+                if (ret)
+                {
+                    return -2;
+                }
+                File file;
+                file.open(entryPath, O_CREAT | O_RDWR, mode );
+                if (file.handle() <= 0)
+                {
+                    return -3;
+                }
+                outList.push_back(std::move(entryPath));
+                size_t bytesRead;
+                while ((bytesRead = archive_read_data(archive_, &buffer[0], buffer.size())) > 0)
+                {
+                    file.write(&buffer[0], bytesRead);
+                }
+            }
+            archive_read_data_skip(archive_);
+        }
+
+        return 0;
+    }
+
+    int Archive::createDirectories(const std::string &path,  int mode)
+    {
+        return File::createDirectories(path,mode,true);
     }
 
 }
