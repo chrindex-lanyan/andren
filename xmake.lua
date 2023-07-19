@@ -38,6 +38,7 @@ example_shmutex_pattern = example_src .. "./example_shmutex.cpp"
 example_shmem_pattern = example_src .. "./example_shmem.cpp"
 example_zlibstream_pattern = example_src .. "./example_zlibstream.cpp"
 example_threadpool_pattern = example_src .. "./example_threadpool.cpp"
+example_mysql_statement_pattern = example_src .. "./example_mysql_statement.cpp"
 
 
 target("andren")
@@ -70,6 +71,7 @@ target("andren")
     add_links("uuid") -- uuid-dev (uuid library)
     add_links("grpc") -- libgrpc-dev (grpc library)
     add_links("grpc++") -- libgrpc++-dev (grpc++ library)
+    add_links("fmt") -- string format library
     -- link lib dir list 
     -- add_linkdirs("your path")
 
@@ -103,6 +105,7 @@ target("andren_a")
     add_links("uuid") -- uuid-dev (uuid library)
     add_links("grpc") -- libgrpc-dev (grpc library)
     add_links("grpc++") -- libgrpc++-dev (grpc++ library)
+    add_links("fmt") -- string format library
 
     -- link lib dir list 
     -- add_linkdirs("your path")
@@ -152,4 +155,11 @@ target("test_threadpool")
     set_kind("binary")
     add_files(example_threadpool_pattern)
     add_deps("andren", {private = true})
+   
+target("test_mysql_statement")
+    set_kind("binary")
+    add_files(example_mysql_statement_pattern)
+    add_links("fmt")
+    add_deps("andren", {private = true})
+
     

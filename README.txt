@@ -87,8 +87,8 @@
     }
 
     MYSQL库：{
-        MYSQL C API 简单包装。不保证提供所有接口。
-    }
+        MYSQL C API 简单包装。不保证提供所有接口。(Statement ， Prepare)
+    } OK (STMT系列接口暂不提供包装)
 
 
 3. Network Classes 集合

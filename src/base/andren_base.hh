@@ -4,6 +4,8 @@
 #include "noncopyable.hpp"
 #include "scoperun.hpp"
 #include "memclear.hpp"
+#include "stringTool.hh"
+#include <fmt/core.h>
 
 #include "blockque.hpp"
 #include "buffer.hh"
@@ -31,6 +33,7 @@
 #include "coroutine.hpp"
 #include "epoll.hh"
 
+#include "mysql_statement.hh"
 
 
 

@@ -78,6 +78,7 @@
         "stddef.h": "c",
         "uchar.h": "c",
         "uintrintrin.h": "c",
-        "unistr.h": "c"
+        "unistr.h": "c",
+        "fstream": "cpp"
     }
 }
