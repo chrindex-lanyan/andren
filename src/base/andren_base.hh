@@ -34,6 +34,7 @@
 #include "epoll.hh"
 
 #include "mysql_statement.hh"
+#include "pgsql_api.hh"
 
 
 

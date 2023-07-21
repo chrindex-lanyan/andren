@@ -39,6 +39,7 @@ example_shmem_pattern = example_src .. "./example_shmem.cpp"
 example_zlibstream_pattern = example_src .. "./example_zlibstream.cpp"
 example_threadpool_pattern = example_src .. "./example_threadpool.cpp"
 example_mysql_statement_pattern = example_src .. "./example_mysql_statement.cpp"
+example_pgsql_pattern = example_src .. "./example_pgsql.cpp"
 
 
 target("andren")
@@ -162,4 +163,9 @@ target("test_mysql_statement")
     add_links("fmt")
     add_deps("andren", {private = true})
 
+target("test_pgsql_statement")
+    set_kind("binary")
+    add_files(example_pgsql_pattern)
+    add_links("fmt")
+    add_deps("andren", {private = true})
     
