@@ -307,5 +307,20 @@ namespace chrindex::andren::base
             pfunc);
     }
 
+    double htobeF64(double value)
+    {
+        uint64_t *pf64 = reinterpret_cast<uint64_t *>(&value);
+        uint64_t res = htobe64(*pf64);
+        double *pres = reinterpret_cast<double *>(&res);
+        return *pres;
+    }
+
+    float htonf32(float value)
+    {
+        uint32_t *pf64 = reinterpret_cast<uint32_t *>(&value);
+        uint32_t res = htobe32(*pf64);
+        float *pres = reinterpret_cast<float *>(&res);
+        return *pres;
+    }
 
 }

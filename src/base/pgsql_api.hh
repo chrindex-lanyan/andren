@@ -138,6 +138,9 @@ namespace chrindex::andren::base
         /// @param paramValues 参数列表
         /// @param paramLengths 参数长度列表
         /// @param paramFormats 参数格式列表
+        ///  指定参数是否为文本（在参数相应的数组项中放一个0）或二进制（在参数相应的数组项中放一个1）。
+        ///  如果该数组指针为空，那么所有参数都会被假定为文本串。
+        ///  以二进制格式传递的值要求后端所期待的内部表示形式的知识。例如，整数必须以网络字节序被传递。
         /// @param resultFormat 结果格式
         /// @return 成功则返回结果集指针，否则返回空指针
         PGresult *executePrepared(
@@ -321,5 +324,17 @@ namespace chrindex::andren::base
 
     private:
     };
+
+
+    /// @brief 将double类型转为网络字节序的double值
+    /// @param  主机字节序
+    /// @return  网络字节序
+    extern double htobeF64(double);
+
+    /// @brief 将float类型转为网络字节序的float值
+    /// @param  主机字节序
+    /// @return  网络字节序
+    extern float htonf32(float value);
+
 
 }
