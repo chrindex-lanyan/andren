@@ -31,11 +31,11 @@ namespace chrindex::andren::base
         /// @brief 通过参数进行连接
         /// @param keyworks
         /// example :
-        /// [ "dbname", 
-        /// "user", 
-        /// "password", 
-        /// "hostaddr", 
-        /// "port", 
+        /// [ "dbname",
+        /// "user",
+        /// "password",
+        /// "hostaddr",
+        /// "port",
         /// NULL ]  // 参数数组以NULL结尾
         /// @param values
         /// example :
@@ -51,6 +51,50 @@ namespace chrindex::andren::base
                             char const *const *values,
                             int expand_dbname);
 
+        /// @brief 通过字符串配置进行连接。该操作是异步的。
+        /// example: dbname=mydb user=myuser password=mypassword host=localhost
+        /// @param connstr
+        /// @return
+        bool connectStartByString(std::string const &connstr);
+
+        /// @brief 通过参数进行连接。该操作是异步的。
+        /// @param keyworks
+        /// example :
+        /// [ "dbname",
+        /// "user",
+        /// "password",
+        /// "hostaddr",
+        /// "port",
+        /// NULL ]  // 参数数组以NULL结尾
+        /// @param values
+        /// example :
+        /// [ "your_database_name",
+        ///  "your_username",
+        ///  "your_password",
+        ///  "your_host_address",
+        ///  "your_port_number",
+        /// NULL ] // 参数数组以NULL结尾
+        /// @param expand_dbname
+        /// @return
+        bool connectStartParams(const char *const *keywords,
+                                const char *const *values,
+                                int expand_dbname);
+
+        /// @brief PQSQL connector 的Poll函数。
+        /// PostgresPollingStatusType 是一个枚举类型，在 libpq 中用于表示连接的状态。它定义了不同的值，用于指示连接的当前状态。以下是各个值的含义：
+        /// PGRES_POLLING_FAILED：连接失败。
+        /// PGRES_POLLING_READING：连接正在等待从服务器读取数据。
+        /// PGRES_POLLING_WRITING：连接正在等待将数据发送到服务器。
+        /// PGRES_POLLING_OK：连接成功，并且可以执行查询操作。
+        /// PGRES_POLLING_ACTIVE：连接处于活动状态，正在执行查询或处理数据。
+        /// PGRES_POLLING_BUSY：连接处于忙碌状态，正在处理数据。
+        /// 这些状态用于异步查询处理时，可以通过调用 PQconnectPoll 或 PQconsumeInput 来检查连接的状态。
+        /// 在进行异步查询处理时，你可以根据连接的状态决定接下来采取的操作。
+        /// 例如，当连接状态为 PGRES_POLLING_READING 时，说明当前还没有可用的查询结果，你可以继续等待或执行其他任务。
+        /// 当连接状态为 PGRES_POLLING_WRITING 时，说明当前还有数据需要发送到服务器，你可以继续等待或继续发送数据。
+        /// @return PostgresPollingStatusType 连接的状态
+        PostgresPollingStatusType connectPoll();
+
         /// @brief 上一次操作的状态
         /// @return
         int states() const;
@@ -65,6 +109,8 @@ namespace chrindex::andren::base
         bool isBusy() const;
 
         /// @brief 设置实例为非阻塞。
+        /// 在非阻塞状态，调用 PQsendQuery, PQputline, PQputnbytes, PQputCopyData,
+        /// 和 PQendcopy将不会阻塞，但是如果它们需要被再次调用则会返回一个错误。
         /// @param arg true为非阻塞，否则阻塞。
         /// @return 如果成功则返回 true，如果错误则返回 false。
         bool setNonblocking(bool arg) const;
@@ -116,10 +162,10 @@ namespace chrindex::andren::base
         PGresult *executeWithParams(
             std::string const &command,
             int nParams,
-            Oid const * paramTypes,
-            char const * const * paramValues,
-            int const * paramLengths,
-            int const * paramFormats,
+            Oid const *paramTypes,
+            char const *const *paramValues,
+            int const *paramLengths,
+            int const *paramFormats,
             int resultFormat);
 
         /// @brief 创建一条预处理语句，并为其命名
@@ -130,7 +176,7 @@ namespace chrindex::andren::base
         /// @return 成功则返回结果集指针，否则返回空指针
         PGresult *prepare(std::string const &stmtName,
                           std::string const &query, int nParams,
-                          Oid const * paramTypes);
+                          Oid const *paramTypes);
 
         /// @brief 执行一次已创建好的预处理语句
         /// @param stmtName 预处理语句标识
@@ -146,9 +192,9 @@ namespace chrindex::andren::base
         PGresult *executePrepared(
             std::string const &stmtName,
             int nParams,
-            char const * const * paramValues,
-            int const * paramLengths,
-            int const * paramFormats,
+            char const *const *paramValues,
+            int const *paramLengths,
+            int const *paramFormats,
             int resultFormat);
 
         /// @brief 发送一条[执行语句]请求并立即返回（不等待结果）
@@ -168,10 +214,10 @@ namespace chrindex::andren::base
         bool sendQueryParams(
             std::string const &command,
             int nParams,
-            Oid const * paramTypes,
-            char const * const * paramValues,
-            int const * paramLengths,
-            int const * paramFormats,
+            Oid const *paramTypes,
+            char const *const *paramValues,
+            int const *paramLengths,
+            int const *paramFormats,
             int resultFormat);
 
         /// @brief 发送一条[创建预处理语句]的请求，并立即返回（不等待创建结果）
@@ -182,7 +228,7 @@ namespace chrindex::andren::base
         /// @return 成功分派请求则返回true，否则返回false
         bool sendPrepare(std::string const &stmtName,
                          std::string const &query, int nParams,
-                         Oid const * paramTypes);
+                         Oid const *paramTypes);
 
         /// @brief 发送一条[执行已创建好的预处理语句]的请求，并立即返回（不等待执行结果）
         /// @param stmtName 预处理语句标识
@@ -195,9 +241,9 @@ namespace chrindex::andren::base
         bool sendExecutePrepared(
             std::string const &stmtName,
             int nParams,
-            char const * const * paramValues,
-            int const * paramLengths,
-            int const * paramFormats,
+            char const *const *paramValues,
+            int const *paramLengths,
+            int const *paramFormats,
             int resultFormat);
 
         /// @brief 异步操作。该操作用于获取异步查询中执行查询的结果集元数据，
@@ -256,7 +302,7 @@ namespace chrindex::andren::base
 
         PostgresQLResult &operator=(PostgresQLResult &&_);
 
-        PostgresQLResult &operator=(PGresult * res);
+        PostgresQLResult &operator=(PGresult *res);
 
         /// @brief 获取结果集的行数
         /// @return 行数
@@ -274,7 +320,7 @@ namespace chrindex::andren::base
         /// @brief 根据列索引获取列名
         /// @param col 列索引号
         /// @return 列名
-        std::string getFieldNameByColumnIndex(int col)const;
+        std::string getFieldNameByColumnIndex(int col) const;
 
         /// @brief 根据行列号获取结果中的某个值的二进制长度
         /// @param r 行号
@@ -325,7 +371,6 @@ namespace chrindex::andren::base
     private:
     };
 
-
     /// @brief 将double类型转为网络字节序的double值
     /// @param  主机字节序
     /// @return  网络字节序
@@ -335,6 +380,5 @@ namespace chrindex::andren::base
     /// @param  主机字节序
     /// @return  网络字节序
     extern float htonf32(float value);
-
 
 }

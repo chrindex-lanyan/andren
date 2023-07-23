@@ -53,6 +53,23 @@ namespace chrindex::andren::base
         return m_handle != nullptr;
     }
 
+    bool PostgresQLConn::connectStartByString(std::string const &connstr)
+    {
+        return nullptr != (m_handle= PQconnectStart(connstr.c_str()));
+    }
+
+    bool PostgresQLConn::connectStartParams(const char *const *keywords,
+                                              const char *const *values,
+                                              int expand_dbname)
+    {
+        return nullptr != (m_handle= PQconnectStartParams(keywords ,values , expand_dbname));
+    }
+
+    PostgresPollingStatusType PostgresQLConn::connectPoll()
+    {
+        return PQconnectPoll(m_handle);
+    }
+
     int PostgresQLConn::states() const
     {
         return PQstatus(m_handle);
