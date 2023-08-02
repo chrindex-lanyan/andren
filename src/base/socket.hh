@@ -236,6 +236,15 @@ namespace chrindex::andren::base
         /// @return 成功时返回 0，失败时返回 -1。
         int shutdown(int how);
 
+        /// @brief 获取原始套接字文件描述符
+        /// 该函数不转移文件描述符的所有权
+        /// @return int 文件描述符
+        int handle()const;
+
+        /// @brief  关闭套接字
+        void close();
+
+
     private:
         int m_fd;
     };

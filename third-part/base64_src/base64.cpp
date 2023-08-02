@@ -128,7 +128,7 @@ std::string base64_encode(unsigned char const* bytes_to_encode, size_t in_len, b
     std::string ret;
     ret.reserve(len_encoded);
 
-    unsigned int pos = 0;
+    unsigned long pos = 0;
 
     while (pos < in_len) {
         ret.push_back(base64_chars_[(bytes_to_encode[pos + 0] & 0xfc) >> 2]);
@@ -219,7 +219,7 @@ static std::string decode(String const& encoded_string, bool remove_linebreaks) 
        //
        // Emit a chunk's second byte (which might not be produced in the last chunk).
        //
-          unsigned int pos_of_char_2 = pos_of_char(encoded_string.at(pos+2) );
+          unsigned long pos_of_char_2 = pos_of_char(encoded_string.at(pos+2) );
           ret.push_back(static_cast<std::string::value_type>( (( pos_of_char_1 & 0x0f) << 4) + (( pos_of_char_2 & 0x3c) >> 2)));
 
           if ( ( pos + 3 < length_of_string )     &&

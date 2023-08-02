@@ -63,7 +63,7 @@
 
     协程库 Coroutine：{
         使用C++20的协程做。
-    } （比较费时间，暂时先不填坑）
+    }（比较费时间，暂时先不填坑）
 
     编码转换库TextCodec:{
         UTF8、UTF16、UTF32、GBK编码互转支持。
@@ -71,24 +71,25 @@
 
     编码转换BASE64库：{
         依赖base64库。
+        https://renenyffenegger.ch/notes/development/Base64/Encoding-and-decoding-base-64-with-cpp
     } OK
 
     HTTP库：{
-        使用llhttp库。（X，因为不支持HTTP2.0）
-        使用curl库。  （√，带有SSL支持，支持HTTP2.0）。只做基本包装。
+        使用nghttp2，nghttp3以支持http2/3
     } 
 
     Redis库：{
         Redis客户端 c api。以hiredis为基础，只做基本的包装。
-    }
+    } 
 
     PGSQL库：{
-        PostgreSQL C API 简单包装。只做基本包装。不保证提供所有接口。
-    }
+        PostgreSQL C API 简单包装。不保证提供所有接口。
+        普通SQL，预处理SQL，同步和异步Query。
+    } OK
 
     MYSQL库：{
-        MYSQL C API 简单包装。不保证提供所有接口。(Statement ， Prepare)
-    } OK (STMT系列接口暂不提供包装)
+        MYSQL C API 简单包装。不保证提供所有接口。(Statement)
+    } OK 
 
 
 3. Network Classes 集合
@@ -102,7 +103,7 @@
 
     io_uring库：{
         只做Linux的io_uring的基本包装。
-    }
+    } 
 
     EventLoop库：{
         Eventloop每次循环按顺序处理各类事件：{
@@ -114,11 +115,11 @@
             6. 当且仅当线程无事可做时等待1MS（实际可能会更久）。
             7. 定时器任务、普通任务优先选择其他线程，然后才选择线程1。
         }
-    }
+    } 
 
     GRPC 库：{
         GRPC的C++库，因此不做包装。
-    }
+    } OK
 
     
 

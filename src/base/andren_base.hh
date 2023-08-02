@@ -1,10 +1,11 @@
 ﻿#pragma once
 
-
+#include "exception.hh"
 #include "noncopyable.hpp"
 #include "scoperun.hpp"
 #include "memclear.hpp"
 #include "stringTool.hh"
+#include "DBuffer.hpp"
 #include <fmt/core.h>
 
 #include "blockque.hpp"
@@ -36,5 +37,7 @@
 #include "mysql_statement.hh"
 #include "pgsql_api.hh"
 
-
+#include "http2.hh"
+#include "http3.hh"
+#include "aSSL.hh"
 

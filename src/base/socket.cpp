@@ -181,6 +181,17 @@ namespace chrindex::andren::base
         return ::shutdown(m_fd, how);
     }
 
+    int Socket::handle()const
+    {
+        return m_fd;
+    }
+
+    void Socket::close()
+    {
+        ::close(m_fd);
+        m_fd = 0;
+    }
+
     LocalSocket::LocalSocket()
     {
         m_sv[0] = -1;

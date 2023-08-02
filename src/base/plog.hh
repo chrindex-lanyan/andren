@@ -3,13 +3,13 @@
 #include <mutex>
 #include <string>
 #include <deque>
-
 #include "noncopyable.hpp"
+
 
 namespace chrindex ::andren::base
 {
 /// @brief 简单的日志打印类。
-    class PLog : public noncopyable
+    class PLog :public noncopyable
     {
     public:
         PLog();
@@ -38,7 +38,7 @@ namespace chrindex ::andren::base
         void flush();
 
     private:
-        int m_fd;
+        FILE* m_fd;
         int m_mode;
         std::mutex m_mut;
         std::deque<std::string> m_dataQue;
@@ -51,6 +51,11 @@ namespace chrindex ::andren::base
 #define PLOG(level, msg)                                   \
     {                                                      \
         global_plog.print(level, __FILE__, __LINE__, msg); \
+    }
+
+#define PLOG_USER(plog, level, msg)                                   \
+    {                                                      \
+        plog.print(level, __FILE__, __LINE__, msg); \
     }
 
 }

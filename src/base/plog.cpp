@@ -1,8 +1,7 @@
-﻿
+﻿#define _CRT_SECURE_NO_WARNINGS
 
-
-
-#include <unistd.h>
+//#include <unistd.h>
+#include <stdio.h>
 #include <fcntl.h>
 #include <assert.h>
 
@@ -13,16 +12,16 @@ namespace chrindex ::andren::base
 
     PLog global_plog;
 
-    PLog::PLog() : m_fd(-1), m_mode(0)
+    PLog::PLog() : m_fd(0), m_mode(0)
     {
     }
 
     PLog::~PLog()
     {
         flush();
-        if (m_fd > 0)
+        if (m_fd != 0)
         {
-            ::close(m_fd);
+            ::fclose(m_fd);
         }
     }
 
@@ -40,18 +39,16 @@ namespace chrindex ::andren::base
 
         if (path == "stderr")
         {
-            m_fd = 2;
+            m_fd = stderr;
         }
         else if (path == "stdout")
         {
-            m_fd = 1;
+            m_fd = stdout;
         }
         else
         {
-            int flags = (O_APPEND | O_CREAT | O_WRONLY | O_SYNC);
-            int fd = ::open(path.c_str(), flags,
-                            __S_IREAD | __S_IWRITE | S_IWUSR | S_IROTH);
-            if (fd > 0)
+            FILE* fd = fopen(path.c_str(), "w+");
+            if (fd != 0)
             {
                 m_fd = fd;
             }
@@ -67,7 +64,7 @@ namespace chrindex ::andren::base
                       const std::string &file,
                       int line, const std::string &message)
     {
-        if (m_fd <= 0)
+        if (m_fd ==0)
         {
             throw "PLog is not open.";
         }
@@ -108,14 +105,15 @@ namespace chrindex ::andren::base
         }
         else
         {
-            auto wsize = ::write(m_fd, &msg[0], msg.size());
+            auto wsize = ::fwrite(&msg[0], msg.size(),1, m_fd);
             assert(wsize >= 0);
         }
+        return *this;
     }
 
     void PLog::flush()
     {
-        if (m_fd <= 0)
+        if (m_fd == 0)
         {
             return;
         }
@@ -128,11 +126,11 @@ namespace chrindex ::andren::base
             }
             for (auto &data : que)
             {
-                auto wsize = ::write(m_fd, &data[0], data.size());
+                auto wsize = ::fwrite(&data[0], data.size(), 1, m_fd);
                 assert(wsize >= 0);
             }
         }
-        ::sync();
+        //::sync();
     }
 
 }

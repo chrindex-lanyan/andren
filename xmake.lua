@@ -40,6 +40,8 @@ example_zlibstream_pattern = example_src .. "./example_zlibstream.cpp"
 example_threadpool_pattern = example_src .. "./example_threadpool.cpp"
 example_mysql_statement_pattern = example_src .. "./example_mysql_statement.cpp"
 example_pgsql_pattern = example_src .. "./example_pgsql.cpp"
+example_DBuffer_pattern = example_src .. "./example_DBuffer.cpp"
+
 
 
 target("andren")
@@ -62,17 +64,20 @@ target("andren")
     -- link lib list
     add_links("pthread") -- posix thread library (System)
     add_links("dl")  -- dynamic linking library (System)
-    add_links("curl") -- CURL Library (With SSL) 
-    add_links("ssl") -- curl need. (OpenSSL)
+    -- add_links("curl") -- CURL Library (With SSL) 
+    add_links("ssl") -- OpenSSL
+    add_links("crypto") -- OpenSSL need
     add_links("hiredis") -- Hiredis library (A minimalistic C client library for the Redis database)
     add_links("z") -- libz (GnuZip library)
-    add_links("archive") --libarchive (compress and decompress)
+    add_links("archive") -- libarchive (Compress And Decompress)
     add_links("pq") -- libpq-dev (C application programmer's interface to PostgreSQL)
     add_links("mysqlclient") --libmysqlclient (A mysql client library for C development)
     add_links("uuid") -- uuid-dev (uuid library)
     add_links("grpc") -- libgrpc-dev (grpc library)
     add_links("grpc++") -- libgrpc++-dev (grpc++ library)
     add_links("fmt") -- string format library
+    add_links("nghttp2") -- libnghttp2 library
+    add_links("nghttp3") -- libnghttp3 library
     -- link lib dir list 
     -- add_linkdirs("your path")
 
@@ -96,8 +101,9 @@ target("andren_a")
     -- link lib list
     add_links("pthread") -- posix thread library (System)
     add_links("dl")  -- dynamic linking library (System)
-    add_links("curl") -- CURL Library (With SSL) 
-    add_links("ssl") -- curl need. (OpenSSL)
+    -- add_links("curl") -- CURL Library (With SSL) 
+    add_links("ssl") -- OpenSSL
+    add_links("crypto") -- OpenSSL need
     add_links("hiredis") -- Hiredis library (A minimalistic C client library for the Redis database)
     add_links("z") -- libz (GnuZip library)
     add_links("archive") -- libarchive (Compress And Decompress)
@@ -107,6 +113,8 @@ target("andren_a")
     add_links("grpc") -- libgrpc-dev (grpc library)
     add_links("grpc++") -- libgrpc++-dev (grpc++ library)
     add_links("fmt") -- string format library
+    add_links("nghttp2") -- libnghttp2 library
+    add_links("nghttp3") -- libnghttp3 library
 
     -- link lib dir list 
     -- add_linkdirs("your path")
@@ -166,6 +174,12 @@ target("test_mysql_statement")
 target("test_pgsql_statement")
     set_kind("binary")
     add_files(example_pgsql_pattern)
+    add_links("fmt")
+    add_deps("andren", {private = true})
+    
+target("test_DBuffer")
+    set_kind("binary")
+    add_files(example_DBuffer_pattern)
     add_links("fmt")
     add_deps("andren", {private = true})
     
