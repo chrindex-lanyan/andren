@@ -53,17 +53,17 @@ namespace chrindex::andren::base
         return ::epoll_ctl(m_efd, static_cast<int>(op), fd, const_cast<epoll_event *>(&ev));
     }
 
-    int Epoll::wait(EventContain &ec, int maxevents, int timeoutMsec)
+    int Epoll::wait(EventContain &ec, int timeoutMsec)
     {
         return ::epoll_wait(m_efd, ec.reference_ptr(0), ec.size(), timeoutMsec);
     }
 
-    int Epoll::pwait(EventContain &ec, int maxevents, int timeoutMsec, sigset_t const *sigmask)
+    int Epoll::pwait(EventContain &ec, int timeoutMsec, sigset_t const *sigmask)
     {
         return ::epoll_pwait(m_efd, ec.reference_ptr(0), ec.size(), timeoutMsec, sigmask);
     }
 
-    int Epoll::pwait2(EventContain &ec, int maxevents, struct timespec const *timeout, sigset_t const *sigmask)
+    int Epoll::pwait2(EventContain &ec, struct timespec const *timeout, sigset_t const *sigmask)
     {
         return ::epoll_pwait2(m_efd, ec.reference_ptr(0), ec.size(), timeout, sigmask);
     }

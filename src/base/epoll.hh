@@ -58,12 +58,12 @@ namespace chrindex ::andren::base
 
         int control(EpollCTRL op, int fd, epoll_event const & ev);
 
-        int wait(EventContain &ec, int maxevents, int timeoutMsec);
+        int wait(EventContain &ec,  int timeoutMsec);
 
-        int pwait(EventContain &ec, int maxevents, int timeoutMsec,
+        int pwait(EventContain &ec,  int timeoutMsec,
                   sigset_t const * sigmask);
 
-        int pwait2(EventContain &ec, int maxevents,  
+        int pwait2(EventContain &ec, 
                    struct timespec const * timeout,
                    sigset_t const * sigmask);
 

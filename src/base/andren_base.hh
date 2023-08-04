@@ -31,6 +31,7 @@
 #include "base64codec.hh"
 #include "textcode.h"
 #include "socket.hh"
+#include "EndPoint.h"
 #include "coroutine.hpp"
 #include "epoll.hh"
 

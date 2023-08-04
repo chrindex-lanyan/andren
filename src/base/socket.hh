@@ -25,6 +25,10 @@ namespace chrindex::andren::base
         /// @brief 默认构造。提供一个无效socket
         Socket();
 
+        /// @brief 托管一个已存在的FD以构造Socket
+        /// @param fd  已存在的Socket FD
+        Socket(int fd);
+
         /// @brief 直接构造。成功后socket对象持有有效socket fd。
         /// @param domain 套接域
         /// @param type 流类型
@@ -307,5 +311,8 @@ namespace chrindex::andren::base
                            const struct timespec *timeout,
                            const sigset_t *sigmask);
     };
+
+    
+
 
 }

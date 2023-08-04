@@ -31,6 +31,8 @@ namespace chrindex::andren::base
         ::close(m_fd);
     }
 
+    Socket::Socket(int fd) { m_fd = fd; }
+
     Socket::Socket(int domain, int type, int protocol)
     {
         m_fd = 0;
