@@ -40,7 +40,7 @@ int test_timer()  {
     }
 
     /// 模拟事件循环检查和执行任务
-    for (int i = 0 ;i < 30 * 1000;i++) // 50S
+    for (int i = 0 ;i < 30 * 1000;i++) // 30S
     {
         auto waitList = timerManager.check();
         for (auto &task : waitList) {

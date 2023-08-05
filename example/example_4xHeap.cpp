@@ -12,7 +12,7 @@ using namespace chrindex::andren::base;
 int test4x()
 {
 
-    fprintf(stdout, "Start Test 4xHeap Done!\n");
+    fprintf(stdout, "Start Test 4xHeap!\n");
 
     MinHeap<FourWayHeap<uint64_t, std::function<void()>>> bhp;
 

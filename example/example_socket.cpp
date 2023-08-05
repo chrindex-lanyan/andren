@@ -14,7 +14,7 @@ using namespace chrindex::andren::base;
 std::atomic<int> m_exit = 0;
 
 bool processSocketEvent(ThreadPool &tpool,
-                        Socket &listener, void *userData)
+                        Socket &listener, std::any userData)
 {
     struct _Private
     {
@@ -22,13 +22,10 @@ bool processSocketEvent(ThreadPool &tpool,
         EventContain events; // 每次Epoll wait返回的最大事件数量
         std::unordered_map<uint64_t, Socket> cliMap;
 
-        _Private(int perEventSize = 100): events(100)
-        {
-            //
-        }
+        _Private(int perEventSize = 100): events(100){}
     };
 
-    _Private *pdata = reinterpret_cast<_Private *>(userData);
+    std::shared_ptr<_Private> pdata;
 
     if (m_exit)
     {
@@ -37,9 +34,14 @@ bool processSocketEvent(ThreadPool &tpool,
         return false;
     }
 
-    if (pdata == 0)
+    if (userData.has_value() && userData.type() == typeid (std::shared_ptr<_Private>))
     {
-        pdata = new _Private;
+        pdata = std::any_cast<std::shared_ptr<_Private>>(userData);
+    }
+
+    if (!pdata)
+    {
+        pdata = std::make_shared<_Private>();
 
         // 添加监听Accept事件
         epoll_event event;
@@ -138,8 +140,8 @@ bool processSocketEvent(ThreadPool &tpool,
         }
     }
 
-    tpool.exec([&tpool,  &listener, pdata]()
-               { processSocketEvent(tpool,  listener, pdata); },
+    tpool.exec([&tpool,  &listener, _pdata = std::move(pdata) ]()
+               { processSocketEvent(tpool,  listener, std::move(_pdata)); },
                0);
 
     return true;
@@ -169,8 +171,7 @@ int test_server()
     }
     stdprintf("listening [%s:%d] with Socket fd %d.\n",saddr.ip().c_str(),saddr.port(),listener.handle());
 
-    ThreadPool tpool(4);
-
+    // 设置CTRL+C信号回调
     if (signal(SIGINT, 
             [](int sig) -> void
             {
@@ -178,13 +179,15 @@ int test_server()
                 m_exit = 1; 
             }) == SIG_ERR)
     {
-        errprintf("Error registering signal handler");
+        errprintf("cannot registering signal handler");
         return -3;
     }
+    
+    ThreadPool tpool(4);// four threads
 
     // 开始执行
     tpool.exec([&tpool, &listener]()
-               { processSocketEvent(tpool, listener, 0); },
+               { processSocketEvent(tpool, listener, {}); },
                0);
 
     /// 管程等信号就得了

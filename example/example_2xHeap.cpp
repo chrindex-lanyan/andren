@@ -13,7 +13,7 @@ using namespace chrindex::andren::base;
 
 int test2x()
 {
-    fprintf(stdout, "Start Test 2xHeap Done!\n");
+    fprintf(stdout, "Start Test 2xHeap!\n");
 
     MinHeap<BinaryHeap<uint64_t, std::function<void()>>> bhp;
 
