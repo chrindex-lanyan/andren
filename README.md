@@ -4,6 +4,13 @@
 
 对于本库以及所有被本库引用的第三方库，以及第三方库于库之间，如果出现许可冲突，除非另有说明，否则我会根据具体情况，去除本库对某些第三方库的引用，以尝试解决这些冲突。
 
+开发环境：
+    Ubuntu  = Ubuntu 22.04 LTS x86_64
+    GCC = gcc version 11.3.0 (Ubuntu 11.3.0-1ubuntu1~22.04.1)
+    Make Tool = xmake v2.8.1+20230711, A cross-platform build utility based on Lua
+
+当然可以将xmake替换成cmake或者make或者其他；除非不得己，我真的不想写cmake。
+
 ## 1. Base 
     一些基本的class的集合，要求编译器不能低于C++20，但实际上可以降低到C++17甚至更低（C++11），这仅仅会使得某些局部的代码可能会变得啰嗦一点。
 
