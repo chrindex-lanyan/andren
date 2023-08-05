@@ -41,7 +41,7 @@ example_threadpool_pattern = example_src .. "./example_threadpool.cpp"
 example_mysql_statement_pattern = example_src .. "./example_mysql_statement.cpp"
 example_pgsql_pattern = example_src .. "./example_pgsql.cpp"
 example_DBuffer_pattern = example_src .. "./example_DBuffer.cpp"
-
+example_socket_pattern = example_src .. "./example_socket.cpp"
 
 
 target("andren")
@@ -180,6 +180,12 @@ target("test_pgsql_statement")
 target("test_DBuffer")
     set_kind("binary")
     add_files(example_DBuffer_pattern)
+    add_links("fmt")
+    add_deps("andren", {private = true})
+        
+target("test_socket")
+    set_kind("binary")
+    add_files(example_socket_pattern)
     add_links("fmt")
     add_deps("andren", {private = true})
     

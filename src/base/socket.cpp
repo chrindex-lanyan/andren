@@ -22,20 +22,20 @@
 namespace chrindex::andren::base
 {
 
-    Socket::Socket() { m_fd = 0; }
+    Socket::Socket() { m_fd = -1; }
     Socket::~Socket()
     {
-        if (m_fd > 0)
+        if (valid())
         {
+            ::close(m_fd);
         }
-        ::close(m_fd);
     }
 
     Socket::Socket(int fd) { m_fd = fd; }
 
     Socket::Socket(int domain, int type, int protocol)
     {
-        m_fd = 0;
+        m_fd = -1;
         int fd = ::socket(domain, type, protocol);
         if (fd > 0)
         {
@@ -46,14 +46,14 @@ namespace chrindex::andren::base
     Socket::Socket(Socket &&_)
     {
         m_fd = _.m_fd;
-        _.m_fd = 0;
+        _.m_fd = -1;
     }
 
     Socket &Socket::operator=(Socket &&_)
     {
         this->~Socket();
         m_fd = _.m_fd;
-        _.m_fd = 0;
+        _.m_fd = -1;
         return *this;
     }
 
@@ -61,7 +61,7 @@ namespace chrindex::andren::base
 
     int Socket::managedFD(int fd)
     {
-        if (m_fd > 0)
+        if (fd <= 0 )
         {
             return -1;
         }
@@ -191,7 +191,7 @@ namespace chrindex::andren::base
     void Socket::close()
     {
         ::close(m_fd);
-        m_fd = 0;
+        m_fd = -1;
     }
 
     LocalSocket::LocalSocket()

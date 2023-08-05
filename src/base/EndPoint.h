@@ -17,7 +17,7 @@ public:
 	EndPointIPV4(const std::string& ip, int32_t port);
 	EndPointIPV4(const EndPointIPV4& ep) noexcept;
 	EndPointIPV4(EndPointIPV4&& ep) noexcept;
-    EndPointIPV4(sockaddr_in const * another) noexcept;
+    EndPointIPV4(::sockaddr_in const * another) noexcept;
 	void operator=(const EndPointIPV4& ep);
 	void operator=(EndPointIPV4&& ep) noexcept;
 	~EndPointIPV4();
@@ -32,13 +32,13 @@ public:
 
 	std::string ip();
 
-	sockaddr_in* raw() const;
+	::sockaddr_in* raw() const;
 
-    sockaddr * toAddr();
+    ::sockaddr * toAddr();
 
     size_t addrSize() const;
 
 private:
-	sockaddr_in* handle;
+	::sockaddr_in* handle;
 };
 }

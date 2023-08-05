@@ -17,20 +17,20 @@ namespace chrindex::andren::base{
 
 EndPointIPV4::EndPointIPV4(const std::string& ip, int32_t port)
 {
-	handle = new sockaddr_in;
-	memset(handle, 0, sizeof(sockaddr_in));
+	handle = new ::sockaddr_in;
+	memset(handle, 0, sizeof(::sockaddr_in));
 	setSockAddrIn(ip, port);
 }
 EndPointIPV4::EndPointIPV4()
 {
-	handle = new sockaddr_in;
-	memset(handle, 0, sizeof(sockaddr_in));
+	handle = new ::sockaddr_in;
+	memset(handle, 0, sizeof(::sockaddr_in));
 }
 
-EndPointIPV4::EndPointIPV4(sockaddr_in const * another)
+EndPointIPV4::EndPointIPV4(::sockaddr_in const * another) noexcept
 {
-    handle = new sockaddr_in;
-	memcpy(handle, another, sizeof(sockaddr_in));
+    handle = new ::sockaddr_in;
+	memcpy(handle, another, sizeof(::sockaddr_in));
 }
 
 EndPointIPV4::~EndPointIPV4()
@@ -38,7 +38,7 @@ EndPointIPV4::~EndPointIPV4()
 	delete handle;
 }
 
-sockaddr_in* EndPointIPV4::raw() const
+::sockaddr_in* EndPointIPV4::raw() const
 {
 	return handle;
 }
@@ -78,8 +78,8 @@ bool EndPointIPV4::getSockAddrIn(std::string& ip, int32_t& port) const
 
 EndPointIPV4::EndPointIPV4(const EndPointIPV4& ep) noexcept
 {
-	handle = new sockaddr_in;
-	memcpy(handle, ep.handle, sizeof(sockaddr_in));
+	handle = new ::sockaddr_in;
+	memcpy(handle, ep.handle, sizeof(::sockaddr_in));
 }
 
 EndPointIPV4::EndPointIPV4(EndPointIPV4&& ep) noexcept
@@ -118,15 +118,15 @@ std::string EndPointIPV4::ip()
 	return ip;
 }
 
-    sockaddr * EndPointIPV4::toAddr()
-    {
-        return reinterpret_cast<sockaddr *>(raw());
-    }
+::sockaddr * EndPointIPV4::toAddr()
+{
+    return reinterpret_cast<::sockaddr *>(raw());
+}
 
-    size_t EndPointIPV4::addrSize() const
-    {
-        return sizeof(sockaddr_in);
-    }
+size_t EndPointIPV4::addrSize() const
+{
+    return sizeof(::sockaddr_in);
+}
 
 
 }

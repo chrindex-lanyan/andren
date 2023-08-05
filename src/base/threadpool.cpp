@@ -51,7 +51,7 @@ namespace chrindex::andren::base
                         }
                         else 
                         {
-                            printf("Thread %d Will Be Wait.\n",threadno);
+                            //printf("Thread %d Will Be Wait.\n",threadno);
                             data->perthread_data[threadno].cond.wait_for(locker,std::chrono::milliseconds(10));
                         }
                     } });
