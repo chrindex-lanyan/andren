@@ -19,17 +19,16 @@ bool processSocketEvent(ThreadPool &tpool,
     struct _Private
     {
         Epoll ep;
-        EventContain events; // 每次Epoll wait返回的最大事件数量
+        EventContain events; 
         std::unordered_map<uint64_t, Socket> cliMap;
 
-        _Private(int perEventSize = 100): events(100){}
+        _Private(int perEventSize = 100): events(100){}// 每次Epoll wait返回的最大事件数量
     };
 
     std::shared_ptr<_Private> pdata;
 
-    if (m_exit)
+    if (m_exit) // 退出
     {
-        // 退出
         errprintf("Epoller Stopped.\n");
         return false;
     }
@@ -135,15 +134,13 @@ bool processSocketEvent(ThreadPool &tpool,
                         stdprintf("Read From Client:[%s].\n",buffer.c_str());
                     }
                 }
-                
-            }
-        }
-    }
+            } // end else if (pevent->events & EPOLLIN)
+        } // end for
+    }// end else if (numEvents > 0)
 
     tpool.exec([&tpool,  &listener, _pdata = std::move(pdata) ]()
                { processSocketEvent(tpool,  listener, std::move(_pdata)); },
                0);
-
     return true;
 }
 
@@ -211,17 +208,12 @@ int test_socket()
 {
     pid_t pid = fork();
 
-    if (pid != 0)
-    {
-        // server
+    if (pid != 0){// server
         test_server();
     }
-    else
-    {
-        // client
+    else { // client
         test_client();
     }
-
     return 0;
 }
 
