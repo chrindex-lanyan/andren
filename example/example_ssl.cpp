@@ -87,18 +87,23 @@ bool processSocketEvent(ThreadPoolPortable &tpool,
             | SSL_OP_NO_SSLv3                               // 禁用SSLv3，因为它不安全
             | SSL_OP_NO_COMPRESSION                         // 禁用压缩，因为它不安全
             | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION // 在重协商时不恢复会话，增加安全性。
-        );
-
-        creator.setSupportedProtoForServer({{"directly", []() -> bool
-                                             {
-                                                 stdprintf("SSL Server : Client Support Protocl `directly`.\n");
-                                                 return true;
-                                             }},
-                                            {"stream", []() -> bool
-                                             {
-                                                 stdprintf("SSL Server : Client Support Protocl `stream`.\n");
-                                                 return true;
-                                             }}});
+        ).setSupportedProtoForServer(
+            {
+                {
+                    "directly", []() -> bool
+                    {
+                        stdprintf("SSL Server : Client Support Protocol `directly`.\n");
+                        return true;
+                    }
+                },
+                {
+                    "stream", []() -> bool
+                    {
+                        stdprintf("SSL Server : Client Support Protocol `stream`.\n");
+                        return true;
+                    }
+                }
+            });
 
         if (auto pctx = creator.startCreate(1); pctx.key()==0)
         {
