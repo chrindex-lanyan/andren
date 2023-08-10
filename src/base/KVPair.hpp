@@ -16,6 +16,9 @@ namespace chrindex::andren::base
 
         KVPair() {}
 
+        KVPair(KTy const &_key, VTy const &_val)
+            : m_key(_key), m_val(_val) {}
+
         KVPair(KTy &&_key, VTy &&_val)
             : m_key(std::forward<KTy>(_key)), m_val(std::forward<VTy>(_val)) {}
 
