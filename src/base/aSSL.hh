@@ -178,14 +178,16 @@ namespace chrindex::andren::base
         /// @brief SSL升格为Socket SSL对象。
         /// 该函数会转移aSSL实例的所有权。
         /// @param ssl 被升格的aSSL实例。
-        void upgradeFromSSL(aSSL ssl);
+        void upgradeFromSSL(aSSL && ssl);
 
         /// @brief 获得内部aSSL实例的引用。
-        /// 不应该也不建议转移该函数返回aSSL实例引用的的所有权。
+        /// 不应该也不建议转移该函数返回aSSL实例引用的对象所有权。
         /// @return
         aSSL &reference();
 
         /// @brief 提供用于处理IO的Socket FD
+        /// 请注意，不要使用int fd进行构造。
+        /// 否则fd会因为临时对象的生命周期而被close。
         /// @param sock 
         /// @return 
         int bindSocketFD(Socket const &sock);

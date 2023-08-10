@@ -369,7 +369,7 @@ namespace chrindex::andren::base
         m_ssl = std::move(_.m_ssl);
     }
 
-    void aSSLSocketIO::upgradeFromSSL(aSSL ssl)
+    void aSSLSocketIO::upgradeFromSSL(aSSL &&ssl)
     {
         m_ssl = std::move(ssl);
     }
