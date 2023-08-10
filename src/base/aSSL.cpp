@@ -236,7 +236,7 @@ namespace chrindex::andren::base
          * 
          */
         std::string tmp;
-        unsigned char size = static_cast<char>(protocol.size());
+        unsigned char size = static_cast<unsigned char>(protocol.size());
 
         tmp.resize(size + 1);
         tmp[0] = size;
