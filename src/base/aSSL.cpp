@@ -404,7 +404,6 @@ namespace chrindex::andren::base
         size = SSL_read(m_ssl.handle(), &ch, sizeof(ch));
         if(size <=0)
         {
-            fprintf(stderr,"aSSL IO : Read Size = 0.\n",size);
             return {std::move(size),{}};
         }
 
