@@ -18,7 +18,7 @@ namespace chrindex::andren::base
         OpenSSL_add_all_algorithms();
     }
 
-    aSSLContextCreator::aSSLContextCreator() {}
+    aSSLContextCreator::aSSLContextCreator(int endType): m_endType(endType) {}
     aSSLContextCreator::~aSSLContextCreator() {}
 
     aSSLContextCreator &aSSLContextCreator::setPrimaryKeyFilePath(std::string const &primaryKeyFile)
@@ -39,79 +39,96 @@ namespace chrindex::andren::base
         return *this;
     }
 
-    void aSSLContextCreator::setSupportedProto(std::vector<ProtocolsHandler> protoList)
+    void aSSLContextCreator::setSupportedProtoForServer(std::vector<ProtocolsHandler> protoList)
     {
         for (auto &handler : protoList)
         {
+            appendProtocolOnList(handler.protocol);
             m_protocbs[std::move(handler.protocol)] = std::move(handler.callback);
         }
+        m_endType = 1;
     }
 
-    SSL_CTX *aSSLContextCreator::startCreate()
+    void aSSLContextCreator::setSupportedProtoForClient(std::vector<ProtocolsHandler> protoList)
     {
+        for (auto &handler : protoList)
+        {
+            appendProtocolOnList(handler.protocol);
+            m_protocbs[std::move(handler.protocol)] = std::move(handler.callback);
+        }
+        m_endType = 2;
+    }
+
+    KVPair<int, SSL_CTX *> aSSLContextCreator::startCreate(int method)
+    {
+        using CtxResult = KVPair<int,SSL_CTX *>;
+
         SSL_CTX *ctx = 0;
         std::string const &primaryKeyFile = m_primaryKeyFile;
         std::string const &certificateFile = m_certificateFile;
 
-        ctx = SSL_CTX_new(TLS_server_method());
+        auto errCtxFn = [](SSL_CTX *ctx)->SSL_CTX *
+        {
+            if (ctx!=0)
+            {
+                SSL_CTX_free(ctx);
+            }
+            return nullptr;
+        };
+        if(method==1)
+        {
+            ctx = SSL_CTX_new(TLS_server_method());
+        }else if (method ==2)
+        {
+            ctx = SSL_CTX_new(TLS_client_method());
+        }else 
+        {
+            return CtxResult(-2,nullptr);
+        }
+        
         if (!ctx)
         {
             // Could not create SSL/TLS context
-            return 0;
+            return CtxResult(-3,errCtxFn(ctx));
         }
         SSL_CTX_set_options(ctx, m_flags);
         static_assert(OPENSSL_VERSION_NUMBER >= 0x30000000L);
         if (SSL_CTX_set1_curves_list(ctx, "P-256") != 1)
         {
             // SSL_CTX_set1_curves_list failed
-            return 0;
+            return CtxResult(-4,errCtxFn(ctx));
         }
         if (SSL_CTX_use_PrivateKey_file(ctx, primaryKeyFile.c_str(), SSL_FILETYPE_PEM) != 1)
         {
             // Could not read private key file
-            return 0;
+            return CtxResult(-5,errCtxFn(ctx));
         }
         if (SSL_CTX_use_certificate_chain_file(ctx, certificateFile.c_str()) != 1)
         {
             // Could not read certificate file
-            return 0;
+            return CtxResult(-6,errCtxFn(ctx));
         }
-#ifndef OPENSSL_NO_NEXTPROTONEG
-        /// 设置`服务器支持什么协议`回调
-        /// 当 TLS 服务器需要下一个协议协商支持的协议列表时调用该回调
-        SSL_CTX_set_next_protos_advertised_cb(
-            ctx,
-            [](SSL *ssl, unsigned char const **data, unsigned int *len, void *arg) -> int
-            {
-                (void)ssl; // unuse
-                auto pself = reinterpret_cast<aSSLContextCreator *>(arg);
-                *data = reinterpret_cast<unsigned char *>(&(pself->m_next_proto_list[0]));
-                *len = pself->m_next_proto_list.size();
-                return SSL_TLSEXT_ERR_OK;
-            },
-            this);
-#endif /* !OPENSSL_NO_NEXTPROTONEG */
 
-#if OPENSSL_VERSION_NUMBER >= 0x10002000L
-        /// 客户端选定了哪个协议
-        SSL_CTX_set_alpn_select_cb(
-            ctx, [](SSL *ssl, unsigned char const **out, unsigned char *outlen, unsigned char const *in, unsigned int inlen, void *arg) -> int
-            {
-                    int rv;
-                    (void)ssl;
-                    auto pself = reinterpret_cast<aSSLContextCreator *>(arg);
-                    rv = pself->select_next_protocol((unsigned char **)out, outlen, in, inlen);
-                    if (rv != 1)
-                    {
-                        return SSL_TLSEXT_ERR_NOACK;
-                    }
-                    return SSL_TLSEXT_ERR_OK; },
-            this);
-#endif /* OPENSSL_VERSION_NUMBER >= 0x10002000L */
-        return ctx;
+        bool bret = false;
+        if ( m_endType ==1)
+        {
+            bret = alpnForServer(ctx);
+        }
+        else if(m_endType ==2)
+        {
+            bret = alpnForClient(ctx);
+        }else {
+            // 不进行ALPN
+        }
+        if (!bret)
+        {
+            return CtxResult(-7,errCtxFn(ctx));
+        }
+
+        return CtxResult(0,ctx);
     }
 
-    int aSSLContextCreator::select_next_protocol(unsigned char **out, unsigned char *outlen,
+    int aSSLContextCreator::select_next_protocol(unsigned char const **out, unsigned char *outlen,
                                                  unsigned char const *in, unsigned int inlen)
     {
         std::string key;
@@ -152,6 +169,83 @@ namespace chrindex::andren::base
         return -1; // no support
     }
 
+
+    /// @brief 服务端协议列表相关的设置
+    /// @return 
+    bool aSSLContextCreator::alpnForServer(SSL_CTX *ctx)
+    {
+        bool bret = false;
+#ifndef OPENSSL_NO_NEXTPROTONEG
+        /// 设置`服务器支持什么协议`回调
+        /// 当 TLS 服务器需要下一个协议协商支持的协议列表时调用该回调
+        SSL_CTX_set_next_protos_advertised_cb(
+            ctx,
+            [](SSL *ssl, unsigned char const **data, unsigned int *len, void *arg) -> int
+            {
+                (void)ssl; // unuse
+                auto pself = reinterpret_cast<aSSLContextCreator *>(arg);
+
+                *data = reinterpret_cast<unsigned char *>(&(pself->m_next_proto_list[0]));
+                *len = pself->m_next_proto_list.size();
+                return SSL_TLSEXT_ERR_OK;
+            },
+            this);
+        bret = true;
+#endif /* !OPENSSL_NO_NEXTPROTONEG */
+
+#if OPENSSL_VERSION_NUMBER >= 0x10002000L
+        /// 客户端选定了哪个协议
+        SSL_CTX_set_alpn_select_cb(
+            ctx, [](SSL *ssl, unsigned char const **out, unsigned char *outlen, unsigned char const *in, unsigned int inlen, void *arg) -> int
+            {
+                    int rv;
+                    (void)ssl;
+                    auto pself = reinterpret_cast<aSSLContextCreator *>(arg);
+                    rv = pself->select_next_protocol(out, outlen, in, inlen);
+                    fprintf(stdout,"SSL Server : Select NextProtocol Ret = %d.\n",rv);
+                    if (rv != 0)
+                    {
+                        return SSL_TLSEXT_ERR_NOACK;
+                    }
+                    return SSL_TLSEXT_ERR_OK; 
+            },
+            this);
+        bret = bret ? true : false;
+#endif /* OPENSSL_VERSION_NUMBER >= 0x10002000L */
+
+        return bret;
+    }
+
+    /// @brief 客户端协议列表相关的设置
+    /// @return 
+    bool aSSLContextCreator::alpnForClient(SSL_CTX *ctx)
+    {
+        int ret = SSL_CTX_set_alpn_protos(ctx, reinterpret_cast<unsigned char*>(&m_next_proto_list[0]) , m_next_proto_list.size());
+        return ret == 0 ;
+    }
+
+
+    void aSSLContextCreator::appendProtocolOnList(std::string const & protocol)
+    {
+        /**
+         * 形如 ： unsigned char const list [] = 
+         * { 
+         *      8, 'h', 't', 't', 'p', '/', '1', '.', '1' ,
+         *      3, 'f' , 't' , 'p'
+         * };
+         * 
+         */
+        std::string tmp;
+        unsigned char size = static_cast<char>(protocol.size());
+
+        tmp.resize(size + 1);
+        tmp[0] = size;
+        memcpy(&tmp[1],&protocol[0],size);
+        
+        m_next_proto_list.append(tmp);
+    }
+
+
     aSSLContext::aSSLContext() : m_ctx(0) {}
     aSSLContext::aSSLContext(SSL_CTX *ctx) : m_ctx(ctx) {}
     aSSLContext::aSSLContext(aSSLContext &&_)
@@ -181,6 +275,8 @@ namespace chrindex::andren::base
         m_ctx = 0;
         return p;
     }
+
+    bool aSSLContext::valid()const {return m_ctx!=0;}
 
     aSSL::aSSL() : m_ssl(0) {}
     aSSL::aSSL(SSL_CTX *ssl_ctx)
@@ -221,6 +317,11 @@ namespace chrindex::andren::base
         return ERR_error_string(getErrNo(), NULL);
     }
 
+    int aSSL::getSSLError(int ret)const
+    {
+        return SSL_get_error(m_ssl,ret);
+    }
+
     bool aSSL::valid() const { return m_ssl != 0; }
 
     ssl_st *aSSL::handle() const { return m_ssl; }
@@ -231,6 +332,22 @@ namespace chrindex::andren::base
         m_ssl = 0;
         return p;
     }
+
+    std::string aSSL::selectedProtocolForClient() 
+    {
+        std::string protocol;
+        unsigned char const * str = 0;
+        unsigned int len = 0;
+        SSL_get0_alpn_selected(handle(), &str, &len);
+
+        if (len != 0 && str !=0)
+        {
+            protocol.resize(len);
+            memcpy(&protocol[0],str,len);
+        }
+        return protocol;
+    }
+    
 
     aSSLSocketIO::aSSLSocketIO() {}
 
@@ -272,18 +389,34 @@ namespace chrindex::andren::base
         return SSL_accept(m_ssl.handle());
     }
 
+    int aSSLSocketIO::initiateHandShake()
+    {
+        return SSL_connect(m_ssl.handle());
+    }
+
     KVPair<ssize_t, std::string> aSSLSocketIO::read()
     {
         ssize_t size;
         std::string buffer;
+        char ch;
+
+        // 试探性地读取一个字节，这样SSL_pending才有用。
+        size = SSL_read(m_ssl.handle(), &ch, sizeof(ch));
+        if(size <=0)
+        {
+            fprintf(stderr,"aSSL IO : Read Size = 0.\n",size);
+            return {std::move(size),{}};
+        }
 
         size = SSL_pending(m_ssl.handle());
         if (size <= 0)
         {
-            return {std::move(size), {}};
+            buffer.push_back(ch);
+            return {std::move(size), std::move(buffer)};
         }
-        buffer.resize(size);
-        size = SSL_read(m_ssl.handle(), &buffer[0], buffer.size());
+        buffer.resize(size+1);
+        buffer[0] = (ch);
+        size = SSL_read(m_ssl.handle(), &buffer[1], buffer.size());
         return {std::move(size), std::move(buffer)};
     }
 
