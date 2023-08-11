@@ -189,15 +189,15 @@ namespace chrindex::andren::base
         /// 请注意，不要使用int fd进行构造。
         /// 否则fd会因为临时对象的生命周期而被close。
         /// @param sock 
-        /// @return 
+        /// @return 1 == OK
         int bindSocketFD(Socket const &sock);
         
         /// @brief （服务端）同意进行一次SSL/TLS握手
-        /// @return 
+        /// @return 1 == OK
         int handShake();
 
         /// @brief （客户端）发起一次握手
-        /// @return 
+        /// @return 1 == OK
         int initiateHandShake();
 
         /// @brief 读数据。读出来的数据是已经解密的
