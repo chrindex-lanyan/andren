@@ -123,7 +123,7 @@ std::string EndPointIPV4::ip()
     return reinterpret_cast<::sockaddr *>(raw());
 }
 
-size_t EndPointIPV4::addrSize() const
+size_t EndPointIPV4::addrSize() 
 {
     return sizeof(::sockaddr_in);
 }

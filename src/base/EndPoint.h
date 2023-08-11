@@ -36,7 +36,7 @@ public:
 
     ::sockaddr * toAddr();
 
-    size_t addrSize() const;
+    static size_t addrSize() ;
 
 private:
 	::sockaddr_in* handle;
