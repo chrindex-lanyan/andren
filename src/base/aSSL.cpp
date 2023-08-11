@@ -349,24 +349,23 @@ namespace chrindex::andren::base
     }
     
 
-    aSSLSocketIO::aSSLSocketIO() {}
+    aSSLSocketIO::aSSLSocketIO() :m_endType(0) {}
 
     aSSLSocketIO::aSSLSocketIO(aSSLSocketIO &&_)
     {
         m_ssl = std::move(_.m_ssl);
+        m_endType = std::move(_.m_endType);
     }
     aSSLSocketIO::~aSSLSocketIO()
     {
-        if (m_ssl.valid())
-        {
-            shutdown();
-        }
+        shutdown();
     }
 
     void aSSLSocketIO::operator=(aSSLSocketIO &&_)
     {
         this->~aSSLSocketIO();
         m_ssl = std::move(_.m_ssl);
+        m_endType = std::move(_.m_endType);
     }
 
     void aSSLSocketIO::upgradeFromSSL(aSSL &&ssl)
@@ -431,7 +430,26 @@ namespace chrindex::andren::base
 
     int aSSLSocketIO::shutdown()
     {
-        return SSL_shutdown(m_ssl.handle());
+        if (m_ssl.valid())
+        {
+            return SSL_shutdown(m_ssl.take_ssl());
+        }
+        return 0;
+    }
+
+    bool aSSLSocketIO::valid() const 
+    {
+        return m_ssl.valid();
+    }
+
+    int aSSLSocketIO::endType() const
+    {
+        return m_endType;
+    }
+
+    void aSSLSocketIO::setEndType(int end_type)
+    {
+        m_endType = end_type;
     }
 
 }

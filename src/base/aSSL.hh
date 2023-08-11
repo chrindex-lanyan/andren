@@ -219,8 +219,19 @@ namespace chrindex::andren::base
         /// @return 
         int shutdown();
 
+        bool valid() const ;
+
+        /// @brief SSL端类型
+        /// @return 1是服务端，2则是客户端 
+        int endType() const;
+
+        /// @brief 设置SSL端类型
+        /// @param end_type 设置为1是服务端，2则是客户端
+        void setEndType(int end_type);
+
     private:
         aSSL m_ssl;
+        int m_endType;
     };
 
 }
