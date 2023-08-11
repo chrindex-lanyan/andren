@@ -36,7 +36,7 @@ namespace chrindex::andren::base
         template <typename T>
         auto exec(T &&task , uint32_t threadno) -> bool
         {
-            if (!m_data && threadno >= m_data->thread_count)
+            if (!m_data || threadno >= m_data->thread_count || m_data->isExit)
             {
                 return false;
             }
@@ -47,6 +47,10 @@ namespace chrindex::andren::base
             m_data->perthread_data[threadno].cond.notify_one();
             return true;
         }
+
+        bool valid () const {return bool(m_data) && !m_data->isExit;}
+
+        bool notifyThread(uint32_t index);
 
     private:
 
@@ -91,7 +95,7 @@ namespace chrindex::andren::base
         template <typename T>
         auto exec(T &&task , uint32_t threadno) -> bool
         {
-            if (!m_data && threadno >= m_data->thread_count)
+            if (!m_data || threadno >= m_data->thread_count || m_data->isExit)
             {
                 return false;
             }
@@ -102,6 +106,10 @@ namespace chrindex::andren::base
             m_data->perthread_data[threadno].cond.notify_one();
             return true;
         }
+
+        bool valid () const {return bool(m_data) && !m_data->isExit ;}
+
+        bool notifyThread(uint32_t index);
 
     private:
 

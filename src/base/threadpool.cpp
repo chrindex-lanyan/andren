@@ -74,6 +74,16 @@ namespace chrindex::andren::base
         return *this;
     }
 
+    bool ThreadPool::notifyThread(uint32_t index)
+    {
+        if (!m_data || index > m_data->thread_count || m_data->isExit)
+        {
+            return false;
+        }
+        m_data->perthread_data[index].cond.notify_one();
+        return true;
+    }
+
     ThreadPool::data_t::data_t(uint32_t _thread_count)
     {
         isExit = false;
@@ -145,6 +155,16 @@ namespace chrindex::andren::base
         return *this;
     }
 
+    bool ThreadPoolPortable::notifyThread(uint32_t index)
+    {
+        if (!m_data || index > m_data->thread_count || m_data->isExit)
+        {
+            return false;
+        }
+        m_data->perthread_data[index].cond.notify_one();
+        return true;
+    }
+
     ThreadPoolPortable::data_t::data_t(uint32_t _thread_count)
     {
         isExit = false;
@@ -153,6 +173,7 @@ namespace chrindex::andren::base
     }
     ThreadPoolPortable::data_t::~data_t()
     {
+        thread_count = 0;
         isExit = true;
         delete[] perthread_data;
     }
