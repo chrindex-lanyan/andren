@@ -113,19 +113,20 @@ bool processSocketEvent(ThreadPool &tpool,
                     while (1)
                     {
                         ssize_t ret = cli.recv(&tmp[0], tmp.size(), MSG_DONTWAIT);
-                        if (ret == 0)
+                        
+                        if (int errcode = errno; ret < 0 && (errcode == EAGAIN || errcode == EWOULDBLOCK))
+                        {
+                            // read done.
+                            readok = true;
+                            stdprintf("Server : Client's Data Read Done...\n");
+                            break;
+                        }
+                        else if (ret == 0 || ret <0)
                         {
                             // disconnect
                             pdata->ep.control(EpollCTRL::DEL, cli.handle(), {});
                             pdata->cliMap.erase(iter);
                             stdprintf("Server : Client disconnect...\n");
-                            break;
-                        }
-                        else if (int errcode = errno; ret < 0 && (errcode == EAGAIN || errcode == EWOULDBLOCK))
-                        {
-                            // read done.
-                            readok = true;
-                            stdprintf("Server : Client's Data Read Done...\n");
                             break;
                         }
                         else if (ret > 0)
@@ -272,17 +273,18 @@ int test_client()
                 while (1)
                 {
                     ssize_t ret = csock.recv(&tmp[0], tmp.size(), MSG_DONTWAIT);
-                    if (ret == 0)
-                    {
-                        // disconnect
-                        stdprintf("Client : disconnect...\n");
-                        break;
-                    }
-                    else if (int errcode = errno; ret < 0 && (errcode == EAGAIN || errcode == EWOULDBLOCK))
+                    
+                    if (int errcode = errno; ret < 0 && (errcode == EAGAIN || errcode == EWOULDBLOCK))
                     {
                         // read done.
                         readok = true;
                         stdprintf("Client : Data Read Done...\n");
+                        break;
+                    }
+                    else if (ret == 0 || ret < 0)
+                    {
+                        // disconnect
+                        stdprintf("Client : disconnect...\n");
                         break;
                     }
                     else if (ret > 0)

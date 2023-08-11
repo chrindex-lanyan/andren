@@ -51,8 +51,8 @@ bool processSocketEvent(ThreadPoolPortable &tpool,
             }
         };
 
-        Epoll ep;
         EventContain events;
+        Epoll ep;
         std::unordered_map<uint64_t, _SSL_Socket> cliMap;
         aSSLContextCreator creator;
         aSSLContext sslCtx;
@@ -170,6 +170,7 @@ bool processSocketEvent(ThreadPoolPortable &tpool,
 
                 asslio.upgradeFromSSL(pdata->sslCtx.handle());
                 asslio.bindSocketFD(cli);
+                asslio.setEndType(1);// 服务端
                 if (int ret = asslio.handShake(); ret == 1)
                 {
                     // OK
@@ -335,6 +336,7 @@ int test_client()
 
     asslio.upgradeFromSSL(std::move(assl));
     asslio.bindSocketFD(csock);
+    asslio.setEndType(2);// 客户端
 
     if (int ret = asslio.initiateHandShake(); ret !=1 )
     {
@@ -350,9 +352,9 @@ int test_client()
     stdprintf("SSL Client : Using Protocol `%s`. Size=%d.\n", protocol.c_str(),protocol.size());
 
     /// 配置Epoll
-    Epoll epoll;
     epoll_event event;
     EventContain ecc(10);
+    Epoll epoll;
     std::string data;
 
     event.data.fd = csock.handle();
@@ -436,10 +438,12 @@ int test_socket()
 
     if (pid != 0)
     { // server
+        fprintf(stdout,"Parent PID %d.\n",::getpid());
         test_server();
     }
     else
     { // client
+        fprintf(stdout,"Child PID %d.\n",::getpid());
         test_client();
     }
     return 0;
