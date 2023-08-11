@@ -37,35 +37,23 @@ namespace chrindex::andren::network
         pdata = std::move(_.pdata);
     }
 
-    bool TcpStream::connect(std::string ip, int32_t port, bool aSync)
+    bool TcpStream::reqConnect(std::string _ip, int32_t port , OnConnected _onConnected )
     {
-        if (!pdata || !pdata->m_socket.valid())
+        auto ev = pdata->m_ev.lock();
+        if (!pdata || !pdata->m_socket.valid() || !ev || !_onConnected)
         {
-            return false;
+            return false; 
         }
-
-        base::EndPointIPV4 epv4(std::move(ip),port);
-        if(0 != pdata->m_socket.connect(epv4.toAddr(),epv4.addrSize()))
+        return ev->addTask([self = shared_from_this(), ip = std::move(_ip) , port ,onConnected = std::move(_onConnected) ]()mutable
         {
-            return false;
-        }
-        if (pdata->m_asslio.valid()) // 检查并尝试使用SSL
-        {
-            int ret = 0;
-            if (int endType = pdata->m_asslio.endType(); endType ==1)
+            base::EndPointIPV4 epv4(std::move(ip),port);
+            if(0 != self->pdata->m_socket.connect(epv4.toAddr(),epv4.addrSize()))
             {
-                ret = pdata->m_asslio.handShake(); // 服务端
-            }else if(endType==2)
-            {
-                ret = pdata->m_asslio.initiateHandShake(); // 客户端
+                return ;
             }
-
-            if (ret!=1)
-            {
-                return false;
-            }
-        }
-        return true;
+            onConnected(self);
+            return ;
+        }, EventLoopTaskType::IO_TASK);
     }
 
     std::shared_ptr<TcpStream> TcpStream::accept()
@@ -86,32 +74,56 @@ namespace chrindex::andren::network
         return std::make_shared<TcpStream>(std::move(cli));
     }
 
-    bool TcpStream::reqRead(OnReadDone onRead)
+    bool TcpStream::reqRead(OnReadDone onRead, int timeoutMsec)
     {
-        if (!pdata)
+        if (!pdata || !pdata->m_socket.valid())
         {
             return false;
         }
 
-        auto evloop = pdata->m_ev.lock();
-        auto epoller = pdata->m_ep.lock();
-
-        if (!evloop || !epoller)
+        auto pp = pdata->m_pp.lock();
+        if (!pp)
         {
             return false;
         }
-
-        bool bret = evloop->addTask([onRead = std::move(onRead), self = shared_from_this()]() mutable
+        pp->findAndWait(pdata->m_socket.handle(), [self = shared_from_this(), 
+            _onRead = std::move(onRead)](ProEvent proev, bool isTimeout) mutable
         {
-            if (!self->valid())
+            if (isTimeout)
             {
-                return ;
+                _onRead(-2,{});
             }
-            self->pdata->m_onRead = std::move(onRead);
-        }
-        ,EventLoopTaskType::IO_TASK);
+            if (proev.readable)
+            {
+                base::KVPair<ssize_t , std::string> result ;
+                if (self->pdata->m_asslio.valid())
+                {
+                    result = self->pdata->m_asslio.read();
+                }
+                else if(self->pdata->m_socket.valid())
+                {
+                    result = self->tryRead(self->pdata->m_socket);
+                }
 
-        return bret;
+                if (result.key() ==0)
+                {
+                    if (self->pdata->m_onClose)
+                    {
+                        self->pdata->m_onClose();  
+                    }
+                    auto pp = self->pdata->m_pp.lock();
+                    if (pp)
+                    {
+                        pp->delSubscribe(self->pdata->m_socket.handle());
+                    }
+                }else 
+                {
+                    _onRead(result.key(),std::move(result.value()));
+                }
+            }
+        } , timeoutMsec);
+
+        return true;
     }
 
     bool TcpStream::setOnClose(OnClose onClose)
@@ -121,7 +133,6 @@ namespace chrindex::andren::network
             return false;
         }
         pdata->m_onClose = std::move(onClose);
-
         return true;
     }
 
@@ -131,36 +142,73 @@ namespace chrindex::andren::network
         return reqWrite(std::move(_data),std::move(onWrite));
     }
 
-    bool TcpStream::reqWrite(std::string &&data, OnWriteDone onWrite)
+    bool TcpStream::reqWrite(std::string && _data, OnWriteDone onWrite)
     {
-        if (!pdata)
+        if (!pdata )
         {
             return false;
         }
 
         auto evloop = pdata->m_ev.lock();
-        auto epoller = pdata->m_ep.lock();
+        auto pp = pdata->m_pp.lock();
 
-        if (!evloop || !epoller)
+        if (!evloop || !pp)
         {
             return false;
         }
 
-        bool bret = evloop->addTask([onWrite = std::move(onWrite), self = shared_from_this() , data = std::move(data)]() mutable
+        bool bret = evloop->addTask([onWrite = std::move(onWrite), self = shared_from_this() , data = std::move(_data)]() mutable
         {
             if (!self->valid())
             {
                 return ;
             }
-            self->pdata->m_onWrite = std::move(onWrite);
-            self->pdata->m_wrbuffer = std::move(data);
 
-            if (auto epoller = self->pdata->m_ep.lock(); epoller )
+            if (auto pp = self->pdata->m_pp.lock(); pp )
             {
-                epoll_event ev;
-                ev.data.u64 = 0;
-                ev.events = EPOLLIN | EPOLLOUT;
-                epoller->control(base::EpollCTRL::MOD, self->pdata->m_socket.handle(),ev);
+                ProEvent proev;
+                proev.readable = 1;
+                proev.writeable = 1;
+                if (pp->modSubscribe(self->pdata->m_socket.handle(), proev))
+                {
+                    pp->findAndWait(self->pdata->m_socket.handle(),
+                        [self, _onWrite = std::move(onWrite), _data = std::move(data)](ProEvent proev, bool timeoutMsec)mutable
+                    {
+                        ProEvent _proev;
+                        _proev.readable = 1;
+                        _proev.writeable = 0;
+                        auto pp = self->pdata->m_pp.lock(); 
+                        if (!pp || !pp->modSubscribe(self->pdata->m_socket.handle(), _proev))
+                        {
+                            return ;
+                        }
+                        if (timeoutMsec)
+                        {
+                            _onWrite(-2,_data);
+                            return ;
+                        }
+                        if (proev.writeable)
+                        {
+                            ssize_t ret = 0;
+                            if (self->pdata->m_asslio.valid())
+                            {
+                                ret = self->pdata->m_asslio.write(_data);
+                            }
+                            else if(self->pdata->m_socket.valid())
+                            {
+                                ret = self->pdata->m_socket.send(_data.c_str(),_data.size(),0);
+                            }
+                            else 
+                            {
+                                ret = -3;
+                            }
+                            if(_onWrite)
+                            {
+                                _onWrite(ret,std::move(_data));
+                            }
+                        }
+                    },5000);
+                }
             }
         }
         ,EventLoopTaskType::IO_TASK);
@@ -206,9 +254,17 @@ namespace chrindex::andren::network
 
     /// ######
 
-    void TcpStream::setEpoll(std::weak_ptr<base::Epoll> ep)
+    void TcpStream::setProPoller(std::weak_ptr<ProPoller> wpp)
     {
-        pdata->m_ep = ep;
+        auto pp = wpp.lock();
+        if (!pp)
+        {
+            return ;
+        }
+        pdata->m_pp = wpp;
+        ProEvent proev;
+        proev.readable = 1;
+        pp->subscribe(pdata->m_socket.handle(), proev);
     }
 
     void TcpStream::setEventLoop(std::weak_ptr<EventLoop> ev)
@@ -242,107 +298,6 @@ namespace chrindex::andren::network
             return { (ssize_t)rddata.size(), std::move(rddata) } ;
         }
         return { 0, {}};
-    }
-
-    bool TcpStream::processEvents(int events)
-    {
-        if (!valid())
-        {
-            return false;
-        }
-        
-        if (int ret = events;ret == static_cast<int>(SocketStreamEvents::CLOSED))
-        {
-            return false;
-        }
-        else if ( ret == static_cast<int>(SocketStreamEvents::READABLE))
-        {
-            std::string rdb ;
-            OnReadDone onRead = std::move(pdata->m_onRead);
-            base::KVPair<ssize_t, std::string> result ;
-
-            if (pdata->m_asslio.valid())
-            {
-                result = pdata->m_asslio.read();
-            }
-            else if(pdata->m_socket.valid())
-            {
-                result = tryRead(pdata->m_socket);
-            }
-
-            if (result.key() <= 0)  // disconnected
-            {
-                if (auto epoller = pdata->m_ep.lock(); epoller )
-                {
-                    epoll_event ev;
-                    ev.data.u64 = 0;
-                    ev.events = EPOLLIN | EPOLLOUT;
-                    epoller->control(base::EpollCTRL::DEL, pdata->m_socket.handle(),ev);
-                }
-
-                if (pdata->m_onClose)
-                {
-                    pdata->m_onClose(); 
-                }
-            }
-
-            if (onRead) // read done
-            {
-                onRead(result.key(),result.value()); 
-            }
-        }
-        else if(ret & static_cast<int>(SocketStreamEvents::WRITABLE))
-        {
-            if (auto epoller = pdata->m_ep.lock(); epoller ) // 去除可写通知
-            {
-                epoll_event ev;
-                ev.data.u64 = 0;
-                ev.events = EPOLLIN;
-                epoller->control(base::EpollCTRL::MOD, pdata->m_socket.handle(),ev);
-            }
-
-            std::string wdb = std::move(pdata->m_wrbuffer) ;
-            OnWriteDone onWriteDone = std::move(pdata->m_onWrite);
-            ssize_t ret = 0;
-            if (pdata->m_asslio.valid())
-            {
-                ret = pdata->m_asslio.write(wdb);
-            }
-            else if(pdata->m_socket.valid())
-            {
-                ret = pdata->m_socket.send(wdb.c_str(),wdb.size(),0);
-            }
-            else 
-            {
-                return false;
-            }
-
-            if(onWriteDone)
-            {
-                onWriteDone(ret,wdb);
-            }
-        }
-        return true;
-    }
-    
-    int TcpStream::notify(bool bread, bool bwrite, bool bexcept)
-    {
-        int ret = 0;
-
-        if (bread)
-        {
-            ret |= static_cast<int>(SocketStreamEvents::READABLE);
-        }
-        if(bwrite)
-        {
-            ret |= static_cast<int>(SocketStreamEvents::WRITABLE);
-        }
-        if (bexcept)
-        {
-            ret |= static_cast<int>(SocketStreamEvents::CLOSED);
-        }
-
-        return processEvents(ret) ? 0 : -1;
     }
 
 }

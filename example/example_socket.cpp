@@ -218,6 +218,18 @@ int test_client()
         return -1;
     }
 
+    // 设置CTRL+C信号回调
+    if (signal(SIGINT,
+               [](int sig) -> void
+               {
+                   stdprintf("Client : 准备退出....\n");
+                   m_exit = 1;
+               }) == SIG_ERR)
+    {
+        errprintf("Client : cannot registering signal handler");
+        return -3;
+    }
+
     Epoll epoll;
     epoll_event event;
     EventContain ecc(10);

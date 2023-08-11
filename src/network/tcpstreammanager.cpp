@@ -5,7 +5,6 @@ namespace chrindex::andren::network
 {
     TcpStreamManager::TcpStreamManager()
     {
-        m_ep = std::make_shared<base::Epoll>();
         m_stop = true;
     }
 
@@ -19,8 +18,20 @@ namespace chrindex::andren::network
         m_ev = std::move(ev);
     }
 
+
+    void TcpStreamManager::setProPoller(std::weak_ptr<ProPoller> pp)
+    {
+        m_pp = pp;
+    }
+
     TSM_Error TcpStreamManager::start(std::string const &ip, uint32_t port)
     {
+        auto pp = m_pp.lock();
+        if (!pp)
+        {
+            return TSM_Error::POLLER_FAILED;
+        }
+
         base::Socket sock(AF_INET, SOCK_STREAM, 0);
         base::EndPointIPV4 epv4(ip,port);
 
@@ -38,9 +49,28 @@ namespace chrindex::andren::network
             return TSM_Error::LISTEN_SOCKET_FAILED;
         }
         m_server = std::move(sock);
-        m_server.setEpoll(m_ep);
+        //m_server.setEpoll(m_ep);
+        m_server.setProPoller(pp);
         m_stop = false;
-        return TSM_Error::OK;
+
+        auto pev = m_ev.lock();
+        if (!pev)
+        {
+            return TSM_Error::EVENTLOOP_ADD_TASK_FAILED;
+        }
+        bool bret = pev->addTask([self = shared_from_this()]()
+        {
+            auto pp = self->m_pp.lock();
+            if (!pp || !self->m_server.valid())
+            {
+                return ;
+            }
+            ProEvent proEvent;
+            proEvent.readable = 1;
+            bool bret = pp->subscribe(self->m_server.handle()->handle(), proEvent);
+        },EventLoopTaskType::IO_TASK);
+
+        return bret ? (TSM_Error::OK):(TSM_Error::EVENTLOOP_ADD_TASK_FAILED);
     }
 
     TSM_Error TcpStreamManager::requestAccept(OnAccept onAccept)
@@ -61,14 +91,38 @@ namespace chrindex::andren::network
                 onAccept(0,TSM_Error::STOPPED);
                 return false;
             }
-            std::shared_ptr<TcpStream> clistream = self->m_server.accept();
-            if(!clistream)
+            auto pp = self->m_pp.lock();
+            if (!pp || !self->m_server.valid())
             {
-                onAccept( 0 , TSM_Error::ACCEPT_FAILED );
                 return false;
             }
+            pp->findAndWait(self->m_server.handle()->handle(),
+            [self, _onAccept = std::move(onAccept)](ProEvent proev, bool isTimeout) mutable
+            {
+                if (isTimeout)
+                {
+                    self->requestAccept(std::move(_onAccept));
+                    return ;
+                }
+
+                if (proev.readable)
+                {
+                    std::shared_ptr<TcpStream> clistream = self->m_server.accept();
+                    if(!clistream)
+                    {
+                        _onAccept( 0 , TSM_Error::ACCEPT_FAILED );
+                        return ;
+                    }
+                    clistream->setEventLoop(self->m_ev);
+                    clistream->setProPoller(self->m_pp);
+                    _onAccept( std::move(clistream) , TSM_Error::OK );
+                }
+                else 
+                {
+                    _onAccept( 0 , TSM_Error::ACCEPT_FAILED );
+                }
+            }, 50 );
             
-            onAccept( std::move(clistream) , TSM_Error::OK );
             return true;
         } , 
         EventLoopTaskType::IO_TASK);

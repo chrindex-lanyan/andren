@@ -56,13 +56,31 @@ namespace chrindex ::andren::base
 
         Epoll &operator=(Epoll &&);
 
+        /// @brief 
+        /// @param op 
+        /// @param fd 
+        /// @param ev 
+        /// @return 0为成功 
         int control(EpollCTRL op, int fd, epoll_event const & ev);
 
+        /// @brief 
+        /// @param ec 
+        /// @param timeoutMsec 
+        /// @return <0 为失败， =0 为没有， >0为事件数量
         int wait(EventContain &ec,  int timeoutMsec);
 
-        int pwait(EventContain &ec,  int timeoutMsec,
-                  sigset_t const * sigmask);
+        /// @brief 
+        /// @param ec 
+        /// @param timeoutMsec 
+        /// @param sigmask 
+        /// @return <0 为失败， =0 为没有， >0为事件数量
+        int pwait(EventContain &ec,  int timeoutMsec,sigset_t const * sigmask);
 
+        /// @brief 
+        /// @param ec 
+        /// @param timeout 
+        /// @param sigmask 
+        /// @return <0 为失败， =0 为没有， >0为事件数量
         int pwait2(EventContain &ec, 
                    struct timespec const * timeout,
                    sigset_t const * sigmask);

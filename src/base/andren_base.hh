@@ -33,6 +33,7 @@
 #include "socket.hh"
 #include "EndPoint.h"
 #include "coroutine.hpp"
+#include "sCombinator.hpp"
 #include "epoll.hh"
 
 #include "mysql_statement.hh"

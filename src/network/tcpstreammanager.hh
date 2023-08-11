@@ -3,6 +3,7 @@
 #include "tcpstream.hh"
 
 #include "eventloop.hh"
+#include "propoller.hh"
 
 namespace chrindex::andren::network
 {
@@ -18,6 +19,8 @@ namespace chrindex::andren::network
         SERVER_SOCKET_INVALID = -6,
         ACCEPT_CALLBACK_EMPTY = -7,
         EVENTLOOP_ADD_TASK_FAILED = -8,
+        POLLER_FAILED = -9,
+        POLLER_ADD_FAILED = -10,
     };
 
     class TcpStreamManager : public std::enable_shared_from_this<TcpStreamManager>, base::noncopyable
@@ -31,6 +34,8 @@ namespace chrindex::andren::network
 
         void setEventLoop(std::weak_ptr<EventLoop> ev);
 
+        void setProPoller(std::weak_ptr<ProPoller> pp);
+
         TSM_Error start(std::string const &ip, uint32_t port);
 
         TSM_Error requestAccept(OnAccept onAccept);
@@ -39,7 +44,7 @@ namespace chrindex::andren::network
 
     private:
         std::weak_ptr<EventLoop> m_ev;
-        std::shared_ptr<base::Epoll> m_ep;
+        std::weak_ptr<ProPoller> m_pp;
         TcpStream m_server;
         std::atomic<bool> m_stop;
     };

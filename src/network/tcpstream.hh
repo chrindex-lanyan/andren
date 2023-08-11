@@ -5,7 +5,7 @@
 
 
 #include "eventloop.hh"
-
+#include "propoller.hh"
 
 
 namespace chrindex::andren::network
@@ -22,6 +22,7 @@ namespace chrindex::andren::network
     {
     public :
 
+        using OnConnected = std::function<void(std::shared_ptr<TcpStream> )>;
         using OnClose = std::function<void()>;
         using OnReadDone  = std::function<void(ssize_t ret, std::string const & data)>;
         using OnWriteDone = std::function<void(ssize_t ret, std::string const & lastData)>;
@@ -35,11 +36,11 @@ namespace chrindex::andren::network
 
         bool setOnClose(OnClose onClose);
 
-        bool connect(std::string ip, int32_t port, bool aSync);
+        bool reqConnect(std::string ip, int32_t port, OnConnected onConnected );
 
         std::shared_ptr<TcpStream> accept();
 
-        bool reqRead(OnReadDone onRead);
+        bool reqRead(OnReadDone onRead, int timeoutMsec = 15000);
 
         bool reqWrite(std::string const & data , OnWriteDone onWrite);
 
@@ -63,17 +64,16 @@ namespace chrindex::andren::network
 
         /// ###### EventLoop && Epool
 
-        void setEpoll(std::weak_ptr<base::Epoll> ep);
+        /// @brief 该函数会订阅可读事件
+        /// @param pp 
+        void setProPoller(std::weak_ptr<ProPoller> pp);
 
         void setEventLoop(std::weak_ptr<EventLoop> ev);
 
-        int  notify(bool bread, bool bwrite, bool bexcept);
 
     private :
 
         base::KVPair<ssize_t,std::string> tryRead(base::Socket & sock);
-
-        bool processEvents(int events);
 
     private :
 
@@ -85,15 +85,12 @@ namespace chrindex::andren::network
             base::Socket m_socket;
             base::aSSLSocketIO m_asslio;
 
-            std::string  m_wrbuffer;
             OnClose m_onClose;
-            OnReadDone m_onRead;
-            OnWriteDone m_onWrite;
 
             // #### 
 
             std::weak_ptr<EventLoop> m_ev;
-            std::weak_ptr<base::Epoll> m_ep;
+            std::weak_ptr<ProPoller> m_pp;
         } ;
 
         std::unique_ptr<_Private> pdata;
