@@ -11,7 +11,7 @@ namespace chrindex::andren::base{
 
 
 /// <summary>
-    /// 单线读写队列。
+    /// 单线读写队列。(多线程生产者单线程消费者)
     /// 不管有几个消费者，他们必须同属一个线程。
     /// 不管有几个生产者，他们无须同属一个线程。
     /// </summary>
@@ -85,6 +85,22 @@ namespace chrindex::andren::base{
             res = std::move(m_front.front());
             m_front.pop_front();
             return;
+        }
+
+        void takeMulti(std::optional<std::deque<T>>& res)
+        {
+            if (m_front.empty()) 
+            {
+                {
+                    std::lock_guard<std::mutex>locker(m_mut);
+                    m_front.swap(m_tail);
+                }
+                if (m_front.empty()) 
+                {
+                    return;
+                }
+            }
+            res = std::move(m_front);
         }
 
     private:
