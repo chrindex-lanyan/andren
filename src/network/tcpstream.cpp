@@ -9,7 +9,7 @@ namespace chrindex::andren::network
 
     TcpStream::_Private::_Private()
     {
-        m_socket = std::move(base::Socket(AF_INET, SOCK_STREAM, 0));
+        m_socket = base::Socket(AF_INET, SOCK_STREAM, 0);
     }
     TcpStream::_Private::~_Private()
     {
@@ -57,17 +57,17 @@ namespace chrindex::andren::network
         {
             base::EndPointIPV4 epv4(std::move(ip),port);
             //fprintf(stdout,"TcpStream : Preapre Connect %s:%d.\n",ip.c_str(),port);
-            if(0 != self->pdata->m_socket.connect(epv4.toAddr(),epv4.addrSize()))
+            if(0 != pdata->m_socket.connect(epv4.toAddr(),epv4.addrSize()))
             {
                 onConnected(-1);
                 return ;
             }
             // 添加read event到poller
-            auto pp = self->pdata->m_pp.lock();
+            auto pp = pdata->m_pp.lock();
             if (pp)
             {
                 int events = DEFAULT_EVENTS;
-                pp->addEvent(self->pdata->m_socket.handle(), events);
+                pp->addEvent(pdata->m_socket.handle(), events);
             }
             onConnected(0);
             return ;
@@ -117,13 +117,13 @@ namespace chrindex::andren::network
             auto pp = pdata->m_pp.lock();
             if ( !ev || !pp)
             {
-                return false;
+                return ;
             }
 
             int fd = pdata->m_socket.handle();
             int events = DEFAULT_EVENTS;
 
-            pp->findAndWait(fd, events , timeoutMsec, ev.get() , [fd , this , self, 
+            pp->findAndWait(fd, events , timeoutMsec, ev.get() , [ this , self, 
                 _onRead = std::move(onRead)]( ProPollerError errcode ) mutable
             {
                 if (errcode == ProPollerError::FD_NOTFOUND_IN_CACHE 
