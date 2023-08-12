@@ -9,15 +9,15 @@
 namespace chrindex::andren::network
 {
     
-    class UdpStream : public std::enable_shared_from_this<UdpStream> , base::noncopyable
+    class UdpPackage : public std::enable_shared_from_this<UdpPackage> , base::noncopyable
     {
     public :
-        UdpStream();
-        UdpStream(UdpStream && _);
-        UdpStream(base::Socket && sock);
-        ~UdpStream();
+        UdpPackage();
+        UdpPackage(UdpPackage && _);
+        UdpPackage(base::Socket && sock);
+        ~UdpPackage();
 
-        void operator=(UdpStream && _);
+        void operator=(UdpPackage && _);
 
         void setEventLoop(std::weak_ptr<EventLoop> ev);
 

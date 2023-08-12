@@ -7,5 +7,12 @@
 #include "propoller.hh"
 #include "tcpstream.hh"
 #include "tcpstreammanager.hh"
-#include "udpstream.hh"
+#include "udppackage.hh"
+
+#include "acceptor.hh"
+#include "datagram.hh"
+#include "repoller.hh"
+#include "sockstream.hh"
+
+
 
