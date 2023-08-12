@@ -4,204 +4,180 @@
 namespace chrindex::andren::network
 {
 
-    ProEvent::ProEvent()
-    {
-        readable = 0;
-        writeable = 0;
-        except = 0;
-        reserv = 0;
-    }
-
-    void ProEvent::cover(int32_t epoll_event_events)
-    {
-        if (epoll_event_events & EPOLLIN)
-        {
-            readable = 1;
-        }
-        if (epoll_event_events & EPOLLOUT)
-        {
-            writeable = 1;
-        }
-        if (epoll_event_events & EPOLLERR)
-        {
-            except = 1;
-        }
-    }
-
-    int32_t ProEvent::cover()
-    {
-        int ret = 0;
-        if (readable)
-        {
-            ret |= EPOLLIN;
-        }
-        if (writeable)
-        {
-            ret |= EPOLLOUT;
-        }
-        if (except)
-        {
-            ret |= EPOLLERR;
-        }
-        return ret;
-    }
-
     ProPoller::ProPoller()
     {
-        //
+        m_exit = false;
     }
 
     ProPoller::~ProPoller()
     {
-        //
-    }
-
-    void ProPoller::setEventLoop(std::weak_ptr<EventLoop> ev)
-    {
-        m_ev = ev;
-    }
-
-    void ProPoller::setEpoller(std::weak_ptr<base::Epoll> ep)
-    {
-        m_ep = ep;
-    }
-
-    std::weak_ptr<base::Epoll> ProPoller::epollHandle()
-    {
-        auto ep = m_ep.lock();
-        if (!ep || !ep->valid())
-        {
-            return {};
-        }
-        return ep;
+        m_exit = false;
     }
 
     bool ProPoller::valid() const
     {
-        auto ev = m_ev.lock();
-        auto ep = m_ep.lock();
-        if (!ev || !ep || !ep->valid())
-        {
-            return false;
-        }
-        return true;
+        return !m_exit;
     }
 
-    bool ProPoller::start()
+    bool ProPoller::start(std::shared_ptr<EventLoop> ev)
     {
-        auto ev = m_ev.lock();
-        auto ep = m_ep.lock();
-        if (!ev || !ep || !ep->valid())
+        if (!ev)
         {
             return false;
         }
-        ev->addTask([self = shared_from_this()]()
-                    { self->processEvents(); },
+        std::weak_ptr<EventLoop> wev = ev;
+        m_exit = false;
+        bool bret = ev->addTask([this , self = shared_from_this() , wev]()
+                    { processEvents(wev); },
                     EventLoopTaskType::IO_TASK);
-        return true;
+        m_exit = !bret;
+        return bret;
     }
 
-    bool ProPoller::subscribe(int fd, ProEvent proev)
+    bool ProPoller::addEvent(int fd, int events)
     {
-        return updateEpoll(fd, proev, base::EpollCTRL::ADD);
-    }
-
-    bool ProPoller::modSubscribe(int fd, ProEvent proev)
-    {
-        return updateEpoll(fd, proev, base::EpollCTRL::MOD);
-    }
-
-    bool ProPoller::delSubscribe(int fd)
-    {
-        m_cacheEvents.erase(fd);
-        ProEvent proev;
-        return updateEpoll(fd, proev, base::EpollCTRL::DEL);
-    }
-
-    void ProPoller::clearCache()
-    {
-        m_cacheEvents.clear();
-    }
-
-    void ProPoller::findAndWait(int32_t fd, std::function<void(ProEvent, bool isTimeout)> cb, int64_t timeoutMsec)
-    {
-        if (auto iter = m_cacheEvents.find(fd); (iter != m_cacheEvents.end() ) && cb)
+        if (!m_epoll.valid() || fd <=0 || events <0)
         {
-            cb(iter->second, false);
-            return;
+            return false;
+        }
+        m_cache[fd] = events;
+        return realUpdateEvents(fd, events, base::EpollCTRL::ADD);
+    }
+
+    bool ProPoller::modEvent(int fd, int events)
+    {
+        if (!m_epoll.valid() || fd <=0 || events <0)
+        {
+            return false;
+        }
+        if (auto iter = m_cache.find(fd); iter != m_cache.end())
+        {
+            m_cache[fd] = events;
+            return realUpdateEvents(fd, events, base::EpollCTRL::MOD);
+        }
+        return addEvent(fd,events);
+    }
+
+    bool ProPoller::delEvent(int fd)
+    {
+        int events = 0;
+        m_cache.erase(fd);
+        return realUpdateEvents(fd, events, base::EpollCTRL::DEL);
+    }
+
+    int ProPoller::findEvent(int fd)
+    {
+        if (auto iter = m_cache.find(fd); iter != m_cache.end())
+        {
+            return iter->second;
+        }
+        return -1;
+    }
+
+    int ProPoller::findLastEvent(int fd)
+    {
+        if (auto iter = m_lastWait.find(fd); iter != m_lastWait.end())
+        {
+            return iter->second;
+        }
+        return -1;
+    }
+
+    bool ProPoller::findAndWait(int fd, int events, int timeoutMsec , EventLoop* wev  , OnFind cb)
+    {
+        if (!wev || !m_epoll.valid() || !cb)
+        {
+            return false;
+        }
+
+        int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>
+                        (std::chrono::system_clock().now().time_since_epoch()).count();
+
+        int _events = findEvent(fd);
+
+        if ( _events < 0)
+        {
+            cb(ProPollerError::FD_NOTFOUND_IN_CACHE);
+            return false;
+        }
+        if ( !(_events & events))
+        {
+            cb(ProPollerError::FD_FOUND_BUT_EVENT_NOFOUND);
+            return false;
+        }
+
+        int last = findLastEvent(fd);
+        if ( (last > 0) && (last & events) )
+        {
+            cb(ProPollerError::OK);
+            return true;
         }
         
-        if ((timeoutMsec <= 0))
+        if (timeoutMsec <=0 )
         {
-            cb({}, true);
-            return;
+            cb(ProPollerError::FD_AND_EVENT_FOUND_BUT_NO_OCCURRED);
+            return false;
         }
 
-        auto ev = m_ev.lock();
-        if (!ev )
+        wev->addTask([self = shared_from_this() , this , now , fd, 
+                events, timeoutMsec , wev , cb = std::move(cb)]()mutable
         {
-            return;
-        }
-        int64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock().now().time_since_epoch()).count();
-        ev->addTask([fd, _cb = std::move(cb), timeoutMsec, now, self = shared_from_this()]() mutable
-                    {
-                        int64_t tmsec = std::chrono::duration_cast<std::chrono::milliseconds> 
-                                (std::chrono::system_clock().now().time_since_epoch()).count(); 
-                        tmsec = timeoutMsec - ( tmsec - now );
-                        self->findAndWait(fd, std::move(_cb) , tmsec);
-                    },
-                    EventLoopTaskType::IO_TASK);
+            int64_t crrt =  std::chrono::duration_cast<std::chrono::milliseconds>
+                        (std::chrono::system_clock().now().time_since_epoch()).count();
+            timeoutMsec = timeoutMsec + now - crrt;
+            findAndWait(fd,events,timeoutMsec,wev,std::move(cb));
+        },EventLoopTaskType::IO_TASK);
+
+        return true;
     }
 
-    void ProPoller::processEvents()
+    bool ProPoller::realUpdateEvents(int fd, int events, base::EpollCTRL ctrl)
     {
-        auto ep = m_ep.lock();
-        if (!ep || !ep->valid())
+        epoll_event ev;
+        ev.data.fd = fd;
+        ev.events = events;
+        //fprintf(stdout, "ProPoller::realUpdateEvents   :   fd = %d , events = %d.\n",fd,events);
+        return 0 == m_epoll.control(ctrl,fd,ev);
+    }
+
+    bool ProPoller::processEvents(std::weak_ptr<EventLoop> wev)
+    {
+        auto ev = wev.lock();
+        if (!ev || !m_epoll.valid())
         {
-            return;
+            return false;
         }
-        int32_t number = ep->wait(m_evc, 1);
-        if (number < 0) // faild
+        
+        base::EventContain ec(300);
+        int num ;
+
+        num = m_epoll.wait(ec, 2);
+
+        if (num<0) // wait failed
         {
-            return;
+            return false;
         }
-        else if (number == 0) // timeout
+        else if(num ==0) // timeout
         {
             //
         }
-        else
-        {
-            for (int i = 0; i < number; i++)
-            {
-                auto pevent = m_evc.reference_ptr(i);
-                ProEvent proev;
-                proev.cover(pevent->events);
-                m_cacheEvents[pevent->data.fd] = proev;
-            }
-        }
 
-        auto ev = m_ev.lock();
-        if (!ev )
+        m_lastWait.clear();
+        for (int i =0 ; i< num ; i++)
         {
-            return;
+            auto pevent = ec.reference_ptr(i);
+            m_lastWait[pevent->data.fd] = pevent->events;
+            //fprintf(stdout,"ProPoller::processEvents : Epoll Wait Some . FD =%d , Events =%d.\n",pevent->data.fd , pevent->events);
         }
-        ev->addTask([self = shared_from_this()]()
-                    { self->processEvents(); },
+        
+        if (m_exit)
+        {
+            return true;
+        }
+        ev->addTask([this, wev , self = shared_from_this()]()
+                    { processEvents(wev); },
                     EventLoopTaskType::IO_TASK);
+        return true;
     }
 
-    bool ProPoller::updateEpoll(int fd, ProEvent proev, base::EpollCTRL type)
-    {
-        auto ev = m_ev.lock();
-        auto ep = m_ep.lock();
-        if (!ev || !ep || !ep->valid())
-        {
-            return false;
-        }
-        epoll_event eev;
-        eev.data.fd = fd;
-        eev.events = proev.cover();
-        return 0 == ep->control(type, fd, eev);
-    }
-    
 }

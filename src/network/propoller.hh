@@ -6,18 +6,13 @@
 
 namespace chrindex::andren::network
 {
-    struct ProEvent
+    enum class ProPollerError:int
     {
-        int readable : 1;
-        int writeable : 1;
-        int except : 1;
-        int reserv : 29;
+        OK = 1,                             // 操作成功
+        FD_NOTFOUND_IN_CACHE,               // FD的未曾被操作
+        FD_FOUND_BUT_EVENT_NOFOUND,         // FD被发现操作过，但未对指定的事件监听
+        FD_AND_EVENT_FOUND_BUT_NO_OCCURRED, // FD的事件已添加监听，但事件已超时且未发生
 
-        ProEvent();
-
-        void cover(int32_t epoll_event_events);
-
-        int32_t cover();
     };
 
     class ProPoller : public std::enable_shared_from_this<ProPoller>, base::noncopyable
@@ -27,68 +22,75 @@ namespace chrindex::andren::network
 
         ~ProPoller();
 
-        void setEventLoop(std::weak_ptr<EventLoop> ev);
-
-        void setEpoller(std::weak_ptr<base::Epoll> ep);
-
-        /// @brief 获取Epoll的弱引用。
-        /// 请注意，ProPoller也不持有Epoll的所有权。
+        /// @brief Poller是否可用（即使EventLoop未运行）
         /// @return 
-        std::weak_ptr<base::Epoll> epollHandle();
-
         bool valid() const;
 
         /// @brief 开始polling。
-        /// 当且仅当EventLoop在运行时。
-        /// @return true为成功，无需等待EventLoop启动。
-        bool start();
+        /// 当且仅当EventLoop可用（即使未启动）。
+        /// @return true为成功。
+        bool start(std::shared_ptr<EventLoop> ev);
 
     public:
 
-        /// @brief 设置事件可缓存
-        /// 该函数要运行在IO线程中
-        /// @param fd 文件描述符
-        /// @param proev 事件类型
-        /// @return true/false
-        bool subscribe(int fd, ProEvent proev);
+    /// ########  AAA :  以下函数只能在EventLoop的IO线程内被调用。 #####
+        
+        /// @brief 为FD添加事件监听。
+        /// @param fd 
+        /// @param events 感兴趣的事件。
+        /// 可读事件 ： EPOLLIN , 可写 : EPOLLOUT
+        /// @return 
+        bool addEvent(int fd , int events );
 
-        /// @brief 修改事件缓存类型
-        /// 该函数要运行在IO线程中
-        /// @param fd 文件描述符
-        /// @param proev 事件类型
-        /// @return true/false
-        bool modSubscribe(int fd, ProEvent proev);
+        /// @brief 修改FD监听的事件。
+        /// 注意，如果没有add，则会add。
+        /// @param fd 
+        /// @param events 感兴趣的事件
+        /// @return 
+        bool modEvent(int fd , int events );
 
-        /// @brief 取消事件可缓存
-        /// 该函数要运行在IO线程中
-        /// @param fd 文件描述符
-        /// @return true/false
-        bool delSubscribe(int fd);
+        /// @brief 删除某个FD的事件监听
+        /// @param fd 
+        /// @return 
+        bool delEvent(int fd  );
 
-        /// @brief 清除所有已被缓存的事件
-        /// 该函数要运行在IO线程中
-        void clearCache();
+        /// @brief 查询最后一次的操作历史。
+        /// @param fd 
+        /// @return 返回事件集。如果-1则未监听FD。
+        int findEvent(int fd);
 
-        /// @brief 等待事件
-        /// 当事件被缓存时，cb被调用。
-        /// 该函数要运行在IO线程中.
-        /// 该函数保证，只要查到事件，则无论是否超时都将isTimeout设置为fasle。
-        /// @param fd 文件描述符
-        /// @param cb 回调
-        /// @param timeoutMsec 超时
-        void findAndWait(int32_t fd , std::function<void (ProEvent , bool isTimeout)> cb, int64_t timeoutMsec);
+        /// @brief 查询最后一次Wait的结果。
+        /// @param fd 
+        /// @return 返回事件集。如果-1则未查询到。
+        int findLastEvent(int fd);
+
+        using OnFind = std::function<void(ProPollerError errcode)>;
+
+        /// @brief 等待FD中某个感兴趣的事件，直到超时，或者等待到。
+        /// @param fd 
+        /// @param events 
+        /// @param timeoutMsec 毫秒。不建议太低。
+        /// @param cb 回调函数。要求必须有效。
+        /// @return 操作是否成功。true为成功。
+        bool findAndWait( int fd , int events , int timeoutMsec, EventLoop* wev , OnFind cb);
+
+    /// ########  END AAA #### 
 
     private:
 
-        void processEvents();
+        bool processEvents(std::weak_ptr<EventLoop> ev);
 
-        bool updateEpoll(int fd, ProEvent proev, base::EpollCTRL type);
+        /// @brief 更改Epoll
+        /// @param fd 
+        /// @param events 
+        /// @return 
+        bool realUpdateEvents(int fd, int events, base::EpollCTRL ctrl);
 
     private:
-        std::weak_ptr<EventLoop> m_ev;
-        std::weak_ptr<base::Epoll> m_ep;
-        std::map<int32_t, ProEvent> m_cacheEvents;
-        base::EventContain m_evc;
+        std::atomic<bool> m_exit;
+        base::Epoll m_epoll;
+        std::map<int , int> m_cache; // epoll control 操作的记录
+        std::map<int , int> m_lastWait; // 上次epoll wait出来的记录
     };
 
 }

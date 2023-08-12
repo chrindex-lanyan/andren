@@ -49,7 +49,6 @@ namespace chrindex::andren::network
             return TSM_Error::LISTEN_SOCKET_FAILED;
         }
         m_server = std::move(sock);
-        //m_server.setEpoll(m_ep);
         m_server.setProPoller(pp);
         m_stop = false;
 
@@ -58,19 +57,8 @@ namespace chrindex::andren::network
         {
             return TSM_Error::EVENTLOOP_ADD_TASK_FAILED;
         }
-        bool bret = pev->addTask([self = shared_from_this()]()
-        {
-            auto pp = self->m_pp.lock();
-            if (!pp || !self->m_server.valid())
-            {
-                return ;
-            }
-            ProEvent proEvent;
-            proEvent.readable = 1;
-            bool bret = pp->subscribe(self->m_server.handle()->handle(), proEvent);
-        },EventLoopTaskType::IO_TASK);
 
-        return bret ? (TSM_Error::OK):(TSM_Error::EVENTLOOP_ADD_TASK_FAILED);
+        return  (TSM_Error::OK);
     }
 
     TSM_Error TcpStreamManager::requestAccept(OnAccept onAccept)
@@ -84,28 +72,61 @@ namespace chrindex::andren::network
         {
             return TSM_Error::ACCEPT_CALLBACK_EMPTY;
         }
-        bool bret = pev->addTask([self = shared_from_this(), onAccept = std::move(onAccept)]()->bool
+        int fd = m_server.handle()->handle();
+        bool bret = pev->addTask([fd , self = shared_from_this(), onAccept = std::move(onAccept)]()
         {
             if(self->m_stop) // exit
             {
                 onAccept(0,TSM_Error::STOPPED);
-                return false;
+                return ;
             }
             auto pp = self->m_pp.lock();
             if (!pp || !self->m_server.valid())
             {
-                return false;
+                onAccept(0,TSM_Error::SERVER_SOCKET_INVALID);
+                return ;
             }
-            pp->findAndWait(self->m_server.handle()->handle(),
-            [self, _onAccept = std::move(onAccept)](ProEvent proev, bool isTimeout) mutable
+            auto pev = self->m_ev.lock();
+            if (!pev )
             {
-                if (isTimeout)
+                onAccept(0,TSM_Error::POLLER_FAILED);
+                return ;
+            }
+
+            int events = pp->findEvent(fd);
+            
+            events = (events == -1)?(EPOLLIN):(events|EPOLLIN);
+            pp->modEvent(fd, events);
+
+            pp->findAndWait(fd, EPOLLIN, 5000 , pev.get() ,
+            [fd , self, _onAccept = std::move(onAccept)](ProPollerError errcode) mutable
+            {
+                if (errcode == ProPollerError::FD_NOTFOUND_IN_CACHE 
+                    || errcode == ProPollerError::FD_FOUND_BUT_EVENT_NOFOUND )
                 {
-                    self->requestAccept(std::move(_onAccept));
+                    _onAccept(0, TSM_Error::POLLER_A_UNKNOW_EVENT );
                     return ;
                 }
 
-                if (proev.readable)
+                auto pp = self->m_pp.lock();
+                if (!pp || !self->m_server.valid())
+                {
+                    _onAccept(0, TSM_Error::POLLER_FAILED );
+                    return ;
+                }
+
+                int events = pp->findEvent(fd);
+
+                events &= ~(EPOLLIN);
+                pp->modEvent(fd, events);
+
+                if (errcode == ProPollerError::FD_AND_EVENT_FOUND_BUT_NO_OCCURRED)
+                {
+                    _onAccept(0, TSM_Error::ACCEPT_TIMEOUT );
+                    return  ;
+                }
+
+                if (errcode == ProPollerError::OK)
                 {
                     std::shared_ptr<TcpStream> clistream = self->m_server.accept();
                     if(!clistream)
@@ -117,13 +138,9 @@ namespace chrindex::andren::network
                     clistream->setProPoller(self->m_pp);
                     _onAccept( std::move(clistream) , TSM_Error::OK );
                 }
-                else 
-                {
-                    _onAccept( 0 , TSM_Error::ACCEPT_FAILED );
-                }
-            }, 50 );
+            } );
             
-            return true;
+            return ;
         } , 
         EventLoopTaskType::IO_TASK);
 

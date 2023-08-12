@@ -22,10 +22,10 @@ namespace chrindex::andren::network
     {
     public :
 
-        using OnConnected = std::function<void(std::shared_ptr<TcpStream> )>;
+        using OnConnected = std::function<void(int status)>;
         using OnClose = std::function<void()>;
-        using OnReadDone  = std::function<void(ssize_t ret, std::string const & data)>;
-        using OnWriteDone = std::function<void(ssize_t ret, std::string const & lastData)>;
+        using OnReadDone  = std::function<void(ssize_t ret, std::string && data)>;
+        using OnWriteDone = std::function<void(ssize_t ret, std::string && lastData)>;
 
         TcpStream();
         TcpStream(base::Socket && sock);
@@ -40,8 +40,16 @@ namespace chrindex::andren::network
 
         std::shared_ptr<TcpStream> accept();
 
+        /// @brief 
+        /// @param onRead 当ssize_t ret是-2时是操作步骤出错，-3是请求超时。
+        /// @param timeoutMsec 请求时限。超过该时限请求视为超时，除非有数据。
+        /// @return 
         bool reqRead(OnReadDone onRead, int timeoutMsec = 15000);
 
+        /// @brief 
+        /// @param data 
+        /// @param onWrite 当ssize_t ret是-2时是操作步骤出错，-3是请求超时。
+        /// @return 
         bool reqWrite(std::string const & data , OnWriteDone onWrite);
 
         bool reqWrite(std::string && data , OnWriteDone onWrite);
@@ -64,12 +72,18 @@ namespace chrindex::andren::network
 
         /// ###### EventLoop && Epool
 
-        /// @brief 该函数会订阅可读事件
+        /// @brief 设置Poller
         /// @param pp 
-        void setProPoller(std::weak_ptr<ProPoller> pp);
+        bool setProPoller(std::weak_ptr<ProPoller> pp  );
 
         void setEventLoop(std::weak_ptr<EventLoop> ev);
 
+        /// @brief 断开连接并返回套接字
+        /// 请注意，断开连接不等于套接字被关闭。
+        /// 调用此函数会导致套接字Read时返回0，预示连接
+        /// 已经断开，然后用户会收到OnClose回调。
+        /// 请在该回调进行清理工作。
+        void disconnect();
 
     private :
 

@@ -1,7 +1,7 @@
 ﻿add_rules("mode.debug", "mode.release")
 
 set_languages("cxx20")
-add_cxxflags("-Wall -O2")
+add_cxxflags("-Wall ")
 
 main_project_src = "./"
 

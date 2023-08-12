@@ -21,6 +21,8 @@ namespace chrindex::andren::network
         EVENTLOOP_ADD_TASK_FAILED = -8,
         POLLER_FAILED = -9,
         POLLER_ADD_FAILED = -10,
+        ACCEPT_TIMEOUT = -11,
+        POLLER_A_UNKNOW_EVENT = -12,
     };
 
     class TcpStreamManager : public std::enable_shared_from_this<TcpStreamManager>, base::noncopyable
