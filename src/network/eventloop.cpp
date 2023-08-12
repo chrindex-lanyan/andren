@@ -10,6 +10,7 @@ namespace chrindex::andren::network
     EventLoop::EventLoop(uint32_t size)
     {
         m_size = std::max(size, 2u);
+        m_tpool = nullptr;
         m_bqueForTask = new base::DBuffer<Task>[m_size];
         m_exit = false;
     }
@@ -17,56 +18,60 @@ namespace chrindex::andren::network
     EventLoop::~EventLoop()
     {
         shutdown();
+        delete [] m_tpool;
         delete [] m_bqueForTask;
     }
 
     bool EventLoop::addTask(Task task, EventLoopTaskType type)
     {
-        if(!m_tpool.valid() || !task)
-        {
-            return false;
-        }
+        bool bret = false;
 
-        uint64_t randmsec = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock()
-            .now().time_since_epoch()).count();
-        int32_t randindex = randmsec%(m_size-1);
         if (type == EventLoopTaskType::IO_TASK)
         {
-            m_bqueForTask[0].pushBack(std::move(task));
+            bret = addTask(std::move(task), 0 );
         }
         else if (type == EventLoopTaskType::SHCEDULE_TASK)
         {
-            m_bqueForTask[1].pushBack(std::move(task));
+            bret = addTask(std::move(task), 1 );
         }
         else if (type == EventLoopTaskType::FURTURE_TASK)
         {
-            m_bqueForTask[randindex].pushBack(std::move(task));
+            uint64_t randmsec = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock()
+                .now().time_since_epoch()).count();
+            int32_t randindex = randmsec%(m_size-1);
+            bret = addTask(std::move(task), randindex );
         }
 
-        return true;
+        return bret;
     }
 
     bool EventLoop::addTask(Task task, uint32_t index)
     {
-        if(!m_tpool.valid() || !task)
+        if(m_tpool == nullptr || !task)
         {
             return false;
         }
+
         if (index >= m_size)
         {
             index = m_size -1;
         }
 
         m_bqueForTask[index].pushBack(std::move(task));
+        m_cv.notify_all();
         return true;
     }
 
     bool EventLoop::start()
     {
-        m_tpool = std::move(base::ThreadPoolPortable(m_size));
+        m_exit = false;        
+        m_tpool = new std::thread[m_size];
         for (uint32_t i=0;i< m_size;i++)
         {
-            startNextLoop(i);
+            m_tpool[i] = std::move(std::thread([i ,this, self = shared_from_this()]()
+            {
+                startNextLoop(i);
+            }));
         }
         return true;
     }
@@ -75,10 +80,14 @@ namespace chrindex::andren::network
     {
         // 设置退出标识
         m_exit = true;
+        m_cv.notify_all();
         // 唤醒所有的线程
-        for (uint32_t i = 0; i < m_size ; i++)
+        for (uint32_t i = 0; i < m_size && m_tpool; i++)
         {
-            m_tpool.notifyThread(i);
+            if (m_tpool[i].joinable())
+            {
+                m_tpool[i].join();
+            }
         }
     }
 
@@ -89,16 +98,10 @@ namespace chrindex::andren::network
 
     void EventLoop::startNextLoop(uint32_t index)
     {
-        if (m_exit)
+        while(!m_exit)
         {
-            return ;
+            work(index);
         }
-        m_tpool.exec([self = shared_from_this(), index]()->bool
-        {
-            self->work(index);
-            self->startNextLoop(index);
-            return true;
-        },index);
     }
 
     void EventLoop::work(uint32_t index)
@@ -106,9 +109,16 @@ namespace chrindex::andren::network
         std::optional<std::deque<Task>> result;
         m_bqueForTask[index].takeMulti(result);
 
+        size_t size = 0; 
+        if (result.has_value())
+        {
+            size = result.value().size();
+        }
+
         if (!result.has_value())
         {
-            std::this_thread::sleep_for(std::chrono::microseconds(100));
+            std::unique_lock<std::mutex>locker(m_cvmut);
+            m_cv.wait_for(locker,std::chrono::microseconds(100));
             return ;
         }
         for (auto & task : result.value() )

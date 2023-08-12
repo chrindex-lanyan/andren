@@ -47,7 +47,7 @@ namespace chrindex::andren::base
         /// @return 自身的引用
         Socket &operator=(Socket &&_);
 
-        /// @brief 判断socket fd是否被成功初始化，无论现在是否可用。
+        /// @brief 判断内部保存的socket fd是否大于0。
         /// @return 仅fd有效时返回true。
         bool valid() const;
 
@@ -247,6 +247,15 @@ namespace chrindex::andren::base
 
         /// @brief  关闭套接字
         void close();
+
+        /// @brief 关闭但不清除套接字
+        /// 请注意，一旦调用此函数，将无法通过
+        /// valid()函数判断套机字是否有效。
+        void closeAndNoClear();
+
+        /// @brief 关闭且返回套接字
+        /// @return 刚刚关闭的套接字
+        int closeAndReturn();
 
 
     private:

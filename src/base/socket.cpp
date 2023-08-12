@@ -194,6 +194,19 @@ namespace chrindex::andren::base
         m_fd = -1;
     }
 
+    void Socket::closeAndNoClear()
+    {
+        ::close(m_fd);
+    }
+
+    int Socket::closeAndReturn()
+    {
+        int ret = m_fd;
+        ::close(m_fd);
+        m_fd = -1;
+        return ret;
+    }
+
     LocalSocket::LocalSocket()
     {
         m_sv[0] = -1;

@@ -84,7 +84,7 @@ namespace chrindex::andren::base
     public:
         ThreadPoolPortable() = default;
 
-        ThreadPoolPortable(ThreadPoolPortable &&) = default;
+        ThreadPoolPortable(ThreadPoolPortable &&) ;
 
         ThreadPoolPortable(uint32_t threadCount);
 

@@ -135,7 +135,7 @@ namespace chrindex::andren::base
                         }
                         else 
                         {
-                            data->perthread_data[threadno].cond.wait_for(locker,std::chrono::milliseconds(10));
+                            data->perthread_data[threadno].cond.wait_for(locker,std::chrono::milliseconds(5));
                         }
                     } }).detach();
         }
@@ -146,6 +146,11 @@ namespace chrindex::andren::base
         if (m_data){
             m_data->isExit = true;
         }
+    }
+
+    ThreadPoolPortable::ThreadPoolPortable(ThreadPoolPortable && _) 
+    {
+        m_data = std::move(_.m_data);
     }
 
     ThreadPoolPortable &ThreadPoolPortable::operator=(ThreadPoolPortable &&_)
