@@ -5,7 +5,7 @@
 using namespace chrindex::andren;
 
 #define errout(...) fprintf(stderr, __VA_ARGS__)
-#define stdout(...) fprintf(stdout, __VA_ARGS__)
+#define genout(...) fprintf(stdout, __VA_ARGS__)
 
 std::atomic<int> m_exit;
 
@@ -14,7 +14,7 @@ int32_t serverport = 8317;
 
 int testTcpServer()
 {
-    stdout("TCP Server : Initial...\n");
+    genout("TCP Server : Initial...\n");
     
     std::shared_ptr<network::EventLoop> ev = std::make_shared<network::EventLoop>(4);
     std::shared_ptr<network::ProPoller> pp = std::make_shared<network::ProPoller>();
@@ -82,12 +82,12 @@ int testTcpServer()
                 return ;
             }
 
-            stdout ("TcpServer : Client Data Done! Size = %ld , Data = [%s].\n", ret, data.c_str());
-            stdout ("TcpServer : Prepare Request Echo Data Back.\n");
+            genout ("TcpServer : Client Data Done! Size = %ld , Data = [%s].\n", ret, data.c_str());
+            genout ("TcpServer : Prepare Request Echo Data Back.\n");
             
             cstream->reqWrite(std::move(data) , [cstream](ssize_t ret, std::string && lastData)
             {
-                stdout ("TcpServer : Request Echo Data Back.\n");
+                genout ("TcpServer : Request Echo Data Back.\n");
             });
         },  
         5000);
@@ -107,18 +107,18 @@ int testTcpServer()
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    stdout ("TcpServer : Server Exit...\n");
+    genout ("TcpServer : Server Exit...\n");
 
     return 0;
 }
 
 int testTcpClient()
 {
-    stdout("TCP Client : Wait...\n");
+    genout("TCP Client : Wait...\n");
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000)); // 等Server进程一会
 
-    stdout("TCP Client : Initial...\n");
+    genout("TCP Client : Initial...\n");
 
     std::shared_ptr<network::EventLoop> ev = std::make_shared<network::EventLoop>(4);
     std::shared_ptr<network::ProPoller> pp = std::make_shared<network::ProPoller>();
@@ -142,7 +142,7 @@ int testTcpClient()
 
     cstream->setOnClose([]()
     {
-        stdout("TCP Client : Client Disconnected...\n");
+        genout("TCP Client : Client Disconnected...\n");
         m_exit = 1;
     });
 
@@ -164,7 +164,7 @@ int testTcpClient()
 
         assert(bret);
 
-        stdout("TCP Client : Connected!! Prepare Write Data.\n");
+        genout("TCP Client : Connected!! Prepare Write Data.\n");
 
         std::string message = "Hello World!  ------ Love From Client.";
 
@@ -176,8 +176,8 @@ int testTcpClient()
                 return ;
             }
 
-            stdout("TCP Client : Send Data [%s] .\n",data.c_str());
-            stdout("TCP Client : Prepare A Read Data Request.\n");
+            genout("TCP Client : Send Data [%s] .\n",data.c_str());
+            genout("TCP Client : Prepare A Read Data Request.\n");
 
             bool bret = cstream->reqRead([cstream](ssize_t ret, std::string && data)
             {
@@ -188,10 +188,10 @@ int testTcpClient()
                 }
                 else
                 {
-                    stdout ("TCP Client : Data Done! Size = %ld , Data = [%s].\n", ret, data.c_str());
+                    genout ("TCP Client : Data Done! Size = %ld , Data = [%s].\n", ret, data.c_str());
                 } 
                 cstream->disconnect();
-                stdout("TCP Client : Try Disconnect.\n");
+                genout("TCP Client : Try Disconnect.\n");
             },
             10000);
 
@@ -224,7 +224,7 @@ int testTcpClient()
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    stdout ("TCP Client : Client Exit...\n");
+    genout ("TCP Client : Client Exit...\n");
     return 0;
 }
 
@@ -236,7 +236,7 @@ int testTCPServerAndClient()
     if (signal(SIGINT,
                [](int sig) -> void
                {
-                   stdout("准备退出....\n");
+                   genout("准备退出....\n");
                    m_exit = 1;
                }) == SIG_ERR)
     {

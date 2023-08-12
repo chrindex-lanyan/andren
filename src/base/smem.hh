@@ -20,7 +20,7 @@
 namespace chrindex::andren::base
 {
 
-    template <typename T, typename = std::enable_if<std::is_trivial<T>::value && std::is_standard_layout<T>::value, T>::type>
+    template <typename T, typename = typename std::enable_if<std::is_trivial<T>::value && std::is_standard_layout<T>::value, T>::type>
     class SharedMem : public noncopyable
     {
     public:
