@@ -156,8 +156,8 @@
     
 ### TCP/UDP库：
     {
-        只做Socket的基本包装。提供TCP Stream ， TCP Stream Manager ， UDP Stream Manager。
-        Accept、Read、Write是可非阻塞的。
+        提供TCP Stream ， TCP Stream Manager ， UDP Stream Manager。
+        使用何种方式（Proactor/Reactor）待定。
     } (暂时搁置，具体原因见`Socket库`部分)
 
 ### io_uring库：
@@ -173,8 +173,6 @@
             3. 网络IO任务（仅线程1）。 处理网络断开事件，新连接事件、可读事件、可写事件。断开的网络在此一次性清理。
             4. 文件IO任务（仅线程1）。 处理IO可读可写事件。
             5. 普通任务（线程1 ~ n）。 处理任务队列里的任务。
-            6. 当且仅当线程无事可做时等待1MS（实际可能会更久）。
-            7. 定时器任务、普通任务优先选择其他线程，然后才选择线程1。
         }
         根据具体的情况，该部分可能会存在增删。
     } （正在）
