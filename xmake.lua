@@ -43,7 +43,7 @@ example_pgsql_pattern = example_src .. "./example_pgsql.cpp"
 example_DBuffer_pattern = example_src .. "./example_DBuffer.cpp"
 example_socket_pattern = example_src .. "./example_socket.cpp"
 example_ssl_pattern = example_src .. "./example_ssl.cpp"
-example_tcpserver_pattern = example_src .. "./example_tcpserver.cpp"
+-- example_tcpserver_pattern = example_src .. "./example_tcpserver.cpp"
 example_eventloop_pattern = example_src .. "./example_eventloop.cpp"
 example_retcpserver_pattern = example_src .. "./example_retcpserver.cpp"
 
@@ -200,11 +200,11 @@ target("test_ssl_socket")
     add_links("fmt")
     add_deps("andren", {private = true})
     
-target("test_tcpserver_socket")
-    set_kind("binary")
-    add_files(example_tcpserver_pattern)
-    add_links("fmt")
-    add_deps("andren", {private = true})
+-- target("test_tcpserver_socket")
+--     set_kind("binary")
+--     add_files(example_tcpserver_pattern)
+--     add_links("fmt")
+--     add_deps("andren", {private = true})
 
 target("test_eventloop")
     set_kind("binary")

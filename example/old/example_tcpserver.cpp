@@ -1,5 +1,5 @@
 ﻿
-#include "../src/network/andren_network.hh"
+#include "../../src/network/andren_network.hh"
 
 
 using namespace chrindex::andren;
@@ -64,11 +64,12 @@ int testTcpServer()
         std::string ip = epv4.ip();
         int32_t port = epv4.port();
 
-        cstream->setOnClose([cstream, ip , port]()
+        cstream->setOnClose([cstream, ip , port]()mutable
         {
             // 无需手动close
             // 不过要注意cstream的清理。
             errout ("TcpServer : Client [%s:%d] Disconnected.\n" , ip.c_str(), port);
+            cstream.reset();
         });
 
         cstream->reqRead([cstream](ssize_t ret, std::string && data)
@@ -150,12 +151,13 @@ int testTcpClient()
     // serverip = "192.168.88.2";
     // serverport = 8317;
 
-    bret = cstream->reqConnect(serverip,serverport,[pp,cstream](int status)
+    bret = cstream->reqConnect(serverip,serverport,[pp,cstream](int status) mutable
     {
         if(status != 0) // Cannot Connected
         {
             errout ("TCP Client : Cannot Create A New Connection.\n");
             m_exit = 1;
+            cstream.reset();
             return ;
         }
         /// connected
@@ -168,18 +170,19 @@ int testTcpClient()
 
         std::string message = "Hello World!  ------ Love From Client.";
 
-        bret = cstream->reqWrite(message,[cstream](ssize_t ret, std::string && data)
+        bret = cstream->reqWrite(message,[cstream](ssize_t ret, std::string && data) mutable
         {
             if (ret <= 0)
             {
                 errout ("TCP Client : Cannot Send A New Message.\n");
+                cstream.reset();
                 return ;
             }
 
             genout("TCP Client : Send Data [%s] .\n",data.c_str());
             genout("TCP Client : Prepare A Read Data Request.\n");
 
-            bool bret = cstream->reqRead([cstream](ssize_t ret, std::string && data)
+            bool bret = cstream->reqRead([cstream](ssize_t ret, std::string && data) mutable
             {
                 if (ret < 0 ) // timeout
                 {
@@ -192,8 +195,11 @@ int testTcpClient()
                 } 
                 cstream->disconnect();
                 genout("TCP Client : Try Disconnect.\n");
+                cstream.reset();
             },
             10000);
+
+            cstream.reset();
 
             if(!bret) // Cannot Connected
             {
@@ -202,6 +208,8 @@ int testTcpClient()
                 return ;
             }
         });
+
+        cstream.reset();
         if(!bret) // Cannot Connected
         {
             errout ("TCP Client : Cannot Reqeust To Send A New Message.\n");

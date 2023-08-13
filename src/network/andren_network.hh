@@ -4,10 +4,8 @@
 
 
 #include "eventloop.hh"
-#include "propoller.hh"
-#include "tcpstream.hh"
-#include "tcpstreammanager.hh"
-#include "udppackage.hh"
+
+#include "old/network_old.hh"
 
 #include "acceptor.hh"
 #include "datagram.hh"
