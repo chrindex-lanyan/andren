@@ -45,6 +45,7 @@ example_socket_pattern = example_src .. "./example_socket.cpp"
 example_ssl_pattern = example_src .. "./example_ssl.cpp"
 example_tcpserver_pattern = example_src .. "./example_tcpserver.cpp"
 example_eventloop_pattern = example_src .. "./example_eventloop.cpp"
+example_retcpserver_pattern = example_src .. "./example_retcpserver.cpp"
 
 
 
@@ -211,4 +212,9 @@ target("test_eventloop")
     add_links("fmt")
     add_deps("andren", {private = true})
 
+target("test_retcpserver")
+    set_kind("binary")
+    add_files(example_retcpserver_pattern)
+    add_links("fmt")
+    add_deps("andren", {private = true})
     
