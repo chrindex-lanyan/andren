@@ -270,7 +270,7 @@ int test_client()
             errprintf("Client : epoll wait failed.\n");
             break;
         }
-        for (int k = 0; k < num; k++)
+        for (int k = 0; k < num && m_exit !=1 ; k++)
         {
             auto pevent = ecc.reference_ptr(k);
             if (pevent->data.fd != csock.handle())
@@ -297,7 +297,7 @@ int test_client()
                     {
                         // disconnect
                         stdprintf("Client : disconnect...\n");
-                        break;
+                        return 0;
                     }
                     else if (ret > 0)
                     {

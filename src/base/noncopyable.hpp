@@ -3,7 +3,7 @@
 namespace chrindex::andren::base
 {
     /// @brief 不许复制
-    class noncopyable
+    struct noncopyable
     {
     public:
         noncopyable(const noncopyable &) = delete;

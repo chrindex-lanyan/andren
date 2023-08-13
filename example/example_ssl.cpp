@@ -392,7 +392,7 @@ int test_client()
             errprintf("SSL Client : Epoll wait failed.\n");
             break;
         }
-        for (int k = 0; k < num; k++)
+        for (int k = 0; k < num && m_exit != 1; k++)
         {
             auto pevent = ecc.reference_ptr(k);
             if (pevent->data.fd != csock.handle())
@@ -409,6 +409,7 @@ int test_client()
                 {
                     // disconnect
                     stdprintf("SSL Client : Disconnect...\n");
+                    return 0;
                 }
                 else if(result.key() <=0 )
                 {
