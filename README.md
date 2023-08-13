@@ -1,7 +1,8 @@
 # andren
 一个库，由两部分组成，分别为base部分和network部分。但是这个区分并不很严格，因为base也可以提供网络功能。<br>
-这是一个学习性质的库，目前存在许多理解和实践上的问题。<br>
+这是一个学习性质的库，目前存在许多理解和实践上的问题，以及潜在的bug，不要指望稳定性和可靠性。<br>
 你当然可以指出问题，但我可能会在其他地方改进，因为我很可能在未来的某个时候将这个库推翻重写。<br>
+
 
 开发环境：<br>
     Ubuntu  = Ubuntu 22.04 LTS x86_64 <br>
@@ -9,6 +10,18 @@
     Make Tool = xmake v2.8.1+20230711, A cross-platform build utility based on Lua <br>
 
 当然可以将xmake替换成cmake或者make或者其他；除非不得己，我真的不想写cmake。<br>
+
+## 安装
+脚本`install_xmake.sh`用于安装xmake构建工具。xmake的官网是`https://xmake.io/#/` 。<br>
+脚本`prepare_dependent.sh`用于安装依赖到的第三方库。
+脚本`update_compile_commands.sh`用于通过xmake生成`compile_commands.json`，这对在vscode里使用clangd插件很友好。
+lua脚本`xmake.lua`用于生成库（.so或者.a），然后生成example。注意不要使用过多的线程编译，可能会爆内存。
+
+## 其他第三方库
+third-part文件夹下有三个子文件夹，对应着三个引用的库。
+json库我没有直接引用仓库，而是自己下了一个版本。
+llhttp需要自己生成，我自己生成了一个。
+base64库理论上可以直接用OpenSSL的替换掉。
 
 ## 关于注释
     暂时没时间补完注释。总之看情况吧。
@@ -157,8 +170,19 @@
 ### TCP/UDP库：
     {
         提供TCP Stream ， TCP Stream Manager ， UDP Stream Manager。
-        使用何种方式（Proactor/Reactor）待定。
-    } (暂时搁置，具体原因见`Socket库`部分)
+        UDP的部分没有写。TCP的部分大部分写好了。
+        目前有两个版本：{
+            版本1：{
+                eventloop.cpp + propoller.cpp + tcpstreammanager.cpp + tcpstream.cpp 及其各自的.hh头文件。
+                这个版本尚且存在难以解决的明显的BUG，比如说连接断开时的回调，混乱的资源管理和对象生命周期。
+                这个版本是个失败品，我留着是因为思路从其他地方借鉴过来的，我认为有可取的地方，所以才写的。
+            }，
+            版本2：{
+                eventloop.cpp + repoller.cpp + sockstream.cpp + acceptor.cpp 及其各自的.hh头文件。
+                这个版本勉强可用，暂未发现明显BUG。
+            }
+        }
+    }（部分）
 
 ### io_uring库：
     {
@@ -175,7 +199,8 @@
             5. 普通任务（线程1 ~ n）。 处理任务队列里的任务。
         }
         根据具体的情况，该部分可能会存在增删。
-    } （正在）
+        第四项可能需要IO_URING写完。
+    } （完成）
 
 ### GRPC 库：
     {
