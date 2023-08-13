@@ -1,22 +1,22 @@
 ﻿#include "sockstream.hh"
 #include "eventloop.hh"
+#include <cstdio>
 #include <memory>
+#include <sys/socket.h>
 
 namespace chrindex::andren::network
 {
-    SockStream::SockStream()
-    {
-        //
-    }
 
     SockStream::SockStream(base::Socket && sock, std::weak_ptr<RePoller> wrp)
     {
         data = std::make_unique<_private>();
-
+        data->m_sock = std::move(sock);
+        data->wrp = wrp;
+        //fprintf(stdout,"SockStream::SockStream %lu.\n",(uint64_t)this);
     }
     SockStream::~SockStream()
     {
-        //
+        //fprintf(stdout,"SockStream::~SockStream %lu.\n",(uint64_t)this);
     }
 
     void SockStream::setOnClose(OnClose const & cb)
@@ -39,7 +39,7 @@ namespace chrindex::andren::network
 
     void SockStream::setOnClose(OnClose && cb)
     {
-        if(data)
+        if(cb)
         {
             data->m_onClose = std::move(cb);
         }
@@ -47,7 +47,7 @@ namespace chrindex::andren::network
 
     void SockStream::setOnRead(OnRead && cb)
     {
-        if(data)
+        if(cb)
         {
             data->m_onRead = std::move(cb);
         }
@@ -55,56 +55,36 @@ namespace chrindex::andren::network
 
     void SockStream::setOnWrite(OnWrite && cb)
     {
-        if(data)
+        if(cb)
         {
             data->m_onWrite = std::move(cb);
         }
     }
 
+    base::Socket * SockStream::reference_handle()
+    {
+        return &data->m_sock;
+    }
+
+    std::weak_ptr<RePoller> SockStream::reference_repoller()
+    {
+        return data->wrp;
+    }
+
     bool SockStream::startListenReadEvent()
     {
-        if(!data)
-        {
-            return false;
-        }
         if(auto rp = data->wrp.lock();rp)
         {
             if(auto ev = rp->eventLoopReference().lock(); ev)
             {
                 int fd = data->m_sock.handle();
-                ev->addTask([fd , this, self = shared_from_this()]()
+                return ev->addTask([fd ,  self = shared_from_this()]()
                 {
-                    if(!data)
-                    {
-                        return ;
-                    }
-                    if(auto rp = data->wrp.lock(); rp)
-                    {
-                        rp->append(fd, EPOLLIN, 
-                            [this,fd, self](int events)
-                        {
-                            if (events & EPOLLIN)
-                            {
-                                base::KVPair<ssize_t , std::string> result = tryRead(data->m_sock);
-                                if (result.key() <= 0)
-                                {
-                                    data->m_onClose();
-                                    if(auto rp = data->wrp.lock(); rp)
-                                    {
-                                        rp->cancle(fd, [](int events){});
-                                    }
-                                }
-                                else 
-                                {
-                                    data->m_onRead(result.key(),std::move(result.value()));
-                                }
-                            }
-                        });
-                    }
+                    self->listenReadEvent(fd);
                 },EventLoopTaskType::IO_TASK);
             }
         }
-        return true;
+        return false;
     }
 
     /// async send
@@ -117,7 +97,7 @@ namespace chrindex::andren::network
     /// async send
     bool SockStream::asend(std::string && _data)
     {
-        if(!data || !data->m_sock.valid())
+        if(!data->m_sock.valid())
         {
             return false;
         }
@@ -125,11 +105,11 @@ namespace chrindex::andren::network
         {
             if (auto ev = rp->eventLoopReference().lock(); ev)
             {
-                return ev->addTask([this, self = shared_from_this(), msg = std::move(_data)]()
+                return ev->addTask([ self = shared_from_this(), msg = std::move(_data)]()
                 {
-                    if(data && data->m_sock.valid())
+                    if(self->data->m_sock.valid())
                     {
-                        data->m_sock.send(msg.c_str(), msg.size(), 0);
+                        self->data->m_sock.send(msg.c_str(), msg.size(), 0);
                     }
                 },EventLoopTaskType::IO_TASK);
             }
@@ -138,28 +118,45 @@ namespace chrindex::andren::network
     }
 
     /// async close
-    void SockStream::aclose()
+    bool SockStream::aclose()
     {
-        if (data)
+        if (auto rp = data->wrp.lock();rp)
         {
-            if (auto rp = data->wrp.lock();rp)
+            if(auto ev = rp->eventLoopReference().lock();ev)
             {
-                if(auto ev = rp->eventLoopReference().lock();ev)
+                return ev->addTask([ self = shared_from_this()]()
                 {
-                    ev->addTask([this, self = shared_from_this()]()
-                    {
-                        if(data)
-                        {
-                            data->m_sock.closeAndNoClear();
-                        }
-                    },EventLoopTaskType::IO_TASK);
-                }
+                    self->data->m_sock.closeAndNoClear();
+                },EventLoopTaskType::IO_TASK);
             }
         }
+        return false;
     }
 
-    base::KVPair<ssize_t,std::string> SockStream::tryRead(base::Socket & sock)
+    bool SockStream::asyncConnect(std::string const &ip , int port, std::function<void(bool bret)> onConnect)
     {
+        auto rp = data->wrp.lock();
+        auto ev = rp? rp->eventLoopReference().lock() : std::shared_ptr<EventLoop>{};
+        if (!ev || !data->m_sock.valid())
+        {
+            return false;
+        }
+        base::EndPointIPV4 epv4(ip,port);
+        return ev->addTask([ _addr = std::move(epv4) ,cb = std::move(onConnect) ,
+             self= shared_from_this()]()mutable
+        {
+            int ret = self->data->m_sock.connect(_addr.toAddr(), _addr.addrSize());
+            if(ret == 0)
+            {
+                self->listenReadEvent(self->data->m_sock.handle());
+            }
+            cb(ret == 0);
+        },EventLoopTaskType::IO_TASK);
+    }
+
+    base::KVPair<ssize_t,std::string> SockStream::tryRead()
+    {
+        base::Socket & sock = data->m_sock;
         std::string rddata , tmp(128,0);
         bool readok = false;
         while (1)
@@ -184,6 +181,40 @@ namespace chrindex::andren::network
             return { (ssize_t)rddata.size(), std::move(rddata) } ;
         }
         return { 0, {}};
+    }
+
+    void SockStream::listenReadEvent(int fd)
+    {
+        if(auto rp = data->wrp.lock(); rp)
+        {
+            std::weak_ptr<SockStream> wsstream = shared_from_this();
+            rp->append(fd, EPOLLIN);
+            rp->setReadyCallback(fd, [fd, wsstream](int events)
+            {
+                auto self = wsstream.lock();
+                if (!self)
+                {
+                    return ;
+                }
+                //fprintf(stdout,"SockStream::listenReadEvent : this = %lu.\n",(uint64_t)self.get());
+                if (events & EPOLLIN)
+                {
+                    base::KVPair<ssize_t , std::string> result = self->tryRead();
+                    if (result.key() <= 0)
+                    {
+                        self->data->m_onClose();
+                        if(auto rp = self->data->wrp.lock(); rp)
+                        {
+                            rp->cancle(fd);
+                        }
+                    }
+                    else 
+                    {
+                        self->data->m_onRead(result.key(),std::move(result.value()));
+                    }
+                }
+            });
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 ﻿
 #include "repoller.hh"
+#include "eventloop.hh"
 #include <memory>
 
 namespace chrindex::andren::network
@@ -9,32 +10,66 @@ namespace chrindex::andren::network
         data = std::make_unique<_private>();
     }
 
-    RePoller::~RePoller(){}
-
-
-    void RePoller::append( int fd , int events , OnEventUP onEventUP)
+    RePoller::~RePoller()
     {
-
+        stop();
     }
 
-    void RePoller::modify( int fd , int events , OnEventUP onEventUP)
-    {
 
+    bool RePoller::append( int fd , int events )
+    {
+        epoll_event ev;
+        ev.data.fd = fd;
+        ev.events = events;
+        return 0 == data->m_ep.control(base::EpollCTRL::ADD,  fd, ev);
     }
 
-    void RePoller::cancle( int fd , OnEventUP onEventUP)
+    bool RePoller::modify( int fd , int events )
     {
-        
+        epoll_event ev;
+        ev.data.fd = fd;
+        ev.events = events;
+        return 0 == data->m_ep.control(base::EpollCTRL::MOD,  fd, ev);
     }
 
-    bool RePoller::start(std::weak_ptr<EventLoop> wev)
+    bool RePoller::cancle( int fd )
     {
-        if (!data)
+        data->m_callbacks.erase(fd);
+        epoll_event ev;
+        ev.data.fd = fd;
+        ev.events = 0;
+        return 0 == data->m_ep.control(base::EpollCTRL::DEL,  fd, ev);
+    }
+
+    bool RePoller::setReadyCallback(int fd , OnEventUP const & onEventUP)
+    {
+        auto cb = onEventUP;
+        return setReadyCallback(fd, std::move(cb));
+    }
+
+    bool RePoller::setReadyCallback(int fd , OnEventUP && onEventUP)
+    {
+        if (!onEventUP || fd <=0){return false;}
+        data->m_callbacks[fd] = std::move(onEventUP);
+        return true;
+    }
+
+    bool RePoller::start(std::weak_ptr<EventLoop> wev, int epollWaitPerTick_msec)
+    {
+        auto ev = wev.lock();
+        if (!ev)
         {
             return false;
         }
         data->m_wev = wev;
+        data->m_shutdown = false;
+        workNextTick(epollWaitPerTick_msec);
         return true;
+    }
+
+    void RePoller::stop()
+    {
+        data->m_shutdown = true;
     }
 
     std::weak_ptr<EventLoop> RePoller::eventLoopReference() const
@@ -46,7 +81,122 @@ namespace chrindex::andren::network
         return {};
     }
 
-    void RePoller::work(){}
+    void RePoller::workNextTick(int timeoutMsec)
+    {
+        auto ev = data->m_wev.lock();
+        ev->addTask([timeoutMsec, this, self = shared_from_this()]()
+        {
+            work(timeoutMsec);
+            if(false == data->m_shutdown)
+            {
+                workNextTick(timeoutMsec);
+            }
+        },EventLoopTaskType::IO_TASK);
+    }
+
+    void RePoller::work(int timeoutMsec)
+    {
+        base::EventContain ec(300);
+        int num ;
+
+        num = data->m_ep.wait(ec, timeoutMsec); // N Msec Per Tick
+
+        if (num<0) // wait failed
+        {
+            //fprintf(stderr,"RePoller::work():: wait failed. exit...\n");
+            data->m_shutdown = true;
+            return ;
+        }
+        else if(num ==0) // timeout
+        {
+            //ignore
+            //fprintf(stderr,"RePoller::work():: timeout...\n");
+        }
+
+        for (int i = 0 ; i < num ; i++)
+        {
+            auto pevent = ec.reference_ptr(i);
+            if (auto iter = data->m_callbacks.find(pevent->data.fd) ; iter != data->m_callbacks.end())
+            {
+                iter->second(pevent->events);
+            }   
+        }
+    }
+
+    bool RePoller::saveObject(int id , bool force , std::any _object,  std::function<void(bool ret, std::any * _obj)> onSave)
+    {
+        if(!onSave )
+        {
+            return false;
+        }
+        
+        auto ev = data->m_wev.lock();
+        if (!ev)
+        {
+            return false;
+        }
+        return ev->addTask([ this, self = shared_from_this(), 
+            id, force , obj = std::move(_object), cb = std::move(onSave) ]()mutable
+        {
+            auto iter = data->m_objects.find(id);
+            if(iter != data->m_objects.end()) // 如果查到有重复
+            {
+                if(force) // 强制覆盖
+                {
+                    iter->second = std::move(obj);
+                    cb(true,&iter->second);
+                }
+                else  // 不强制覆盖
+                {
+                    cb(false, &obj);
+                }
+            }else  // 如果没有重复，直接保存
+            {
+                cb(true,&obj);
+                data->m_objects[id] =  std::move(obj);
+            }
+        },EventLoopTaskType::IO_TASK);
+    }
+
+
+    bool RePoller::findObject(int id , bool takeOrNot ,  std::function<void(bool ret, std::any * _obj)> onFind )
+    {
+        auto ev = data->m_wev.lock();
+        if (!ev)
+        {
+            return false;
+        }
+        return ev->addTask([id,takeOrNot, this, self = shared_from_this() , cb = std::move(onFind)]()
+        {
+            auto iter = data->m_objects.find(id);
+            if(iter != data->m_objects.end()) // 查到了
+            {
+                std::any _tmp;
+                if (takeOrNot)  // 要取出
+                {
+                    _tmp = std::move(iter->second);
+                    data->m_objects.erase(iter);
+                    if (cb)
+                    {
+                        cb(true, &_tmp);
+                    }
+                }
+                else // 不取出
+                {
+                    if (cb)
+                    {
+                        cb(true, &iter->second);
+                    }
+                }
+            }else // 没查到 
+            {
+                if(cb)
+                {
+                    cb(false , nullptr ); 
+                }
+            }
+        },EventLoopTaskType::IO_TASK);
+    }
 
 
 }
