@@ -57,7 +57,7 @@ int testTcpServer()
     {
         if(!link) 
         {
-            m_exit= true;
+            m_exit= 1;
             errout("TCP Server : Accept Faild! Socket Error.\n");
             return ;
         }
@@ -165,7 +165,7 @@ int testTcpClient()
 
     link->setOnClose([]()
     {
-        m_exit= true;
+        m_exit= 1;
         errout("TCP Client : Disconnected , Prepare Exit...\n");
     });
 
@@ -199,8 +199,6 @@ int testTcpClient()
             link.reset();
         }
     });
-
-    // windows host = "192.168.88.2";
 
     // 开始polling
     bret = repoller->start(eventLoop,5);
@@ -254,6 +252,100 @@ end_clean:
 }
 
 
+
+int testUDP()
+{
+    std::shared_ptr<network::EventLoop> eventLoop;
+    std::shared_ptr<network::RePoller> repoller;
+    std::shared_ptr<network::DataGram> udg;
+    bool bret;
+
+    eventLoop = std::make_shared<network::EventLoop>(4); // 4个线程
+
+    // 开始事件循环
+    bret = eventLoop->start();
+    assert(bret);
+
+    repoller = std::make_shared<network::RePoller>();
+    udg = std::make_shared<network::DataGram>(repoller);
+
+    bret = udg->bindAddr(serverip, serverport);
+    assert(bret);
+
+    std::weak_ptr<network::DataGram> wudg = udg;
+
+    genout("UDP : Prepare To Wait Data...\n");
+
+    udg->setOnClose([]()
+    {
+        m_exit= 1;
+        errout("UDP : Socket Closed , Prepare Exit...\n");
+    });
+
+    udg->setOnWrite([](ssize_t ret, std::string && data)
+    {
+        if (ret < 200)
+        {
+            genout("UDP : Write Some Data To Remote Done...Size = [%ld]. Content = [%s].\n",ret,data.c_str());
+        }
+        else
+        {
+            genout("UDP : Write Some Data To Remote Done...Size = [%ld]\t\r.",ret);
+        }
+    });
+
+
+    udg->setOnRead([wudg](ssize_t ret, std::string && data,base::EndPointIPV4 epv4)mutable
+    {
+        if (ret < 200)
+        {
+            genout("UDP : Read Some Data From Remote[%s:%d], EchoBack ...Size = [%ld]. Content = [%s].\n",epv4.ip().c_str(),epv4.port(),ret,data.c_str());
+        }
+        else
+        {
+            genout("UDP : Read Some Data From Remote[%s:%d], EchoBack ...Size = [%ld]\t\r.",epv4.ip().c_str(),epv4.port(),ret);
+        }
+        
+        auto udg = wudg.lock();
+        if (udg)
+        {
+            bool bret;
+            if(data != "exit")
+            {
+                bret = udg->asend(epv4,std::move(data)); // 返回true时，该函数会保存一份link强引用，直到send完成。
+                assert(bret);
+            }
+            else 
+            {
+                bret = udg->asend(epv4,data); // 返回true时，该函数会保存一份link强引用，直到send完成。
+                assert(bret);
+                genout("UDP : Prepare Close And Exit...\n");
+                bret = udg->aclose();
+                assert(bret);
+            }
+        }
+    });
+
+    // 开始polling
+    bret = repoller->start(eventLoop,5);
+    assert(bret);
+
+    udg->startListenReadEvent();
+
+    while(1)
+    {
+        if (m_exit == 1)
+        {
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    genout ("UDP : UDP Exit...\n");
+    return 0;
+}
+
+
+
 int testTCPServerAndClient()
 {
     m_exit = 0;
@@ -268,7 +360,7 @@ int testTCPServerAndClient()
         return -3;
     }
 
-    genout("List : \t1.TCP SERVER \n\t2.TCP CLIENT .\nInput :");
+    genout("List : \t1.TCP SERVER \n\t2.TCP CLIENT .\n\t3.User Data Gram.\nInput :");
     std::string in;
     std::cin >>in;
 
@@ -298,6 +390,11 @@ int testTCPServerAndClient()
     {
         testTcpClient();
         genout("TCP Client : Exit ...\n");
+    }
+    else if(opt ==3)
+    {
+        testUDP();
+        genout("UDP : Exit ...\n");
     }
 
     return 0;

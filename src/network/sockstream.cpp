@@ -106,10 +106,11 @@ namespace chrindex::andren::network
             if (auto ev = rp->eventLoopReference().lock(); ev)
             {
                 return ev->addTask([ self = shared_from_this(), msg = std::move(_data)]()
-                {
+                mutable{
                     if(self->data->m_sock.valid())
                     {
-                        self->data->m_sock.send(msg.c_str(), msg.size(), 0);
+                        ssize_t ret = self->data->m_sock.send(msg.c_str(), msg.size(), 0);
+                        if (self->data->m_onWrite){ self->data->m_onWrite( ret, std::move(msg)); }
                     }
                 },EventLoopTaskType::IO_TASK);
             }
@@ -150,7 +151,7 @@ namespace chrindex::andren::network
             {
                 self->listenReadEvent(self->data->m_sock.handle());
             }
-            cb(ret == 0);
+            if (cb){ cb(ret == 0); }
         },EventLoopTaskType::IO_TASK);
     }
 
@@ -202,7 +203,7 @@ namespace chrindex::andren::network
                     base::KVPair<ssize_t , std::string> result = self->tryRead();
                     if (result.key() <= 0)
                     {
-                        self->data->m_onClose();
+                        if(self->data->m_onClose){self->data->m_onClose();}
                         if(auto rp = self->data->wrp.lock(); rp)
                         {
                             rp->cancle(fd);
@@ -210,7 +211,7 @@ namespace chrindex::andren::network
                     }
                     else 
                     {
-                        self->data->m_onRead(result.key(),std::move(result.value()));
+                        if(self->data->m_onRead){self->data->m_onRead(result.key(),std::move(result.value())); }
                     }
                 }
             });
