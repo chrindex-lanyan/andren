@@ -3,8 +3,10 @@
 这是一个学习性质的库，目前存在许多理解和实践上的问题，以及潜在的bug，不要指望稳定性和可靠性。<br>
 你当然可以指出问题，但我可能会在其他地方改进，因为我很可能在未来的某个时候将这个库推翻重写。<br>
 
+## 分支
+学习性质的库，要啥分支。。。直接主分支就是dev（  <br>
 
-开发环境：<br>
+## 开发环境：
     Ubuntu  = Ubuntu 22.04 LTS x86_64 <br>
     GCC = gcc version 11.3.0 (Ubuntu 11.3.0-1ubuntu1~22.04.1) <br>
     Make Tool = xmake v2.8.1+20230711, A cross-platform build utility based on Lua <br>
