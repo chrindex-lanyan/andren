@@ -7,9 +7,9 @@
 学习性质的库，要啥分支。。。直接主分支就是dev（  <br>
 
 ## 开发环境：
-    Ubuntu  = Ubuntu 22.04 LTS x86_64 <br>
-    GCC = gcc version 11.3.0 (Ubuntu 11.3.0-1ubuntu1~22.04.1) <br>
-    Make Tool = xmake v2.8.1+20230711, A cross-platform build utility based on Lua <br>
+    Ubuntu  = Ubuntu 22.04 LTS x86_64 
+    GCC = gcc version 11.3.0 (Ubuntu 11.3.0-1ubuntu1~22.04.1) 
+    Make Tool = xmake v2.8.1+20230711, A cross-platform build utility based on Lua 
 
 当然可以将xmake替换成cmake或者make或者其他；除非不得己，我真的不想写cmake。<br>
 
