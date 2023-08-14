@@ -31,7 +31,7 @@ base64库理论上可以直接用OpenSSL的替换掉。
 ## 1. Base 
     一些基本的class的集合，要求编译器不能低于C++20，但实际上可以降低到C++17甚至更低（C++11），这仅仅会使得某些局部的代码可能会变得啰嗦一点。 
 
-    Base部分有File库、Thread库、Thread Pool库、Log库、GZIP File库、Json、Timer库、协程库、Singal库、Pipe库、ShareMem库、Socket库、Epoll库、编码转换、Base64编码、PGSQL库、MYSQL库、LLHTTP库、HiRedis。 
+    Base部分有File库、Thread库、Thread Pool库、Log库、GZIP File库、Json、Timer库、协程库、Singal库、Pipe库、ShareMem库、Socket库、Epoll库、编码转换、Base64编码、PGSQL库、MYSQL库、NGHTTP库、HiRedis。 
 
     上述所有的类库，尤其是封装的类，都不保证提供所有的方法。
     
@@ -49,6 +49,7 @@ base64库理论上可以直接用OpenSSL的替换掉。
 ### Thread Pool库:
     {
         管理多个Thread对象。每一个对象一个任务队列，可对特定线程指派任务。
+        基于pthread的和基于std::thread的版本都有。但我个人倾向于std::thread的版本，因为足够简单。
     } OK
 
 ### Log库：
@@ -64,8 +65,8 @@ base64库理论上可以直接用OpenSSL的替换掉。
 
 ### Timer库：
     {
-        最小堆。 有二叉堆和四叉堆可选。
-        这个最小堆作为定时器容器的性能有待验证。
+        最小堆。 有二叉堆和四叉堆可选。精度不好说，恐怕数据不会很好看。
+        这个最小堆作为定时器容器的性能有待验证，但一般来说也没人会开百万个定时器吧。
     } OK
 
 ### Signal库：
@@ -88,7 +89,8 @@ base64库理论上可以直接用OpenSSL的替换掉。
 
 ### 进程锁：
     {
-      使用pthread_mutex达成。依赖Posix共享内存。
+        使用pthread_mutex达成。依赖Posix共享内存。
+        不管怎么说，比用文件锁舒服，毕竟文件锁有着其他更好的用途。
     } OK
     
 ### Socket库：
@@ -96,16 +98,15 @@ base64库理论上可以直接用OpenSSL的替换掉。
         只做Socket的基本包装。不保证提供所有操作方法。
         Socket的东西比较繁杂，所以我尝试做一个UDP的Class和TCP Client/Server的Class。
         但是因为在实际编写Socket示例时发现，即使没有这两个类也能工作的很好，
-        因此我觉得暂时将实现UDP的Class和TCP Client/Server的Class的优先级降低。
-
+        更进一步的封装类在network部分。
         OpenSSL Socket IO部分的example已经整好,我是用的自签名证书测的，实际用需要替换。
-
     } OK
     
 ### Epoll库：
     {
         只做Epoll接口的基本包装。
         在Socket示例种使用到。
+        network部分的RePoller会依赖它。
     } OK
 
 ### GZip Stream库：
