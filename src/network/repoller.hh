@@ -49,8 +49,21 @@ namespace chrindex::andren::network
         /// 注意，该函数也会清除FD对应的回调函数。
         bool cancle( int fd );
 
-        /// 设置感兴趣的FD，其事件触发时的回调
-        /// 注意，该回调是持久化的，注意不要保存REPOLLER自己的强引用实例，
+        /// 为一个fd手动发送一个事件，而不是依赖于EPOLL_WAIT。
+        /// 该FD可以是系统FD（FD > 0），也可以是自定义FD（FD <= -2）。
+        /// 如果传递的FD值为0或者-1，函数立即返回false；
+        /// 如果返回了false，说明没有FD能够接收此事件；
+        /// 如果返回true，则事件被投递成功。
+        /// 事件的定义和Epoll的event一致。
+        /// 如果epoll_wait出该fd的events，则该events会和epoll的events合并，
+        /// 否则只会触发此events。
+        /// 在调用此函数前，需要注意所关心的FD是否已经被setReadyCallback()。
+        bool notifyEvents(int fd , int events); // 自定义信号
+
+        /// 设置感兴趣的FD，其事件触发时的回调。
+        /// 该FD可以是Linux中有效的FD（FD > 0），也可以是用户自定义的FD（FD <= -2），
+        /// 只有FD>0时，该FD会被EPOLL_CTL_ADD；FD不可以是0或者-1。
+        /// 注意，该回调是持久化的，注意不要保存REPOLLER的强引用实例，
         /// 除非你调用了cancle。
         bool setReadyCallback( int fd , OnEventUP && onEventUP );
 
@@ -105,6 +118,7 @@ namespace chrindex::andren::network
             std::atomic<bool> m_shutdown;
             std::map<int, std::any>  m_objects; // 对象池。
             std::map<int, OnEventUP> m_callbacks;
+            std::map<int,int>        m_customEvents; // 需要手动发送的events
             base::Epoll m_ep;
             std::weak_ptr<EventLoop> m_wev;
         };

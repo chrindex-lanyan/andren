@@ -41,6 +41,17 @@ namespace chrindex::andren::network
         return 0 == data->m_ep.control(base::EpollCTRL::DEL,  fd, ev);
     }
 
+    bool RePoller::notifyEvents(int fd , int events)
+    {
+        if( fd == 0 || fd == -1){return false;}
+        if (auto iter = data->m_callbacks.find(fd); iter != data->m_callbacks.end())
+        {
+            data->m_customEvents[fd] = events;
+            return true;
+        }
+        return false;
+    }
+
     bool RePoller::setReadyCallback(int fd , OnEventUP const & onEventUP)
     {
         auto cb = onEventUP;
@@ -49,7 +60,10 @@ namespace chrindex::andren::network
 
     bool RePoller::setReadyCallback(int fd , OnEventUP && onEventUP)
     {
-        if (!onEventUP || fd <=0){return false;}
+        if (!onEventUP|| fd==0 || fd ==1) // 不允许以下值：0,-1
+        {
+            return false;
+        }
         data->m_callbacks[fd] = std::move(onEventUP);
         return true;
     }
@@ -97,30 +111,80 @@ namespace chrindex::andren::network
     void RePoller::work(int timeoutMsec)
     {
         base::EventContain ec(300);
+        std::map<int,int> currentEventsMap = std::move(data->m_customEvents);// 查自定义Events
         int num ;
+        int numEvMap = currentEventsMap.size();
+        int numCbMap = data->m_callbacks.size();
 
-        num = data->m_ep.wait(ec, timeoutMsec); // N Msec Per Tick
+        // 查系统FD的events
+        int usedTimeoutMsec = (numEvMap > 0) ? (1) : (timeoutMsec); // 如果有自定义events要处理，就选择最小wait时间。
+        num = data->m_ep.wait(ec, usedTimeoutMsec); // N Msec Per Tick
 
-        if (num<0) // wait failed
+        if (num < 0) // wait failed
         {
             //fprintf(stderr,"RePoller::work():: wait failed. exit...\n");
             data->m_shutdown = true;
             return ;
         }
-        else if(num ==0) // timeout
+        else if(num == 0 ) // timeout
         {
             //ignore
             //fprintf(stderr,"RePoller::work():: timeout...\n");
         }
 
+        // 整合Events
         for (int i = 0 ; i < num ; i++)
         {
             auto pevent = ec.reference_ptr(i);
-            if (auto iter = data->m_callbacks.find(pevent->data.fd) ; iter != data->m_callbacks.end())
+            if (auto iter = currentEventsMap.find(pevent->data.fd); iter != currentEventsMap.end())
             {
-                iter->second(pevent->events);
-            }   
+                int events = iter->second;
+                iter->second = events | pevent->events;
+            }
+            else 
+            {
+                currentEventsMap[pevent->data.fd] = pevent->events;
+            }
         }
+
+        /// 回调和统一处理
+        /// 判断遍历哪一个。通常遍历小的那个map更快。
+        if(numEvMap < numCbMap)
+        {
+            for (auto & eviter: currentEventsMap )
+            {
+                int fd = eviter.first;
+                int events = eviter.second;
+                fprintf(stdout,"RePoller::work():: Process fd=%d,events=%d ...\n",fd,events);
+                if (auto iter = data->m_callbacks.find(fd) ; iter != data->m_callbacks.end())
+                {
+                    iter->second(events);
+                }
+            }
+        }
+        else // if(numEvMap >= numCbMap)
+        {
+            for(auto & iter : data->m_callbacks)
+            {
+                int fd = iter.first;
+                auto & cb = iter.second;
+                if(auto eviter = currentEventsMap.find(fd); eviter != currentEventsMap.end())
+                {
+                    cb(eviter->second);
+                }
+            }
+        }
+
+        // /// 回调
+        // for (int i = 0 ; i < num ; i++)
+        // {
+        //     auto pevent = ec.reference_ptr(i);
+        //     fprintf(stdout,"RePoller::work():: Process fd=%d,events=%d ...\n",pevent->data.fd,pevent->events);
+        //     if (auto iter = data->m_callbacks.find(pevent->data.fd) ; iter != data->m_callbacks.end())
+        //     {
+        //         iter->second(pevent->events);
+        //     }
+        // }
     }
 
     bool RePoller::saveObject(int id , bool force , std::any _object,  std::function<void(bool ret, std::any * _obj)> onSave)
