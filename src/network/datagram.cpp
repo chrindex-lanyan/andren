@@ -110,7 +110,14 @@ namespace chrindex::andren::network {
                 {
                     return ev->addTask([ self = shared_from_this()]()
                     {
+                        int fd = self->data->m_sock.handle();
+                        //fprintf(stdout,"DataGram::aclose ::FD [%d] Close And No Clear.\n",fd);
                         self->data->m_sock.closeAndNoClear();
+                        if(auto rp = self->data->wrp.lock();rp)
+                        {
+                            // UDP Socket的Closed似乎不会触发EPOLLIN，所以我手动触发一下。
+                            rp->notifyEvents(fd, EPOLLIN);
+                        }
                     },EventLoopTaskType::IO_TASK);
                 }
             }

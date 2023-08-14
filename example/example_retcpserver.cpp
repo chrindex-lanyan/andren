@@ -327,7 +327,7 @@ int testUDP()
     });
 
     // 开始polling
-    bret = repoller->start(eventLoop,5);
+    bret = repoller->start(eventLoop,3000);
     assert(bret);
 
     udg->startListenReadEvent();
