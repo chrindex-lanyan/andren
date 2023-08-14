@@ -169,16 +169,17 @@ base64库理论上可以直接用OpenSSL的替换掉。
     
 ### TCP/UDP库：
     {
-        提供TCP Stream ， TCP Stream Manager ， UDP Stream Manager。
-        UDP的部分没有写。TCP的部分大部分写好了。
+        提供TCP Stream ， TCP Stream Manager ， User Datagram。
+        UDP和TCP大部分基本写好了，但是没有支持IPV6。
         目前有两个版本：{
             版本1：{
-                eventloop.cpp + propoller.cpp + tcpstreammanager.cpp + tcpstream.cpp 及其各自的.hh头文件。
-                这个版本尚且存在难以解决的明显的BUG，比如说连接断开时的回调，混乱的资源管理和对象生命周期。
-                这个版本是个失败品，我留着是因为思路从其他地方借鉴过来的，我认为有可取的地方，所以才写的。
+                该版本迁移到了OLD文件夹。
+                eventloop.cpp + propoller.cpp + tcpstreammanager.cpp + tcpstream.cpp + udppackage.cpp 及其各自的.hh头文件。
+                这个版本尚且存在难以解决的明显的BUG，比并且实践上的诸多问题导致其几乎不可用。
+                因为思路从其他地方借鉴过来的，我认为暂时可以先留着。
             }，
             版本2：{
-                eventloop.cpp + repoller.cpp + sockstream.cpp + acceptor.cpp 及其各自的.hh头文件。
+                eventloop.cpp + repoller.cpp + sockstream.cpp + acceptor.cpp + datagram.cpp 及其各自的.hh头文件。
                 这个版本勉强可用，暂未发现明显BUG。
             }
         }
@@ -201,6 +202,14 @@ base64库理论上可以直接用OpenSSL的替换掉。
         根据具体的情况，该部分可能会存在增删。
         第四项可能需要IO_URING写完。
     } （完成）
+
+### RePoller库：
+    {
+        使用base部分的EPOLL封装，并且结合EventLoop，做到事件分发。
+        支持手动发送事件（如果你觉得Epoll Wait不出来）。同时也支持非Linux FD（即FD <=-2 ，且该FD不被EPOLL_CTL_ADD），用于支持可控触发。
+        此RePoller不对Channel服务，也没有提供一个Channel抽象，而是做进一步的事件分派，并帮助FD Provider接入EventLoop。
+        具体怎么去处理这个事件，是FD Provider的事情。
+    }
 
 ### GRPC 库：
     {
