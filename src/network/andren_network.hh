@@ -11,6 +11,7 @@
 #include "datagram.hh"
 #include "repoller.hh"
 #include "sockstream.hh"
+#include "afile.hh"
 
 
 
