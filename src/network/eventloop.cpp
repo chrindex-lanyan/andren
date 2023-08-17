@@ -106,22 +106,18 @@ namespace chrindex::andren::network
 
     void EventLoop::work(uint32_t index)
     {
-        std::optional<std::deque<Task>> result;
+        //std::optional<std::deque<Task>> result;
+        std::deque<Task> result;
         m_bqueForTask[index].takeMulti(result);
 
-        size_t size = 0; 
-        if (result.has_value())
-        {
-            size = result.value().size();
-        }
-
-        if (!result.has_value())
+        if(result.empty())
         {
             std::unique_lock<std::mutex>locker(m_cvmut);
             m_cv.wait_for(locker,std::chrono::microseconds(100));
             return ;
         }
-        for (auto & task : result.value() )
+        //for (auto & task : result.value() )
+        for (auto & task : result)
         {
             if (task)
             {
