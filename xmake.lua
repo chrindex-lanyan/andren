@@ -46,7 +46,8 @@ example_ssl_pattern = example_src .. "./example_ssl.cpp"
 -- example_tcpserver_pattern = example_src .. "./example_tcpserver.cpp"
 example_eventloop_pattern = example_src .. "./example_eventloop.cpp"
 example_retcpserver_pattern = example_src .. "./example_retcpserver.cpp"
-
+example_asyncfile_pattern = example_src .. "./example_afio.cpp"
+example_grpc_pattern = example_src .. "./example_grpc.cpp"
 
 
 target("andren")
@@ -80,6 +81,7 @@ target("andren")
     add_links("uuid") -- uuid-dev (uuid library)
     add_links("grpc") -- libgrpc-dev (grpc library)
     add_links("grpc++") -- libgrpc++-dev (grpc++ library)
+    add_links("protobuf") -- protobuf c++ (grpc++ need)
     add_links("fmt") -- string format library
     add_links("nghttp2") -- libnghttp2 library
     add_links("nghttp3") -- libnghttp3 library
@@ -117,6 +119,7 @@ target("andren_a")
     add_links("uuid") -- uuid-dev (uuid library)
     add_links("grpc") -- libgrpc-dev (grpc library)
     add_links("grpc++") -- libgrpc++-dev (grpc++ library)
+    add_links("protobuf") -- protobuf c++ (grpc++ need)
     add_links("fmt") -- string format library
     add_links("nghttp2") -- libnghttp2 library
     add_links("nghttp3") -- libnghttp3 library
@@ -216,5 +219,22 @@ target("test_retcpserver")
     set_kind("binary")
     add_files(example_retcpserver_pattern)
     add_links("fmt")
+    add_deps("andren", {private = true})
+    
+target("test_afio")
+    set_kind("binary")
+    add_files(example_asyncfile_pattern)
+    add_links("fmt")
+    add_deps("andren", {private = true})
+    
+target("test_grpc")
+    set_kind("binary")
+    add_files(example_src .. "greet.grpc.pb.cc")
+    add_files(example_src .. "greet.pb.cc")
+    add_files(example_grpc_pattern)
+    add_links("fmt")
+    add_links("grpc") -- libgrpc-dev (grpc library)
+    add_links("grpc++") -- libgrpc++-dev (grpc++ library)
+    add_links("protobuf") -- protobuf c++ (grpc++ need)
     add_deps("andren", {private = true})
     
