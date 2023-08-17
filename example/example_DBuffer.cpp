@@ -145,8 +145,8 @@ int testDBufferMulti()
 int testDBufferCustomAlloc()
 {
     int count = ::count;
-    std::vector<uint64_t> buffer; // 4bytes
-    buffer.resize(1024 * 128 ); // 1MB 
+    std::vector<uint64_t> buffer; // 8bytes
+    buffer.resize(1024 * 1024 ); // 8 MB 
     std::pmr::monotonic_buffer_resource myalloc(&buffer[0],buffer.size());
     DBufferAlloc<int, std::pmr::monotonic_buffer_resource> dbuffer(&myalloc);
 
@@ -207,8 +207,8 @@ int testDBufferCustomAlloc()
 int testDBufferCustomAllocAndMultiGET()
 {
     int count = ::count;
-    std::vector<uint64_t> buffer; // 1bytes
-    buffer.resize(1024 * 128); // 1MB
+    std::vector<uint64_t> buffer; // 8bytes
+    buffer.resize(1024 * 1024 ); // 8 MB
     std::pmr::monotonic_buffer_resource myalloc(&buffer[0], buffer.size());
     DBufferAlloc<int, std::pmr::monotonic_buffer_resource> dbuffer(&myalloc);
 

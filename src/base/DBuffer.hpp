@@ -72,13 +72,13 @@ namespace chrindex::andren::base{
         /// @param res 
         void takeOne(std::optional<T>& res)
         {
-            if (m_front.empty()) 
+            if (m_front.empty()) [[likely]]
             {
                 {
                     std::lock_guard<std::mutex>locker(m_mut);
                     m_front.swap(m_tail);
                 }
-                if (m_front.empty()) 
+                if (m_front.empty()) [[unlikely]]
                 {
                     return;
                 }
@@ -90,13 +90,13 @@ namespace chrindex::andren::base{
 
         void takeMulti(std::deque<T>& res)
         {
-            if (m_front.empty()) 
+            if (m_front.empty()) [[likely]]
             {
                 {
                     std::lock_guard<std::mutex>locker(m_mut);
                     m_front.swap(m_tail);
                 }
-                if (m_front.empty()) 
+                if (m_front.empty()) [[unlikely]]
                 {
                     return;
                 }
@@ -117,6 +117,7 @@ namespace chrindex::andren::base{
     /// 单线读写队列。(多线程生产者单线程消费者)
     /// 不管有几个消费者，他们必须同属一个线程。
     /// 不管有几个生产者，他们无须同属一个线程。
+    /// 该队列支持自定义pmr分配器。
     /// </summary>
     /// <typeparam name="T">类型</typeparam>
     /// <typeparam name="_ALLOC">分配器</typeparam>
@@ -176,13 +177,13 @@ namespace chrindex::andren::base{
         /// @param res 
         void takeOne(std::optional<T>& res)
         {
-            if (m_front.empty())
+            if (m_front.empty()) [[likely]]
             {
                 {
                     std::lock_guard<std::mutex>locker(m_mut);
                     m_front.swap(m_tail);
                 }
-                if (m_front.empty())
+                if (m_front.empty()) [[unlikely]]
                 {
                     return;
                 }
@@ -194,13 +195,13 @@ namespace chrindex::andren::base{
 
         void takeMulti(std::pmr::deque<T>& res)
         {
-            if (m_front.empty())
+            if (m_front.empty()) [[likely]]
             {
                 {
                     std::lock_guard<std::mutex>locker(m_mut);
                     m_front.swap(m_tail);
                 }
-                if (m_front.empty())
+                if (m_front.empty()) [[unlikely]]
                 {
                     return;
                 }
