@@ -186,7 +186,7 @@ base64库理论上可以直接用OpenSSL的替换掉。
                 这个版本勉强可用，暂未发现明显BUG。
             }
         }
-    }（部分）
+    }（OK）
 
 ### io_uring库：
     {
@@ -204,21 +204,23 @@ base64库理论上可以直接用OpenSSL的替换掉。
         }
         根据具体的情况，该部分可能会存在增删。
         第四项可能需要IO_URING写完。
-    } （完成）
+    } （OK）
 
 ### RePoller库：
     {
         使用base部分的EPOLL封装，并且结合EventLoop，做到事件分发。
-        支持手动发送事件（如果你觉得Epoll Wait不出来）。同时也支持非Linux FD（即FD <=-2 ，且该FD不被EPOLL_CTL_ADD），用于支持可控触发。
+        支持手动发送事件（如果你觉得Epoll Wait不出来）。同时也支持非正常fd（即FD <=-2 ，该FD不被EPOLL_CTL_ADD），用于支持可控触发。
         此RePoller不对Channel服务，也没有提供一个Channel抽象，而是做进一步的事件分派，并帮助FD Provider接入EventLoop。
         具体怎么去处理这个事件，是FD Provider的事情。
-    }
+        RePoller还附带有一个简单的对象生命周期托管功能。
+    } （OK）
 
 ### GRPC 库：
     {
         GRPC的C++库，因此不做包装。
         只编写example示例。
-    } （正在）
+        简单的example已经完成，后续考虑怎么融入事件循环中。
+    } （OK）
 
     
 
