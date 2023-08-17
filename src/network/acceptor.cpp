@@ -28,7 +28,8 @@ namespace  chrindex::andren::network
 
     void Acceptor::setOnAccept(OnAccept && onAccept)
     {
-        if (onAccept){
+        if (onAccept)[[likely]]
+        {
             data->m_onAccept = onAccept;
         }
     }
@@ -38,7 +39,7 @@ namespace  chrindex::andren::network
         data->m_sock = std::move(listenSock);
 
         auto rp = data->m_wep.lock();
-        if (!rp)
+        if (!rp)[[unlikely]]
         {
             return false;
         }
@@ -47,7 +48,7 @@ namespace  chrindex::andren::network
         bool bret ;
 
         auto ev = rp->eventLoopReference().lock();
-        if(!ev)
+        if(!ev)[[unlikely]]
         {
             return false;
         }
@@ -59,11 +60,11 @@ namespace  chrindex::andren::network
                 [ wacceptor ,events_listen ](int events)
             {
                 auto self = wacceptor.lock();
-                if (!self)
+                if (!self)[[unlikely]]
                 {
                     return ;
                 }
-                if (!(events & events_listen))
+                if (!(events & events_listen))[[likely]]
                 {
                     self->data->m_onAccept({});
                     return ;
@@ -71,7 +72,7 @@ namespace  chrindex::andren::network
                 sockaddr_storage ss;
                 uint32_t len;
                 base::Socket cli = self->data->m_sock.accept(reinterpret_cast<sockaddr*>(&ss), &len);
-                if (cli.valid())
+                if (cli.valid())[[likely]]
                 {
                     self->data->m_onAccept(std::make_shared<SockStream>(std::move(cli), self->data->m_wep));
                 }
@@ -86,7 +87,7 @@ namespace  chrindex::andren::network
     bool Acceptor::asyncStop(std::function<void()> onStop)
     {
         auto ev = data->m_wev.lock();
-        if (!ev)
+        if (!ev)[[unlikely]]
         {
             return false;
         }
@@ -94,7 +95,7 @@ namespace  chrindex::andren::network
         {
             auto ep = self->data->m_wep.lock();
             int fd = self->data->m_sock.handle();
-            if(ep && fd >0)
+            if(ep && fd >0)[[unlikely]]
             {
                 ep->cancle(fd);
             }

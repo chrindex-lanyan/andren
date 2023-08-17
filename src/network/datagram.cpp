@@ -85,13 +85,13 @@ namespace chrindex::andren::network {
             {
                 return false;
             }
-            if(auto rp = data->wrp.lock(); rp)
+            if(auto rp = data->wrp.lock(); rp)[[likely]]
             {
-                if (auto ev = rp->eventLoopReference().lock(); ev)
+                if (auto ev = rp->eventLoopReference().lock(); ev)[[likely]]
                 {
                     return ev->addTask([ remote = std::move(remote),  self = shared_from_this(), msg = std::move(message)]()
                     mutable{
-                        if(self->data->m_sock.valid())
+                        if(self->data->m_sock.valid())[[likely]]
                         {
                             ssize_t ret = self->data->m_sock.sendto(msg.c_str(), msg.size(), 0, remote.toAddr(),remote.addrSize());
                             if(self->data->m_onWrite){ self->data->m_onWrite(ret,std::move(msg)); }
@@ -104,16 +104,16 @@ namespace chrindex::andren::network {
 
         bool DataGram::aclose()
         {
-            if (auto rp = data->wrp.lock();rp)
+            if (auto rp = data->wrp.lock();rp)[[likely]]
             {
-                if(auto ev = rp->eventLoopReference().lock();ev)
+                if(auto ev = rp->eventLoopReference().lock();ev)[[likely]]
                 {
                     return ev->addTask([ self = shared_from_this()]()
                     {
                         int fd = self->data->m_sock.handle();
                         //fprintf(stdout,"DataGram::aclose ::FD [%d] Close And No Clear.\n",fd);
                         self->data->m_sock.closeAndNoClear();
-                        if(auto rp = self->data->wrp.lock();rp)
+                        if(auto rp = self->data->wrp.lock();rp)[[likely]]
                         {
                             // UDP Socket的Closed似乎不会触发EPOLLIN，所以我手动触发一下。
                             rp->notifyEvents(fd, EPOLLIN);
@@ -126,9 +126,9 @@ namespace chrindex::andren::network {
 
         bool DataGram::startListenReadEvent()
         {
-            if(auto rp = data->wrp.lock();rp)
+            if(auto rp = data->wrp.lock();rp)[[likely]]
             {
-                if(auto ev = rp->eventLoopReference().lock(); ev)
+                if(auto ev = rp->eventLoopReference().lock(); ev)[[likely]]
                 {
                     int fd = data->m_sock.handle();
                     return ev->addTask([fd ,  self = shared_from_this()]()
@@ -150,11 +150,11 @@ namespace chrindex::andren::network {
             
             if(ret < 0) // no data to read
             {
-                return { ret , {} }; // remote closed
+                return { ret , {} }; //  closed
             }
-            else if (ret == 0)
+            else if (ret == 0)[[unlikely]]
             {
-                return { ret , {} }; // remote closed
+                return { ret , {} }; //  closed
             }
             
             tmp.resize(ret);
@@ -164,33 +164,33 @@ namespace chrindex::andren::network {
 
         void DataGram::listenReadEvent(int fd)
         {
-            if(auto rp = data->wrp.lock(); rp)
+            if(auto rp = data->wrp.lock(); rp)[[likely]]
             {
                 std::weak_ptr<DataGram> wsdatagram = shared_from_this();
                 rp->append(fd, EPOLLIN);
                 rp->setReadyCallback(fd, [fd, wsdatagram](int events)
                 {
                     auto self = wsdatagram.lock();
-                    if (!self)
+                    if (!self)[[unlikely]]
                     {
                         return ;
                     }
-                    if (events & EPOLLIN)
+                    if (events & EPOLLIN)[[likely]]
                     {
                         sockaddr_storage ss;
                         base::KVPair<ssize_t , std::string> result = self->tryRead(ss);
-                        if (result.key() == 0)
+                        if (result.key() == 0) [[unlikely]]
                         {
                             if(self->data->m_onClose){self->data->m_onClose();} 
                             if(auto rp = self->data->wrp.lock(); rp)
                             {
                                 rp->cancle(fd);
                             }
-                        }else if(result.key() < 0)
+                        }else if(result.key() < 0) [[unlikely]]
                         {
                             if(self->data->m_onClose){self->data->m_onClose();} 
                         }
-                        else 
+                        else  [[likely]]
                         {
                             base::EndPointIPV4 epv4(reinterpret_cast<sockaddr_in*>(&ss));
                             if(self->data->m_onRead){self->data->m_onRead(result.key(),std::move(result.value()),std::move(epv4));}

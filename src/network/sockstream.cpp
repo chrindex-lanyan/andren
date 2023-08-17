@@ -73,9 +73,9 @@ namespace chrindex::andren::network
 
     bool SockStream::startListenReadEvent()
     {
-        if(auto rp = data->wrp.lock();rp)
+        if(auto rp = data->wrp.lock();rp)[[likely]]
         {
-            if(auto ev = rp->eventLoopReference().lock(); ev)
+            if(auto ev = rp->eventLoopReference().lock(); ev)[[likely]]
             {
                 int fd = data->m_sock.handle();
                 return ev->addTask([fd ,  self = shared_from_this()]()
@@ -101,9 +101,9 @@ namespace chrindex::andren::network
         {
             return false;
         }
-        if(auto rp = data->wrp.lock(); rp)
+        if(auto rp = data->wrp.lock(); rp)[[likely]]
         {
-            if (auto ev = rp->eventLoopReference().lock(); ev)
+            if (auto ev = rp->eventLoopReference().lock(); ev)[[likely]]
             {
                 return ev->addTask([ self = shared_from_this(), msg = std::move(_data)]()
                 mutable{
@@ -121,9 +121,9 @@ namespace chrindex::andren::network
     /// async close
     bool SockStream::aclose()
     {
-        if (auto rp = data->wrp.lock();rp)
+        if (auto rp = data->wrp.lock();rp)[[likely]]
         {
-            if(auto ev = rp->eventLoopReference().lock();ev)
+            if(auto ev = rp->eventLoopReference().lock();ev)[[likely]]
             {
                 return ev->addTask([ self = shared_from_this()]()
                 {
@@ -138,7 +138,7 @@ namespace chrindex::andren::network
     {
         auto rp = data->wrp.lock();
         auto ev = rp? rp->eventLoopReference().lock() : std::shared_ptr<EventLoop>{};
-        if (!ev || !data->m_sock.valid())
+        if (!ev || !data->m_sock.valid())[[unlikely]]
         {
             return false;
         }
@@ -168,16 +168,16 @@ namespace chrindex::andren::network
                 readok = true;  // read done.
                 break;
             }
-            else if (ret == 0 || ret < 0)
+            else if (ret == 0 || ret < 0)[[unlikely]]
             {
                 return { 0 , {} }; // disconnected
             }
-            else if (ret > 0)
+            else if (ret > 0)[[likely]]
             {
                 rddata.insert(rddata.end(), tmp.begin(), tmp.begin() + ret);
             }
         }
-        if (readok)
+        if (readok)[[likely]]
         {
             return { (ssize_t)rddata.size(), std::move(rddata) } ;
         }
@@ -193,7 +193,7 @@ namespace chrindex::andren::network
             rp->setReadyCallback(fd, [fd, wsstream](int events)
             {
                 auto self = wsstream.lock();
-                if (!self)
+                if (!self)[[unlikely]]
                 {
                     return ;
                 }
@@ -201,7 +201,7 @@ namespace chrindex::andren::network
                 if (events & EPOLLIN)
                 {
                     base::KVPair<ssize_t , std::string> result = self->tryRead();
-                    if (result.key() <= 0)
+                    if (result.key() <= 0)[[unlikely]]
                     {
                         if(self->data->m_onClose){self->data->m_onClose();}
                         if(auto rp = self->data->wrp.lock(); rp)
