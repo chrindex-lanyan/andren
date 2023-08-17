@@ -120,7 +120,7 @@ namespace chrindex::andren::network
         int usedTimeoutMsec = (numEvMap > 0) ? (1) : (timeoutMsec); // 如果有自定义events要处理，就选择最小wait时间。
         num = data->m_ep.wait(ec, usedTimeoutMsec); // N Msec Per Tick
 
-        if (num < 0) // wait failed
+        if (num < 0) [[unlikely]] // wait failed
         {
             //fprintf(stderr,"RePoller::work():: wait failed. exit...\n");
             data->m_shutdown = true;
@@ -174,17 +174,6 @@ namespace chrindex::andren::network
                 }
             }
         }
-
-        // /// 回调
-        // for (int i = 0 ; i < num ; i++)
-        // {
-        //     auto pevent = ec.reference_ptr(i);
-        //     fprintf(stdout,"RePoller::work():: Process fd=%d,events=%d ...\n",pevent->data.fd,pevent->events);
-        //     if (auto iter = data->m_callbacks.find(pevent->data.fd) ; iter != data->m_callbacks.end())
-        //     {
-        //         iter->second(pevent->events);
-        //     }
-        // }
     }
 
     bool RePoller::saveObject(int id , bool force , std::any _object,  std::function<void(bool ret, std::any * _obj)> onSave)

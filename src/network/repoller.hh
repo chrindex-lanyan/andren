@@ -9,6 +9,25 @@
 #include <memory>
 
 
+/**
+ * @brief RePoller
+ * Repoller实际上做了一个简易的事件通知机制。
+ * Repoller依靠单迭代任务的EventLoop，
+ * 达到每次Polling都是一个新的事件循环任务，并保有自己生命周期。
+ * Repoller内置EPOLL的支持，允许对SocketFD等其他被EPOLL支持的FD进行事件监听。 
+ * Repoller还模拟并提供了自定义事件触发的支持，
+ * 通过注册一个小于-1的fd，可以添加自定义监听，
+ * 如果注册一个大于0的fd，则被添加到epoll里监听。
+ * Repoller允许用户手动向一个FD发送事件（无论FD>0还是FD<-1）。
+ * 除此以外，RePoller内置了一个简易的对象池，
+ * 用于保有某些对象的生命周期（比如std::shared_ptr<SockStream>）。
+ * 因为Epoll无法监听普通的文件FD，因此如果要通过Repoller模拟异步文件IO，
+ * 则需要添加该fd的负值，并添加任务到eventloop（可以不是IO任务）进行具体的IO读写，
+ * 然后在任务将要完成时再添加IO任务到eventloop以调用RePoller的通知接口，
+ * 以此告知该IO任务已经完成。
+ */
+
+
 namespace chrindex::andren::network
 {
 
@@ -54,7 +73,7 @@ namespace chrindex::andren::network
         /// 如果传递的FD值为0或者-1，函数立即返回false；
         /// 如果返回了false，说明没有FD能够接收此事件；
         /// 如果返回true，则事件被投递成功。
-        /// 事件的定义和Epoll的event一致。
+        /// 事件的定义可以和Epoll的event不一致，这对于非系统FD而言尤其有用。
         /// 如果epoll_wait出该fd的events，则该events会和epoll的events合并，
         /// 否则只会触发此events。
         /// 在调用此函数前，需要注意所关心的FD是否已经被setReadyCallback()。
@@ -63,8 +82,8 @@ namespace chrindex::andren::network
         /// 设置感兴趣的FD，其事件触发时的回调。
         /// 该FD可以是Linux中有效的FD（FD > 0），也可以是用户自定义的FD（FD <= -2），
         /// 只有FD>0时，该FD会被EPOLL_CTL_ADD；FD不可以是0或者-1。
-        /// 注意，该回调是持久化的，注意不要保存REPOLLER的强引用实例，
-        /// 除非你调用了cancle。
+        /// 注意，该回调是持久化的，请勿保存REPOLLER的强引用实例，
+        /// 除非你在结束时调用了cancle。
         bool setReadyCallback( int fd , OnEventUP && onEventUP );
 
         /// 设置感兴趣的FD，其事件触发时的回调。
