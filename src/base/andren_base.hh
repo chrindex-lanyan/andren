@@ -6,6 +6,7 @@
 #include "memclear.hpp"
 #include "stringTool.hh"
 #include "DBuffer.hpp"
+#include "circleque.hpp"
 #include <fmt/core.h>
 
 #include "blockque.hpp"
