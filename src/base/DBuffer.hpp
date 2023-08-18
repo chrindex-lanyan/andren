@@ -8,6 +8,8 @@
 
 #include "noncopyable.hpp"
 
+#include "circleque.hpp"
+
 namespace chrindex::andren::base{
 
 
@@ -213,6 +215,75 @@ namespace chrindex::andren::base{
     private:
         std::pmr::deque<T> m_front;
         std::pmr::deque<T> m_tail;
+        std::mutex m_mut;
+    };
+
+
+    /// <summary>
+    /// 环形双缓冲阻塞队列。
+    /// 使用了环形队列作为底层数据结构。
+    /// 特点：MPSC。
+    /// </summary>
+    /// <typeparam name="T">类型</typeparam>
+    template<typename T>
+    class DBufferCircle
+    {
+    public:
+
+        using DBufferCircle_Type = DBufferCircle<T>;
+
+        DBufferCircle() :m_front(128) ,m_tail(128) { }
+        ~DBufferCircle() {}
+
+        /// @brief 丢回一个元素
+        /// @param t 
+        void pushBack(T const& t)
+        {
+            std::lock_guard<std::mutex> locker(m_mut);
+            m_tail.push_back(t);
+        }
+
+        /// @brief 丢回一个元素
+        /// @param t 
+        void pushBack(T&& t)
+        {
+            std::lock_guard<std::mutex> locker(m_mut);
+            m_tail.emplace_back(std::forward<T>(t));
+        }
+
+        /// @brief 尝试取出一个元素
+        /// @return 
+        std::optional<T> takeOne()
+        {
+            std::optional<T> res;
+            takeOne(res);
+            return res;
+        }
+
+        /// @brief 尝试取出一个元素
+        /// @param res 
+        void takeOne(std::optional<T>& res)
+        {
+            if (m_front.empty()) [[likely]]
+            {
+                {
+                    std::lock_guard<std::mutex>locker(m_mut);
+                    m_front.swap(m_tail);
+                }
+                if (m_front.empty()) [[unlikely]]
+                {
+                    return;
+                }
+            }
+            res = std::move(m_front.front());
+            m_front.pop_front();
+            return;
+        }
+
+    private:
+
+        CircularQueue<int> m_front;
+        CircularQueue<int> m_tail;
         std::mutex m_mut;
     };
 
