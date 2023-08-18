@@ -11,10 +11,9 @@
 namespace chrindex::andren::base{
 
 
-/// <summary>
-    /// 单线读写队列。(多线程生产者单线程消费者)
-    /// 不管有几个消费者，他们必须同属一个线程。
-    /// 不管有几个生产者，他们无须同属一个线程。
+    /// <summary>
+    /// 双缓冲阻塞队列，使用默认分配器。
+    /// 特点：MPSC。
     /// </summary>
     /// <typeparam name="T">类型</typeparam>
     template<typename T>
@@ -114,10 +113,9 @@ namespace chrindex::andren::base{
     };
 
     /// <summary>
-    /// 单线读写队列。(多线程生产者单线程消费者)
-    /// 不管有几个消费者，他们必须同属一个线程。
-    /// 不管有几个生产者，他们无须同属一个线程。
-    /// 该队列支持自定义pmr分配器。
+    /// 双缓冲阻塞队列。
+    /// 特点：MPSC。
+    /// 该队列使用自定义pmr分配器。
     /// </summary>
     /// <typeparam name="T">类型</typeparam>
     /// <typeparam name="_ALLOC">分配器</typeparam>
