@@ -100,7 +100,7 @@ namespace chrindex::andren::network
         /// 当返回true时，请求被接受，并在以后被执行。
         /// 无论执行请求是否成功，onSave都会被调用。
         /// @param id 对象ID。
-        /// @param force 是否强制覆盖FD，当且仅当FD出现重复时。
+        /// @param force 是否强制覆盖ID，当且仅当ID出现重复时。
         /// 否则不会覆盖。
         /// @param _object 要保存的对象。函数不会判断其是否has_value()。
         /// @param onSave 保存完成回调。onSave函数不能为空，否则接口立即返回false。
