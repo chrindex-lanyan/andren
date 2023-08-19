@@ -1,6 +1,8 @@
 ﻿
 #include "tcpstreammanager.hh"
 
+#include <sys/socket.h>
+
 namespace chrindex::andren::network
 {
     TcpStreamManager::TcpStreamManager()

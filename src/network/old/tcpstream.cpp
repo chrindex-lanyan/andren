@@ -3,6 +3,8 @@
 
 #include "propoller.hh"
 
+#include <sys/socket.h>
+
 namespace chrindex::andren::network
 {
     static constexpr int DEFAULT_EVENTS = EPOLLIN | EPOLLHUP | EPOLLERR | EPOLLRDHUP | EPOLLPRI;
