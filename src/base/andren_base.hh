@@ -40,7 +40,6 @@
 #include "mysql_statement.hh"
 #include "pgsql_api.hh"
 
-#include "http2.hh"
-#include "http3.hh"
+
 #include "aSSL.hh"
 
