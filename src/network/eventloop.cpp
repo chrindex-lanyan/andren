@@ -68,10 +68,10 @@ namespace chrindex::andren::network
         m_tpool = new std::thread[m_size];
         for (uint32_t i=0;i< m_size;i++)
         {
-            m_tpool[i] = std::move(std::thread([i ,this, self = shared_from_this()]()
+            m_tpool[i] = std::thread([i ,this, self = shared_from_this()]()
             {
                 startNextLoop(i);
-            }));
+            });
         }
         return true;
     }
