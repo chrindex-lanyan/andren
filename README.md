@@ -29,60 +29,63 @@ base64库理论上可以直接用OpenSSL的替换掉。
     暂时没时间补完注释。总之看情况吧。
 
 ## 1. Base 
-    一些基本的class的集合，要求编译器不能低于C++20，但实际上可以降低到C++17甚至更低（C++11），这仅仅会使得某些局部的代码可能会变得啰嗦一点。 
+一些基本的class的集合，要求编译器不能低于C++20，但实际上可以降低到C++17甚至更低（C++11），这仅仅会使得某些局部的代码可能会变得啰嗦一点。 <br>
 
-    Base部分有File库、Thread库、Thread Pool库、Log库、GZIP File库、Json、Timer库、协程库、Singal库、Pipe库、ShareMem库、Socket库、Epoll库、编码转换、Base64编码、PGSQL库、MYSQL库、NGHTTP库、HiRedis。 
+### 有什么类:
+    {
+        File、Thread、Thread Pool、Log、GZIP File、Json、Timer、协程、Singal、Pipe、ShareMem、Socket、Epoll、编码转换、Base64、PGSQL、MYSQL。
+    }
 
-    上述所有的类库，尤其是封装的类，都不保证提供所有的方法。
+<br>上述所有的类，尤其是封装的类，都不保证提供所有的方法（如部分System call）。
     
 
-### File库: 
+### File: 
     {
         对Linux FD进行RAII封装。
     } OK
 
-### Thread库: 
+### Thread: 
     {
         对pthread的简单包装。
     } OK
 
-### Thread Pool库:
+### Thread Pool:
     {
         管理多个Thread对象。每一个对象一个任务队列，可对特定线程指派任务。
         基于pthread的和基于std::thread的版本都有。但我个人倾向于std::thread的版本，因为足够简单。
     } OK
 
-### Log库：
+### Log：
     {
         使用File提供异步日志功能。日志仅提供4个等级(Err、Warn、Debug、Info)，并打印行数。
         目前这玩意实现的比较简陋，可能以后会改成Thread Local的。
     } OK
 
-### Json库：
+### Json：
     {
         造这种轮子没啥意思，直接使用nlohmann 的Json库。
     } OK
 
-### Timer库：
+### Timer：
     {
         最小堆。 有二叉堆和四叉堆可选。精度不好说，恐怕数据不会很好看。
         这个最小堆作为定时器容器的性能有待验证，但一般来说也没人会开百万个定时器吧。
     } OK
 
-### Signal库：
+### Signal：
     {
         只做Linux 信号量的基本包装。使用Posix信号量，包括有名信号和内存信号。
         用以提供进程或线程间通信。
         至于SystemV信号量，kill和signal这两个函数，直接用就是。
     } OK
 
-### Pipe库：
+### Pipe：
     {
         只做Linux 有名管道的基本包装。使用Linux提供的管道，包括匿名和具名管道。
         用以提供进程或线程间通信。
     } OK
 
-### ShareMem库：
+### ShareMem：
     {
         只做Linux共享内存的基本包装。使用Posix共享内存，且具名。
     } OK
@@ -93,7 +96,7 @@ base64库理论上可以直接用OpenSSL的替换掉。
         不管怎么说，比用文件锁舒服，毕竟文件锁有着其他更好的用途。
     } OK
     
-### Socket库：
+### Socket：
     {
         只做Socket的基本包装。不保证提供所有操作方法。
         Socket的东西比较繁杂，所以我尝试做一个UDP的Class和TCP Client/Server的Class。
@@ -102,56 +105,40 @@ base64库理论上可以直接用OpenSSL的替换掉。
         OpenSSL Socket IO部分的example已经整好,我是用的自签名证书测的，实际用需要替换。
     } OK
     
-### Epoll库：
+### Epoll：
     {
         只做Epoll接口的基本包装。
         在Socket示例种使用到。
         network部分的RePoller会依赖它。
     } OK
 
-### GZip Stream库：
+### GZip Stream：
     {
         用使用gzip库和archive库，提供数据流压缩能力，文件压缩解压能力（7zip）。
         文件压缩解压缩用的时7zip。这个东西可能会很慢，有空的话再加一个zip模式的吧。
     } OK
 
-### 协程库 Coroutine：
+### 协程 Coroutine：
     {
         使用C++20的协程做。
         C++20的协程我反复学了好几次，目前只能写出简单的协程Demo。
         我认为这是自己对协程和协程的使用场景缺乏了解的缘故，因此暂时先搁置下来。
     }（比较费时间，暂时先不填坑）
 
-### 编码转换库TextCodec:
+### 编码转换TextCodec:
     {
         UTF8、UTF16、UTF32、GBK编码互转支持。
         涉及到GBK就会麻烦起来。
     }（目前没有找到比较好的第三方库，暂时先不整）
 
-### 编码转换BASE64库：
+### 编码转换BASE64：
     {
         依赖base64库。
         出处： https://renenyffenegger.ch/notes/development/Base64/Encoding-and-decoding-base-64-with-cpp
         其实OpenSSL也带有BASE64的编码解码支持，因此这个库随时可以替换成使用OpenSSL的。
     } OK
 
-### HTTP库：
-    {
-        使用nghttp2，nghttp3以支持http2/3。
-        其实nghttp2也支持http3.0。但nghttp3却是专门用于支持http3.0。
-        nghttp2支持http1.1和http2.0。但是这个库的接口较为繁琐，这并不是nghttp2的锅，
-        因为http2.0是二进制协议，且它引入了stream和frame的概念之后，状态的处理变得复杂起来，和http1.0完全就不是一个东西了。
-        在我对http还是不够了解的情况下，这种复杂更甚。我可能会通过其他方式由浅入深地去重新认识http。
-    } （停滞）
-
-### Redis库：
-    {
-        Redis客户端 c api。以hiredis为基础，只做基本的包装。
-        由于时间的问题，这部分暂时搁置。
-        可替代的客户端库很多，比如ACL的，体验就不错。
-    } （停滞）
-
-### PGSQL库：
+### PGSQL：
     {
         PostgreSQL C API 简单包装。不保证提供所有接口。
         普通SQL，预处理SQL，同步和异步Query。
@@ -159,7 +146,7 @@ base64库理论上可以直接用OpenSSL的替换掉。
         但libpq客户端库的体验仍然非常良好。
     } OK
 
-### MYSQL库：
+### MYSQL：
     {
         MYSQL C API 简单包装。不保证提供所有接口。(Statement)
         预处理部分的接口实在不好包装。
@@ -168,9 +155,13 @@ base64库理论上可以直接用OpenSSL的替换掉。
 
 ## 2. Network Classes 集合
     指的是提供网络功能的类的集合。
-    有TCP、UDP、IO_Uring、Event Loop相关的类。
-    
-### TCP/UDP库：
+
+### 有什么类:
+    {
+        NGHTTP、HiRedis、TCP、UDP、IO_Uring、Event Loop及其相关的类
+    }
+
+### TCP/UDP：
     {
         提供TCP Stream ， TCP Stream Manager ， User Datagram。
         UDP和TCP大部分基本写好了，但是没有支持IPV6。
@@ -188,12 +179,12 @@ base64库理论上可以直接用OpenSSL的替换掉。
         }
     }（OK）
 
-### io_uring库：
+### io_uring：
     {
         只做Linux的io_uring的基本包装。
     } （暂时搁置）
 
-### EventLoop库：
+### EventLoop：
     {
         Eventloop每次循环按顺序处理各类事件：{
             1. EventLoop基于ThreadPool 。各线程依照顺序标记为1 ~ n，线程池中线程数量不能少于2个。
@@ -206,7 +197,7 @@ base64库理论上可以直接用OpenSSL的替换掉。
         第四项可能需要IO_URING写完。
     } （OK）
 
-### RePoller库：
+### RePoller：
     {
         使用base部分的EPOLL封装，并且结合EventLoop，做到事件分发。
         支持手动发送事件（如果你觉得Epoll Wait不出来）。同时也支持非正常fd（即FD <=-2 ，该FD不被EPOLL_CTL_ADD），用于支持可控触发。
@@ -215,12 +206,25 @@ base64库理论上可以直接用OpenSSL的替换掉。
         RePoller还附带有一个简单的对象生命周期托管功能。
     } （OK）
 
-### GRPC 库：
+### GRPC ：
     {
-        GRPC的C++库，因此不做包装。
+        GRPC有C++库，因此不做包装。
         只编写example示例。
         简单的example已经完成，后续考虑怎么融入事件循环中。
     } （OK）
 
-    
+### HTTP：
+    {
+        使用nghttp2，nghttp3以支持http2/3。
+        其实nghttp2也支持http3.0。但nghttp3却是专门用于支持http3.0。
+        nghttp2支持http1.1和http2.0。但是这个库的接口较为繁琐，这并不是nghttp2的锅，
+        因为http2.0是二进制协议，且它引入了stream和frame的概念之后，状态的处理变得复杂起来，和http1.0完全就不是一个东西了。
+        在我对http还是不够了解的情况下，这种复杂更甚。我可能会通过其他方式由浅入深地去重新认识http。
+    } （停滞） 
 
+### Redis：
+    {
+        Redis客户端 c api。以hiredis为基础，只做基本的包装。
+        由于时间的问题，这部分暂时搁置。
+        可替代的客户端库很多，比如ACL的，体验就不错。
+    } （停滞）
