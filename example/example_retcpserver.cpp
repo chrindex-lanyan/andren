@@ -80,7 +80,7 @@ int testTcpServer()
             /// 将link从对象池里去除
             repoller->findObject(fd, true , [ ](bool ret, std::any * obj)
             {
-                genout("TCP Server : This Client Is TakeOut From This ObjectsMap.\n");
+                genout("TCP Server : This Client Is TakeOut From The ObjectsMap.\n");
             });
             return ;
         });
