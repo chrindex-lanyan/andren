@@ -248,7 +248,7 @@ namespace chrindex::andren::network
                 {
                     //fprintf(stdout,"[PID %d] SSLStream::listenReadEvent : Read.\n",::getpid());
                     base::KVPair<ssize_t , std::string> result = self->real_read();
-                    fprintf(stdout,"[PID %d] SSLStream::listenReadEvent : ReadEvent, real_read size = %ld\n",::getpid(),result.key());
+                    //fprintf(stdout,"[PID %d] SSLStream::listenReadEvent : ReadEvent, real_read size = %ld\n",::getpid(),result.key());
                     if (result.key() == 0)[[unlikely]]
                     {
                         if(self->data->m_onClose){self->data->m_onClose();}
@@ -261,7 +261,7 @@ namespace chrindex::andren::network
                     {
                         auto errcode = self->data->m_sslio.reference().getErrNo();
                         //fprintf(stdout,"[PID %d] SSLStream::listenReadEvent : SSL ERROR Code %lu.\n",::getpid(),errcode);
-                        if( errcode == SSL_ERROR_WANT_READ || errcode == 0)
+                        if( errcode == SSL_ERROR_WANT_READ || errcode == 0 || errcode == SSL_ERROR_ZERO_RETURN)
                         {
                             return ;
                         }

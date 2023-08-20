@@ -351,6 +351,7 @@ int testTcpClient()
         bret = link->asend("hello world-" + std::to_string(i) + " !!");
         assert(bret);
         genout("SSL Client : Send Some Data.\n");
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
 end_clean:
@@ -389,11 +390,11 @@ int test_sslstream()
         fprintf(stdout,"Parent PID %d.\n",::getpid());
         testTcpServer();
         ::kill(pid,SIGINT);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     else
     { // client
         fprintf(stdout,"Child PID %d.\n",::getpid());
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
         testTcpClient();
     }
     return 0;
