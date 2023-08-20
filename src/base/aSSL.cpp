@@ -9,6 +9,12 @@
 #include "socket.hh"
 #include "KVPair.hpp"
 
+#include <openssl/ssl.h>
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+
 namespace chrindex::andren::base
 {
     void initSSLEnv()
@@ -410,13 +416,14 @@ namespace chrindex::andren::base
         if (size <= 0)
         {
             buffer.push_back(ch);
-            return {std::move(size), std::move(buffer)};
+            return {buffer.size(), std::move(buffer)};
         }
         buffer.resize(size+1);
         buffer[0] = (ch);
         size = SSL_read(m_ssl.handle(), &buffer[1], buffer.size());
-        return {std::move(size), std::move(buffer)};
+        return {buffer.size(), std::move(buffer)};
     }
+
 
     ssize_t aSSLSocketIO::write(std::string const &data)
     {
@@ -450,6 +457,19 @@ namespace chrindex::andren::base
     void aSSLSocketIO::setEndType(int end_type)
     {
         m_endType = end_type;
+    }
+
+    bool aSSLSocketIO::enableNonBlock(bool enabled)
+    {
+        int fd = SSL_get_fd(m_ssl.handle()) ;
+        if (fd > 0)
+        {
+            int flags = ::fcntl(fd, F_GETFL, 0);
+            if (enabled) { flags |=  O_NONBLOCK; }
+            else { flags &=~O_NONBLOCK; }
+            return 0 == ::fcntl(fd, F_SETFL, flags );
+        }
+        return false;
     }
 
 }

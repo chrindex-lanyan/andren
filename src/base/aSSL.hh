@@ -229,6 +229,9 @@ namespace chrindex::andren::base
         /// @param end_type 设置为1是服务端，2则是客户端
         void setEndType(int end_type);
 
+        /// 使之为非阻塞
+        bool enableNonBlock(bool enabled);
+
     private:
         aSSL m_ssl;
         int m_endType;
