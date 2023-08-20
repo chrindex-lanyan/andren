@@ -7,6 +7,8 @@
 #include <functional>
 #include <memory>
 
+#include "sockstream.hh"
+
 
 namespace chrindex::andren::network
 {
@@ -27,6 +29,7 @@ namespace chrindex::andren::network
         using OnClose = std::function<void()>;
 
         SSLStream(base::Socket && sock , std::weak_ptr<RePoller> wrp);
+        SSLStream(SockStream && sock);
         SSLStream(SSLStream&&) = delete;
         ~SSLStream();
 
@@ -93,7 +96,7 @@ namespace chrindex::andren::network
         std::weak_ptr<RePoller> reference_repoller();
 
         /// 返回内部SSLIO的实例指针。
-        /// 该指针可能为空，当SSLIO不可用时。
+        /// 该指针可能为空，当未曾调用usingSSL时时。
         base::aSSLSocketIO * reference_sslio();
 
         

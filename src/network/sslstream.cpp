@@ -5,6 +5,7 @@
 #include <memory>
 #include <sys/socket.h>
 #include <thread>
+#include <unistd.h>
 
 namespace chrindex::andren::network
 {
@@ -18,6 +19,18 @@ namespace chrindex::andren::network
         data->m_sslshutdown = false;
         //fprintf(stdout,"SSLStream::SSLStream %lu.\n",(uint64_t)this);
     }
+    SSLStream::SSLStream(SockStream && sock)
+    {
+        data = std::make_unique<_private>();
+        data->m_usedSSL = false;
+        data->m_sslshutdown = false;
+        data->m_onClose = std::move(sock.data->m_onClose);
+        data->m_onRead= std::move(sock.data->m_onRead);
+        data->m_onWrite= std::move(sock.data->m_onWrite);
+        data->m_sock= std::move(sock.data->m_sock);
+        data->wrp= std::move(sock.data->wrp);
+        sock.data.reset();
+    }
     SSLStream::~SSLStream()
     {
         //fprintf(stdout,"SSLStream::~SSLStream %lu.\n",(uint64_t)this);
@@ -26,7 +39,7 @@ namespace chrindex::andren::network
     bool SSLStream::usingSSL(base::aSSL && assl, int endType)
     {
         data->m_sslio.upgradeFromSSL(std::move(assl));
-        data->m_sslio.bindSocketFD(data->m_sock.handle());
+        data->m_sslio.bindSocketFD(data->m_sock);
         data->m_sslio.setEndType(endType);
         data->m_usedSSL = true;
         return true;
@@ -91,7 +104,7 @@ namespace chrindex::andren::network
 
     base::aSSLSocketIO * SSLStream::reference_sslio()
     {
-        if(!data->m_usedSSL && data->m_sslio.valid())
+        if(data->m_usedSSL)
         {
            return &data->m_sslio; 
         }
@@ -134,10 +147,15 @@ namespace chrindex::andren::network
             {
                 return ev->addTask([ self = shared_from_this(), msg = std::move(_data)]()
                 mutable{
+                    //fprintf(stdout,"prepare check ssl write.\n");
                     if(self->data->m_sock.valid())
                     {
+                        //fprintf(stdout,"prepare ssl write.\n");
                         ssize_t ret = self->real_write(msg.c_str(), msg.size(), 0);
-                        if (self->data->m_onWrite){ self->data->m_onWrite( ret, std::move(msg)); }
+                        if (self->data->m_onWrite)
+                        { 
+                            self->data->m_onWrite( ret, std::move(msg));
+                        }
                     }
                 },EventLoopTaskType::IO_TASK);
             }
@@ -224,16 +242,36 @@ namespace chrindex::andren::network
                 {
                     return ;
                 }
-                //fprintf(stdout,"SSLStream::listenReadEvent : this = %lu.\n",(uint64_t)self.get());
+                //fprintf(stdout,"[PID %d] SSLStream::listenReadEvent : this = %lu.\n",::getpid(),(uint64_t)self.get());
+
                 if (events & EPOLLIN)
                 {
+                    //fprintf(stdout,"[PID %d] SSLStream::listenReadEvent : Read.\n",::getpid());
                     base::KVPair<ssize_t , std::string> result = self->real_read();
-                    if (result.key() <= 0)[[unlikely]]
+                    fprintf(stdout,"[PID %d] SSLStream::listenReadEvent : ReadEvent, real_read size = %ld\n",::getpid(),result.key());
+                    if (result.key() == 0)[[unlikely]]
                     {
                         if(self->data->m_onClose){self->data->m_onClose();}
                         if(auto rp = self->data->wrp.lock(); rp)
                         {
                             rp->cancle(fd);
+                        }
+                    }
+                    else if(result.key() < 0) // try_read不会返回负值，但ssl_read在非阻塞下会。.
+                    {
+                        auto errcode = self->data->m_sslio.reference().getErrNo();
+                        //fprintf(stdout,"[PID %d] SSLStream::listenReadEvent : SSL ERROR Code %lu.\n",::getpid(),errcode);
+                        if( errcode == SSL_ERROR_WANT_READ || errcode == 0)
+                        {
+                            return ;
+                        }
+                        else 
+                        {
+                            if(self->data->m_onClose){self->data->m_onClose();}
+                            if(auto rp = self->data->wrp.lock(); rp)
+                            {
+                                rp->cancle(fd);
+                            }
                         }
                     }
                     else 
@@ -247,32 +285,28 @@ namespace chrindex::andren::network
 
     base::KVPair<ssize_t , std::string> SSLStream::real_read()
     {
-        if(data->m_sslshutdown)
-        {
-            return {-1,{}};
-        }
         if (!data->m_usedSSL)
         {
             return tryRead();
         }
-        if (!data->m_sslio.valid())
+        if (data->m_sslshutdown || !data->m_sslio.valid())
         {
             return {-2, {}};
         }
-        return data->m_sslio.read();
+        //
+        data->m_sslio.enableNonBlock(true);
+        auto result = data->m_sslio.read();
+        data->m_sslio.enableNonBlock(false);
+        return result;
     }
 
     ssize_t SSLStream::real_write(char const * msg , size_t size , int flags)
     {
-        if(data->m_sslshutdown)
-        {
-            return -1;
-        }
         if (!data->m_usedSSL)
         {
             return data->m_sock.send(msg, size, flags);
         }
-        if (!data->m_sslio.valid())
+        if (data->m_sslshutdown || !data->m_sslio.valid())
         {
             return -2;
         }
@@ -286,7 +320,7 @@ namespace chrindex::andren::network
             data->m_sock.closeAndNoClear();
             return ;
         }
-        if (!data->m_sslio.valid())
+        if (data->m_sslshutdown || !data->m_sslio.valid())
         {
             data->m_sock.closeAndNoClear();
             return ;

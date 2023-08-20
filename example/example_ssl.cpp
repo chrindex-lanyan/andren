@@ -1,6 +1,8 @@
 ﻿
 #include "../include/andren.hh"
 
+#include <chrono>
+#include <thread>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -260,18 +262,6 @@ int test_server()
     }
     stdprintf("SSL Server : Listening [%s:%d] with Socket fd %d.\n", saddr.ip().c_str(), saddr.port(), listener.handle());
 
-    // 设置CTRL+C信号回调
-    if (signal(SIGINT,
-               [](int sig) -> void
-               {
-                   stdprintf("SSL Server : 准备退出....\n");
-                   m_exit = 1;
-               }) == SIG_ERR)
-    {
-        errprintf("SSL Server : Cannot registering signal handler");
-        return -3;
-    }
-
     ThreadPoolPortable tpool(4); // four threads
 
     // 开始执行
@@ -349,7 +339,7 @@ int test_client()
     }
     protocol = asslio.reference().selectedProtocolForClient(); // 取得已经协商好的应用层协议 
     if(protocol.empty()){protocol = "null";}
-    stdprintf("SSL Client : Using Protocol `%s`. Size=%d.\n", protocol.c_str(),protocol.size());
+    stdprintf("SSL Client : Using Protocol `%s`. Size=%lu.\n", protocol.c_str(), protocol.size());
 
     /// 配置Epoll
     epoll_event event;
@@ -433,17 +423,35 @@ int test_client()
     return 0;
 }
 
+
 int test_socket()
 {
     pid_t pid = fork();
 
+    if (signal(SIGINT,
+               [](int sig) -> void
+               {
+                   fprintf(stdout,"准备退出....\n");
+                   m_exit = 1;
+               }) == SIG_ERR)
+    {
+        fprintf(stdout,"Cannot registering signal handler");
+        return -3;
+    }
+
     if (pid != 0)
-    { // server
+    { 
+        // server
         fprintf(stdout,"Parent PID %d.\n",::getpid());
         test_server();
+        // while(m_exit != 1)
+        // {
+        //     std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        // }
     }
     else
-    { // client
+    { 
+        // client
         fprintf(stdout,"Child PID %d.\n",::getpid());
         test_client();
     }

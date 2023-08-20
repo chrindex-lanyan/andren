@@ -48,6 +48,8 @@ example_eventloop_pattern = example_src .. "./example_eventloop.cpp"
 example_retcpserver_pattern = example_src .. "./example_retcpserver.cpp"
 example_asyncfile_pattern = example_src .. "./example_afio.cpp"
 example_grpc_pattern = example_src .. "./example_grpc.cpp"
+example_sslstream_pattern = example_src .. "./example_sslstream.cpp"
+
 
 
 target("andren")
@@ -236,5 +238,11 @@ target("test_grpc")
     add_links("grpc") -- libgrpc-dev (grpc library)
     add_links("grpc++") -- libgrpc++-dev (grpc++ library)
     add_links("protobuf") -- protobuf c++ (grpc++ need)
+    add_deps("andren", {private = true})
+    
+target("test_sslstream")
+    set_kind("binary")
+    add_files(example_sslstream_pattern)
+    add_links("fmt")
     add_deps("andren", {private = true})
     

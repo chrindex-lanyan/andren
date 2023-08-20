@@ -2,6 +2,7 @@
 #include "repoller.hh"
 #include "eventloop.hh"
 #include <memory>
+#include <unistd.h>
 
 namespace chrindex::andren::network
 {
@@ -155,7 +156,7 @@ namespace chrindex::andren::network
             {
                 int fd = eviter.first;
                 int events = eviter.second;
-                fprintf(stdout,"RePoller::work():: Process fd=%d,events=%d ...\n",fd,events);
+                //fprintf(stdout,"RePoller::work():: Process fd=%d,events=%d ...\n",fd,events);
                 if (auto iter = data->m_callbacks.find(fd) ; iter != data->m_callbacks.end())
                 {
                     iter->second(events);
