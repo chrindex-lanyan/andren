@@ -1,6 +1,7 @@
 ﻿
 #include "aSSL.hh"
 
+#include <asm-generic/errno-base.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -399,30 +400,57 @@ namespace chrindex::andren::base
         return SSL_connect(m_ssl.handle());
     }
 
+    // KVPair<ssize_t, std::string> aSSLSocketIO::read()
+    // {
+    //     ssize_t size;
+    //     std::string buffer;
+    //     char ch;
+
+    //     // 试探性地读取一个字节，这样SSL_pending才有用。
+    //     size = SSL_read(m_ssl.handle(), &ch, sizeof(ch));
+    //     if(size <=0)
+    //     {
+    //         return {std::move(size),{}};
+    //     }
+
+    //     size = SSL_pending(m_ssl.handle());
+    //     if (size <= 0)
+    //     {
+    //         buffer.push_back(ch);
+    //         return {buffer.size(), std::move(buffer)};
+    //     }
+    //     buffer.resize(size+1);
+    //     buffer[0] = (ch);
+    //     size = SSL_read(m_ssl.handle(), &buffer[1], buffer.size());
+    //     return {buffer.size(), std::move(buffer)};
+    // }
+
     KVPair<ssize_t, std::string> aSSLSocketIO::read()
     {
         ssize_t size;
         std::string buffer;
-        char ch;
 
-        // 试探性地读取一个字节，这样SSL_pending才有用。
-        size = SSL_read(m_ssl.handle(), &ch, sizeof(ch));
-        if(size <=0)
-        {
-            return {std::move(size),{}};
-        }
+        // 让SSL调用::recv但是没法存到用户缓冲区，这样SSL_pending就是要分配缓冲区的大小。
+        size = SSL_read(m_ssl.handle(), 0,0);
+        
+        //fprintf(stdout,"aSSLSocketIO::read() :: Try Read  ret = %ld.  SSL_error = %ld , errno = %d\n",size, m_ssl.getErrNo(),errno);
 
         size = SSL_pending(m_ssl.handle());
-        if (size <= 0)
+
+        //fprintf(stdout,"aSSLSocketIO::read() :: Pending ret = %ld.  SSL_error = %ld , errno = %d\n",size, m_ssl.getErrNo(),errno);
+
+        if (size <= 0 )
         {
-            buffer.push_back(ch);
-            return {buffer.size(), std::move(buffer)};
+            return {-1, {}};
         }
-        buffer.resize(size+1);
-        buffer[0] = (ch);
-        size = SSL_read(m_ssl.handle(), &buffer[1], buffer.size());
+        buffer.resize(size);
+        size = SSL_read(m_ssl.handle(), &buffer[0], buffer.size());
+
+        //fprintf(stdout,"aSSLSocketIO::read() :: Real Read ret = %ld.  SSL_error = %ld , errno = %d\n",size, m_ssl.getErrNo(),errno);
+
         return {buffer.size(), std::move(buffer)};
     }
+
 
 
     ssize_t aSSLSocketIO::write(std::string const &data)

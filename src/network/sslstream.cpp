@@ -262,26 +262,21 @@ namespace chrindex::andren::network
                     {
                         auto errcode = self->data->m_sslio.reference().getErrNo();
                         //fprintf(stdout,"[PID %d] SSLStream::listenReadEvent : SSL ERROR Code %lu.\n",::getpid(),errcode);
-                        if( errcode == SSL_ERROR_WANT_READ || errcode == 0 || errcode == SSL_ERROR_WANT_WRITE)
+                        if( errno == EAGAIN 
+                            || (errcode == SSL_ERROR_SYSCALL && errcode == 0 ) 
+                            || errcode == SSL_ERROR_WANT_WRITE 
+                            || errcode == SSL_ERROR_WANT_READ 
+                            || errcode == SSL_ERROR_ZERO_RETURN)
                         {
                             return ;
                         }
-                        else if( (errcode == SSL_ERROR_SYSCALL && errno == 0) || errcode == SSL_ERROR_ZERO_RETURN)
+                        else 
                         {
-                            self->data->m_sslio.shutdown();
                             if(self->data->m_onClose){self->data->m_onClose();}
                             if(auto rp = self->data->wrp.lock(); rp)
                             {
                                 rp->cancle(fd);
                             }
-                        }
-                        else 
-                        {
-                            // if(self->data->m_onClose){self->data->m_onClose();}
-                            // if(auto rp = self->data->wrp.lock(); rp)
-                            // {
-                            //     rp->cancle(fd);
-                            // }
                             return ;
                         }
                     }
