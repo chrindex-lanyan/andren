@@ -4,6 +4,8 @@
 #include <vector>
 #include <stdint.h>
 
+#include "KVPair.hpp"
+
 namespace chrindex::andren::base
 {
 

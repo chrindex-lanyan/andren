@@ -10,7 +10,7 @@ namespace chrindex::andren::base
     /// @brief 一个勉强能用的定时器管理器
     /// 示例： TimerManger<MinHeap<BinaryHeap<uint64_t,
     ///         KVPair<uint64_t,std::function<bool()>>>>> timerManager;
-    /// 这是各二叉堆的实例化。
+    /// 这是个二叉堆的实例化。
     /// @tparam MinHeapTy
     template <typename MinHeapTy>
     class TimerManger

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <utility>
+#include <stdint.h>
 
 namespace chrindex::andren::base
 {

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <utility>
+
 namespace chrindex::andren::base
 {
     /// @brief 简单的键值对容器。

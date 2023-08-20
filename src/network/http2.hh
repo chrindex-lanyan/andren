@@ -23,12 +23,29 @@
 
 namespace chrindex::andren::network
 {
+    class Http2rdFrame
+    {
+    public :
+
+        Http2rdFrame();
+        ~Http2rdFrame();
+
+
+        std::string data;
+
+    };
+
+
     class Http2rdStream
     {
     public :
 
-    private : 
+        Http2rdStream();
+        Http2rdStream(Http2rdStream&&) ;
+        ~Http2rdStream();
 
+
+        std::map<int, Http2rdFrame>frames; 
     };
 
     class Http2rdSession
@@ -36,7 +53,7 @@ namespace chrindex::andren::network
     public:
         Http2rdSession() 
         {
-
+            
         }
 
         Http2rdSession(Http2rdSession &&_)
@@ -68,6 +85,7 @@ namespace chrindex::andren::network
         {
             nghttp2_session * session;
             SSLStream ssl;
+            std::map<int, Http2rdStream> streams;
         };
         std::unique_ptr<Data> member;
     };
