@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cstdio>
 #include <memory>
+#include <openssl/ssl.h>
 #include <sys/socket.h>
 #include <thread>
 #include <unistd.h>
@@ -257,21 +258,31 @@ namespace chrindex::andren::network
                             rp->cancle(fd);
                         }
                     }
-                    else if(result.key() < 0) // try_read不会返回负值，但ssl_read在非阻塞下会。.
+                    else if(result.key() < 0) // try_read不会返回负值，但是ssl_read。
                     {
                         auto errcode = self->data->m_sslio.reference().getErrNo();
                         //fprintf(stdout,"[PID %d] SSLStream::listenReadEvent : SSL ERROR Code %lu.\n",::getpid(),errcode);
-                        if( errcode == SSL_ERROR_WANT_READ || errcode == 0 || errcode == SSL_ERROR_ZERO_RETURN)
+                        if( errcode == SSL_ERROR_WANT_READ || errcode == 0 || errcode == SSL_ERROR_WANT_WRITE)
                         {
                             return ;
                         }
-                        else 
+                        else if( (errcode == SSL_ERROR_SYSCALL && errno == 0) || errcode == SSL_ERROR_ZERO_RETURN)
                         {
+                            self->data->m_sslio.shutdown();
                             if(self->data->m_onClose){self->data->m_onClose();}
                             if(auto rp = self->data->wrp.lock(); rp)
                             {
                                 rp->cancle(fd);
                             }
+                        }
+                        else 
+                        {
+                            // if(self->data->m_onClose){self->data->m_onClose();}
+                            // if(auto rp = self->data->wrp.lock(); rp)
+                            // {
+                            //     rp->cancle(fd);
+                            // }
+                            return ;
                         }
                     }
                     else 

@@ -15,12 +15,22 @@
 #include <stdexcept>
 #include <any>
 
+#include "sslstream.hh"
+
 #include "../base/andren_base.hh"
 
 #include "eventloop.hh"
 
 namespace chrindex::andren::network
 {
+    class Http2rdStream
+    {
+    public :
+
+    private : 
+
+    };
+
     class Http2rdSession
     {
     public:
@@ -29,10 +39,9 @@ namespace chrindex::andren::network
 
         }
 
-
         Http2rdSession(Http2rdSession &&_)
         {
-            _data = std::move(_._data);
+            member = std::move(_.member);
         }
         ~Http2rdSession()
         {
@@ -42,12 +51,12 @@ namespace chrindex::andren::network
         void operator=(Http2rdSession &&_)
         {
             this->~Http2rdSession();
-            _data = std::move(_._data);
+            member = std::move(_.member);
         }
 
         bool valid() const 
         { 
-            return _data != nullptr;
+            return member != nullptr;
         }
 
         
@@ -57,11 +66,10 @@ namespace chrindex::andren::network
     private:
         struct Data
         {
-            nghttp2_session *m_session;
-            std::any m_sio;
-            std::weak_ptr<EventLoop> m_wev;
+            nghttp2_session * session;
+            SSLStream ssl;
         };
-        std::unique_ptr<Data> _data;
+        std::unique_ptr<Data> member;
     };
 
 }

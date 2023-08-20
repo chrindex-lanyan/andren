@@ -273,7 +273,7 @@ int testTcpClient()
         errout("SSL Client : Disconnected , Prepare Exit...\n");
     });
 
-    link->setOnWrite([](ssize_t ret, std::string && data)
+    link->setOnWrite([wlink](ssize_t ret, std::string && data)
     {
         if (ret < 200)
         {
@@ -282,6 +282,14 @@ int testTcpClient()
         else
         {
             genout("SSL Client : Write Some Data To Server Done...Size = [%ld]\t\r.",ret);
+        }
+        if(ret < 0)
+        {
+            auto link = wlink.lock();
+            if (link)
+            {
+                link->aclose();
+            }
         }
     });
 
@@ -346,7 +354,7 @@ int testTcpClient()
         goto end_clean;
     }
 
-    for (int i =0; i< 10 ; i++)
+    for (int i =0; i< 10  && m_exit ==0; i++)
     {
         bret = link->asend("hello world-" + std::to_string(i) + " !!");
         assert(bret);
@@ -365,7 +373,7 @@ end_clean:
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     genout ("SSL Client : Client Exit After 1000 msec...\n");
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     return 0;
 }
 
