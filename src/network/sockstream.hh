@@ -3,6 +3,7 @@
 #include "../base/andren_base.hh"
 
 #include "repoller.hh"
+
 #include <functional>
 #include <memory>
 
@@ -90,6 +91,8 @@ namespace chrindex::andren::network
         void listenReadEvent(int fd);
 
     private :
+
+        friend class SSLStream;
 
         struct _private 
         { 
