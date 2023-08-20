@@ -1,15 +1,21 @@
 ﻿#include "sslstream.hh"
 #include "eventloop.hh"
 #include <chrono>
+#include <cstddef>
 #include <cstdio>
 #include <memory>
 #include <openssl/ssl.h>
 #include <sys/socket.h>
 #include <thread>
 #include <unistd.h>
+#include <utility>
 
 namespace chrindex::andren::network
 {
+    SSLStream::SSLStream()
+    {
+        data = nullptr;
+    }
 
     SSLStream::SSLStream(base::Socket && sock, std::weak_ptr<RePoller> wrp)
     {
@@ -32,9 +38,18 @@ namespace chrindex::andren::network
         data->wrp= std::move(sock.data->wrp);
         sock.data.reset();
     }
+    SSLStream::SSLStream(SSLStream&& _) noexcept
+    {
+        data = std::move(_.data);
+    }
     SSLStream::~SSLStream()
     {
         //fprintf(stdout,"SSLStream::~SSLStream %lu.\n",(uint64_t)this);
+    }
+
+    void SSLStream::operator=(SSLStream && _) noexcept
+    {
+        data = std::move(_.data);
     }
 
     bool SSLStream::usingSSL(base::aSSL && assl, int endType)

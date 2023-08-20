@@ -28,10 +28,13 @@ namespace chrindex::andren::network
         /// 当关闭时
         using OnClose = std::function<void()>;
 
+        SSLStream();
         SSLStream(base::Socket && sock , std::weak_ptr<RePoller> wrp);
         SSLStream(SockStream && sock);
-        SSLStream(SSLStream&&) = delete;
+        SSLStream(SSLStream&&) noexcept;
         ~SSLStream();
+
+        void operator=(SSLStream && _) noexcept;
 
         /// 使用SSL。
         /// 要求调用者提供已经配置好的SSL对象。
