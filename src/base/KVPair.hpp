@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include <variant>
+
 namespace chrindex::andren::base
 {
     /// @brief 简单的键值对容器。
@@ -104,5 +106,8 @@ namespace chrindex::andren::base
         KTy m_key;
         VTy m_val;
     };
+
+#define VARIANT_TYPE(TYPE, ... ) std::variant<TYPE, __VA_ARGS__> 
+
 
 }

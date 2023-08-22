@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "base_types.hh"
+
 #include "exception.hh"
 #include "noncopyable.hpp"
 #include "scoperun.hpp"
