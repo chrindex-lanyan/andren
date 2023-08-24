@@ -1,421 +1,426 @@
 [
 {
   "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_timer/linux/x86_64/debug/example/example_timer.cpp.o", "example/example_timer.cpp"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_timer/linux/x86_64/release/example/example_timer.cpp.o", "example/example_timer.cpp"],
   "file": "example/example_timer.cpp"
 },
 {
   "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/acceptor.cpp.o", "src/network/acceptor.cpp"],
-  "file": "src/network/acceptor.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/datagram.cpp.o", "src/network/datagram.cpp"],
-  "file": "src/network/datagram.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/afile.cpp.o", "src/network/afile.cpp"],
-  "file": "src/network/afile.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/sockstream.cpp.o", "src/network/sockstream.cpp"],
-  "file": "src/network/sockstream.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/eventloop.cpp.o", "src/network/eventloop.cpp"],
-  "file": "src/network/eventloop.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/old/propoller.cpp.o", "src/network/old/propoller.cpp"],
-  "file": "src/network/old/propoller.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/old/udppackage.cpp.o", "src/network/old/udppackage.cpp"],
-  "file": "src/network/old/udppackage.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/old/tcpstreammanager.cpp.o", "src/network/old/tcpstreammanager.cpp"],
-  "file": "src/network/old/tcpstreammanager.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/old/tcpstream.cpp.o", "src/network/old/tcpstream.cpp"],
-  "file": "src/network/old/tcpstream.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/repoller.cpp.o", "src/network/repoller.cpp"],
-  "file": "src/network/repoller.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/sslstream.cpp.o", "src/network/sslstream.cpp"],
-  "file": "src/network/sslstream.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/http3.cpp.o", "src/network/http3.cpp"],
-  "file": "src/network/http3.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/network/http2.cpp.o", "src/network/http2.cpp"],
-  "file": "src/network/http2.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/thread.cpp.o", "src/base/thread.cpp"],
-  "file": "src/base/thread.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/ufile.cpp.o", "src/base/ufile.cpp"],
-  "file": "src/base/ufile.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/json.cpp.o", "src/base/json.cpp"],
-  "file": "src/base/json.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/buffer.cpp.o", "src/base/buffer.cpp"],
-  "file": "src/base/buffer.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/smem.cpp.o", "src/base/smem.cpp"],
-  "file": "src/base/smem.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/EndPoint.cpp.o", "src/base/EndPoint.cpp"],
-  "file": "src/base/EndPoint.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/plog.cpp.o", "src/base/plog.cpp"],
-  "file": "src/base/plog.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/epoll.cpp.o", "src/base/epoll.cpp"],
-  "file": "src/base/epoll.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/signal.cpp.o", "src/base/signal.cpp"],
-  "file": "src/base/signal.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/socket.cpp.o", "src/base/socket.cpp"],
-  "file": "src/base/socket.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/stringTool.cpp.o", "src/base/stringTool.cpp"],
-  "file": "src/base/stringTool.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/pgsql_api.cpp.o", "src/base/pgsql_api.cpp"],
-  "file": "src/base/pgsql_api.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/aSSL.cpp.o", "src/base/aSSL.cpp"],
-  "file": "src/base/aSSL.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/mysql_statement.cpp.o", "src/base/mysql_statement.cpp"],
-  "file": "src/base/mysql_statement.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/threadpool.cpp.o", "src/base/threadpool.cpp"],
-  "file": "src/base/threadpool.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/zlibstream.cpp.o", "src/base/zlibstream.cpp"],
-  "file": "src/base/zlibstream.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/pipe.cpp.o", "src/base/pipe.cpp"],
-  "file": "src/base/pipe.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren/linux/x86_64/debug/third-part/base64_src/base64.cpp.o", "third-part/base64_src/base64.cpp"],
-  "file": "third-part/base64_src/base64.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-o", "build/.objs/andren/linux/x86_64/debug/src/base/textcodec.c.o", "src/base/textcodec.c"],
-  "file": "src/base/textcodec.c"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_2xheap/linux/x86_64/debug/example/example_2xHeap.cpp.o", "example/example_2xHeap.cpp"],
-  "file": "example/example_2xHeap.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_shmem/linux/x86_64/debug/example/example_shmem.cpp.o", "example/example_shmem.cpp"],
-  "file": "example/example_shmem.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_grpc/linux/x86_64/debug/example/greet.grpc.pb.cc.o", "example/greet.grpc.pb.cc"],
-  "file": "example/greet.grpc.pb.cc"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_grpc/linux/x86_64/debug/example/greet.pb.cc.o", "example/greet.pb.cc"],
-  "file": "example/greet.pb.cc"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_grpc/linux/x86_64/debug/example/example_grpc.cpp.o", "example/example_grpc.cpp"],
-  "file": "example/example_grpc.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_afio/linux/x86_64/debug/example/example_afio.cpp.o", "example/example_afio.cpp"],
-  "file": "example/example_afio.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_threadpool/linux/x86_64/debug/example/example_threadpool.cpp.o", "example/example_threadpool.cpp"],
-  "file": "example/example_threadpool.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_ssl_socket/linux/x86_64/debug/example/example_ssl.cpp.o", "example/example_ssl.cpp"],
-  "file": "example/example_ssl.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_4xheap/linux/x86_64/debug/example/example_4xHeap.cpp.o", "example/example_4xHeap.cpp"],
-  "file": "example/example_4xHeap.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_pipe/linux/x86_64/debug/example/example_pipe.cpp.o", "example/example_pipe.cpp"],
-  "file": "example/example_pipe.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_eventloop/linux/x86_64/debug/example/example_eventloop.cpp.o", "example/example_eventloop.cpp"],
-  "file": "example/example_eventloop.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_DBuffer/linux/x86_64/debug/example/example_DBuffer.cpp.o", "example/example_DBuffer.cpp"],
-  "file": "example/example_DBuffer.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/acceptor.cpp.o", "src/network/acceptor.cpp"],
-  "file": "src/network/acceptor.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/datagram.cpp.o", "src/network/datagram.cpp"],
-  "file": "src/network/datagram.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/afile.cpp.o", "src/network/afile.cpp"],
-  "file": "src/network/afile.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/sockstream.cpp.o", "src/network/sockstream.cpp"],
-  "file": "src/network/sockstream.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/eventloop.cpp.o", "src/network/eventloop.cpp"],
-  "file": "src/network/eventloop.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/old/propoller.cpp.o", "src/network/old/propoller.cpp"],
-  "file": "src/network/old/propoller.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/old/udppackage.cpp.o", "src/network/old/udppackage.cpp"],
-  "file": "src/network/old/udppackage.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/old/tcpstreammanager.cpp.o", "src/network/old/tcpstreammanager.cpp"],
-  "file": "src/network/old/tcpstreammanager.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/old/tcpstream.cpp.o", "src/network/old/tcpstream.cpp"],
-  "file": "src/network/old/tcpstream.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/repoller.cpp.o", "src/network/repoller.cpp"],
-  "file": "src/network/repoller.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/sslstream.cpp.o", "src/network/sslstream.cpp"],
-  "file": "src/network/sslstream.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/http3.cpp.o", "src/network/http3.cpp"],
-  "file": "src/network/http3.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/network/http2.cpp.o", "src/network/http2.cpp"],
-  "file": "src/network/http2.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/thread.cpp.o", "src/base/thread.cpp"],
-  "file": "src/base/thread.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/ufile.cpp.o", "src/base/ufile.cpp"],
-  "file": "src/base/ufile.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/json.cpp.o", "src/base/json.cpp"],
-  "file": "src/base/json.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/buffer.cpp.o", "src/base/buffer.cpp"],
-  "file": "src/base/buffer.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/smem.cpp.o", "src/base/smem.cpp"],
-  "file": "src/base/smem.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/EndPoint.cpp.o", "src/base/EndPoint.cpp"],
-  "file": "src/base/EndPoint.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/plog.cpp.o", "src/base/plog.cpp"],
-  "file": "src/base/plog.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/epoll.cpp.o", "src/base/epoll.cpp"],
-  "file": "src/base/epoll.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/signal.cpp.o", "src/base/signal.cpp"],
-  "file": "src/base/signal.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/socket.cpp.o", "src/base/socket.cpp"],
-  "file": "src/base/socket.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/stringTool.cpp.o", "src/base/stringTool.cpp"],
-  "file": "src/base/stringTool.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/pgsql_api.cpp.o", "src/base/pgsql_api.cpp"],
-  "file": "src/base/pgsql_api.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/aSSL.cpp.o", "src/base/aSSL.cpp"],
-  "file": "src/base/aSSL.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/mysql_statement.cpp.o", "src/base/mysql_statement.cpp"],
-  "file": "src/base/mysql_statement.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/threadpool.cpp.o", "src/base/threadpool.cpp"],
-  "file": "src/base/threadpool.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/zlibstream.cpp.o", "src/base/zlibstream.cpp"],
-  "file": "src/base/zlibstream.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/pipe.cpp.o", "src/base/pipe.cpp"],
-  "file": "src/base/pipe.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/andren_a/linux/x86_64/debug/third-part/base64_src/base64.cpp.o", "third-part/base64_src/base64.cpp"],
-  "file": "third-part/base64_src/base64.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-o", "build/.objs/andren_a/linux/x86_64/debug/src/base/textcodec.c.o", "src/base/textcodec.c"],
-  "file": "src/base/textcodec.c"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_shmutex/linux/x86_64/debug/example/example_shmutex.cpp.o", "example/example_shmutex.cpp"],
-  "file": "example/example_shmutex.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_signal/linux/x86_64/debug/example/example_signal.cpp.o", "example/example_signal.cpp"],
-  "file": "example/example_signal.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_pgsql_statement/linux/x86_64/debug/example/example_pgsql.cpp.o", "example/example_pgsql.cpp"],
-  "file": "example/example_pgsql.cpp"
-},
-{
-  "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_zlibstream/linux/x86_64/debug/example/example_zlibstream.cpp.o", "example/example_zlibstream.cpp"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_zlibstream/linux/x86_64/release/example/example_zlibstream.cpp.o", "example/example_zlibstream.cpp"],
   "file": "example/example_zlibstream.cpp"
 },
 {
   "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_mysql_statement/linux/x86_64/debug/example/example_mysql_statement.cpp.o", "example/example_mysql_statement.cpp"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_mysql_statement/linux/x86_64/release/example/example_mysql_statement.cpp.o", "example/example_mysql_statement.cpp"],
   "file": "example/example_mysql_statement.cpp"
 },
 {
   "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_retcpserver/linux/x86_64/debug/example/example_retcpserver.cpp.o", "example/example_retcpserver.cpp"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_shmutex/linux/x86_64/release/example/example_shmutex.cpp.o", "example/example_shmutex.cpp"],
+  "file": "example/example_shmutex.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_4xheap/linux/x86_64/release/example/example_4xHeap.cpp.o", "example/example_4xHeap.cpp"],
+  "file": "example/example_4xHeap.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_afio/linux/x86_64/release/example/example_afio.cpp.o", "example/example_afio.cpp"],
+  "file": "example/example_afio.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/acceptor.cpp.o", "src/network/acceptor.cpp"],
+  "file": "src/network/acceptor.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/datagram.cpp.o", "src/network/datagram.cpp"],
+  "file": "src/network/datagram.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/afile.cpp.o", "src/network/afile.cpp"],
+  "file": "src/network/afile.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/sockstream.cpp.o", "src/network/sockstream.cpp"],
+  "file": "src/network/sockstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/eventloop.cpp.o", "src/network/eventloop.cpp"],
+  "file": "src/network/eventloop.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/old/propoller.cpp.o", "src/network/old/propoller.cpp"],
+  "file": "src/network/old/propoller.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/old/udppackage.cpp.o", "src/network/old/udppackage.cpp"],
+  "file": "src/network/old/udppackage.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/old/tcpstreammanager.cpp.o", "src/network/old/tcpstreammanager.cpp"],
+  "file": "src/network/old/tcpstreammanager.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/old/tcpstream.cpp.o", "src/network/old/tcpstream.cpp"],
+  "file": "src/network/old/tcpstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/repoller.cpp.o", "src/network/repoller.cpp"],
+  "file": "src/network/repoller.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/sslstream.cpp.o", "src/network/sslstream.cpp"],
+  "file": "src/network/sslstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/http3.cpp.o", "src/network/http3.cpp"],
+  "file": "src/network/http3.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/network/http2.cpp.o", "src/network/http2.cpp"],
+  "file": "src/network/http2.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/thread.cpp.o", "src/base/thread.cpp"],
+  "file": "src/base/thread.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/ufile.cpp.o", "src/base/ufile.cpp"],
+  "file": "src/base/ufile.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/json.cpp.o", "src/base/json.cpp"],
+  "file": "src/base/json.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/buffer.cpp.o", "src/base/buffer.cpp"],
+  "file": "src/base/buffer.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/smem.cpp.o", "src/base/smem.cpp"],
+  "file": "src/base/smem.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/EndPoint.cpp.o", "src/base/EndPoint.cpp"],
+  "file": "src/base/EndPoint.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/plog.cpp.o", "src/base/plog.cpp"],
+  "file": "src/base/plog.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/epoll.cpp.o", "src/base/epoll.cpp"],
+  "file": "src/base/epoll.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/signal.cpp.o", "src/base/signal.cpp"],
+  "file": "src/base/signal.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/socket.cpp.o", "src/base/socket.cpp"],
+  "file": "src/base/socket.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/stringTool.cpp.o", "src/base/stringTool.cpp"],
+  "file": "src/base/stringTool.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/pgsql_api.cpp.o", "src/base/pgsql_api.cpp"],
+  "file": "src/base/pgsql_api.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/aSSL.cpp.o", "src/base/aSSL.cpp"],
+  "file": "src/base/aSSL.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/mysql_statement.cpp.o", "src/base/mysql_statement.cpp"],
+  "file": "src/base/mysql_statement.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/threadpool.cpp.o", "src/base/threadpool.cpp"],
+  "file": "src/base/threadpool.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/zlibstream.cpp.o", "src/base/zlibstream.cpp"],
+  "file": "src/base/zlibstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/pipe.cpp.o", "src/base/pipe.cpp"],
+  "file": "src/base/pipe.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/third-part/base64_src/base64.cpp.o", "third-part/base64_src/base64.cpp"],
+  "file": "third-part/base64_src/base64.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-O3", "-DNDEBUG", "-o", "build/.objs/andren/linux/x86_64/release/src/base/textcodec.c.o", "src/base/textcodec.c"],
+  "file": "src/base/textcodec.c"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_2xheap/linux/x86_64/release/example/example_2xHeap.cpp.o", "example/example_2xHeap.cpp"],
+  "file": "example/example_2xHeap.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_signal/linux/x86_64/release/example/example_signal.cpp.o", "example/example_signal.cpp"],
+  "file": "example/example_signal.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_retcpserver/linux/x86_64/release/example/example_retcpserver.cpp.o", "example/example_retcpserver.cpp"],
   "file": "example/example_retcpserver.cpp"
 },
 {
   "directory": "/home/lanyan/c++/libchrindex/andren",
-  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-o", "build/.objs/test_socket/linux/x86_64/debug/example/example_socket.cpp.o", "example/example_socket.cpp"],
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_eventloop/linux/x86_64/release/example/example_eventloop.cpp.o", "example/example_eventloop.cpp"],
+  "file": "example/example_eventloop.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_grpc/linux/x86_64/release/example/greet.grpc.pb.cc.o", "example/greet.grpc.pb.cc"],
+  "file": "example/greet.grpc.pb.cc"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_grpc/linux/x86_64/release/example/greet.pb.cc.o", "example/greet.pb.cc"],
+  "file": "example/greet.pb.cc"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_grpc/linux/x86_64/release/example/example_grpc.cpp.o", "example/example_grpc.cpp"],
+  "file": "example/example_grpc.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_pipe/linux/x86_64/release/example/example_pipe.cpp.o", "example/example_pipe.cpp"],
+  "file": "example/example_pipe.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/acceptor.cpp.o", "src/network/acceptor.cpp"],
+  "file": "src/network/acceptor.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/datagram.cpp.o", "src/network/datagram.cpp"],
+  "file": "src/network/datagram.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/afile.cpp.o", "src/network/afile.cpp"],
+  "file": "src/network/afile.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/sockstream.cpp.o", "src/network/sockstream.cpp"],
+  "file": "src/network/sockstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/eventloop.cpp.o", "src/network/eventloop.cpp"],
+  "file": "src/network/eventloop.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/old/propoller.cpp.o", "src/network/old/propoller.cpp"],
+  "file": "src/network/old/propoller.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/old/udppackage.cpp.o", "src/network/old/udppackage.cpp"],
+  "file": "src/network/old/udppackage.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/old/tcpstreammanager.cpp.o", "src/network/old/tcpstreammanager.cpp"],
+  "file": "src/network/old/tcpstreammanager.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/old/tcpstream.cpp.o", "src/network/old/tcpstream.cpp"],
+  "file": "src/network/old/tcpstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/repoller.cpp.o", "src/network/repoller.cpp"],
+  "file": "src/network/repoller.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/sslstream.cpp.o", "src/network/sslstream.cpp"],
+  "file": "src/network/sslstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/http3.cpp.o", "src/network/http3.cpp"],
+  "file": "src/network/http3.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/network/http2.cpp.o", "src/network/http2.cpp"],
+  "file": "src/network/http2.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/thread.cpp.o", "src/base/thread.cpp"],
+  "file": "src/base/thread.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/ufile.cpp.o", "src/base/ufile.cpp"],
+  "file": "src/base/ufile.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/json.cpp.o", "src/base/json.cpp"],
+  "file": "src/base/json.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/buffer.cpp.o", "src/base/buffer.cpp"],
+  "file": "src/base/buffer.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/smem.cpp.o", "src/base/smem.cpp"],
+  "file": "src/base/smem.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/EndPoint.cpp.o", "src/base/EndPoint.cpp"],
+  "file": "src/base/EndPoint.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/plog.cpp.o", "src/base/plog.cpp"],
+  "file": "src/base/plog.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/epoll.cpp.o", "src/base/epoll.cpp"],
+  "file": "src/base/epoll.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/signal.cpp.o", "src/base/signal.cpp"],
+  "file": "src/base/signal.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/socket.cpp.o", "src/base/socket.cpp"],
+  "file": "src/base/socket.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/stringTool.cpp.o", "src/base/stringTool.cpp"],
+  "file": "src/base/stringTool.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/pgsql_api.cpp.o", "src/base/pgsql_api.cpp"],
+  "file": "src/base/pgsql_api.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/aSSL.cpp.o", "src/base/aSSL.cpp"],
+  "file": "src/base/aSSL.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/mysql_statement.cpp.o", "src/base/mysql_statement.cpp"],
+  "file": "src/base/mysql_statement.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/threadpool.cpp.o", "src/base/threadpool.cpp"],
+  "file": "src/base/threadpool.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/zlibstream.cpp.o", "src/base/zlibstream.cpp"],
+  "file": "src/base/zlibstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/pipe.cpp.o", "src/base/pipe.cpp"],
+  "file": "src/base/pipe.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/third-part/base64_src/base64.cpp.o", "third-part/base64_src/base64.cpp"],
+  "file": "third-part/base64_src/base64.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-O3", "-DNDEBUG", "-o", "build/.objs/andren_a/linux/x86_64/release/src/base/textcodec.c.o", "src/base/textcodec.c"],
+  "file": "src/base/textcodec.c"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_sslstream/linux/x86_64/release/example/example_sslstream.cpp.o", "example/example_sslstream.cpp"],
+  "file": "example/example_sslstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_socket/linux/x86_64/release/example/example_socket.cpp.o", "example/example_socket.cpp"],
   "file": "example/example_socket.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_pgsql_statement/linux/x86_64/release/example/example_pgsql.cpp.o", "example/example_pgsql.cpp"],
+  "file": "example/example_pgsql.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_shmem/linux/x86_64/release/example/example_shmem.cpp.o", "example/example_shmem.cpp"],
+  "file": "example/example_shmem.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_threadpool/linux/x86_64/release/example/example_threadpool.cpp.o", "example/example_threadpool.cpp"],
+  "file": "example/example_threadpool.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_DBuffer/linux/x86_64/release/example/example_DBuffer.cpp.o", "example/example_DBuffer.cpp"],
+  "file": "example/example_DBuffer.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fvisibility=hidden", "-fvisibility-inlines-hidden", "-O3", "-std=c++20", "-Wall", "-DNDEBUG", "-o", "build/.objs/test_ssl_socket/linux/x86_64/release/example/example_ssl.cpp.o", "example/example_ssl.cpp"],
+  "file": "example/example_ssl.cpp"
 }]
