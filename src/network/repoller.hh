@@ -19,7 +19,7 @@
  * 通过注册一个小于-1的fd，可以添加自定义监听，
  * 如果注册一个大于0的fd，则被添加到epoll里监听。
  * Repoller允许用户手动向一个FD发送事件（无论FD>0还是FD<-1）。
- * 除此以外，RePoller内置了一个简易的对象池，
+ * 除此以外，RePoller内置了一个简易的对象生命周期托管，
  * 用于保有某些对象的生命周期（比如std::shared_ptr<SockStream>）。
  * 因为Epoll无法监听普通的文件FD，因此如果要通过Repoller模拟异步文件IO，
  * 则需要添加该fd的负值，并添加任务到eventloop（可以不是IO任务）进行具体的IO读写，
@@ -56,16 +56,19 @@ namespace chrindex::andren::network
      public:
         /// ##### Note 1 下列函数仅能在IO线程被调用
 
-        /// 添加一个FD和要监听的事件
+        /// 添加一个FD和要监听的事件，使用EPOLL监听。
         /// 返回false，很可能是FD已存在。
+        /// 如果该FD不被EPOLL支持，请不要使用该函数。
         bool append( int fd , int events );
 
-        /// 修改某个FD要监听的事件类型
+        /// 修改某个FD要使用EPOLL监听的事件类型。
         /// 返回false，很可能是FD不存在。
+        /// 如果该FD不被EPOLL支持，请不要使用该函数。
         bool modify( int fd , int events );
 
-        /// 删除对某个FD的事件监听。
+        /// 删除对某个FD的事件在EPOLL的监听。
         /// 注意，该函数也会清除FD对应的回调函数。
+        /// 如果该FD不被EPOLL支持，请不要使用该函数。
         bool cancle( int fd );
 
         /// 为一个fd手动发送一个事件，而不是依赖于EPOLL_WAIT。
@@ -94,7 +97,7 @@ namespace chrindex::andren::network
 
     public :
         /// ##### Note 2 下列函数可以跨线程使用，但回调函数被调用时，一定是在IO线程被回调。
-        /// 这两个函数还将调用shared_from_this()保证自身的声明周期。
+        /// 这两个函数还将调用shared_from_this()保证自身的生命周期。
 
         /// 保存一个任意对象到内部。
         /// 当返回true时，请求被接受，并在以后被执行。
@@ -135,9 +138,9 @@ namespace chrindex::andren::network
         struct _private 
         {
             std::atomic<bool> m_shutdown;
-            std::map<int, std::any>  m_objects; // 对象池。
+            std::map<int, std::any>  m_objects; // 对象托管。
             std::map<int, OnEventUP> m_callbacks;
-            std::map<int,int>        m_customEvents; // 需要手动发送的events
+            std::map<int, int>        m_customEvents; // 需要手动发送的events
             base::Epoll m_ep;
             std::weak_ptr<EventLoop> m_wev;
         };
