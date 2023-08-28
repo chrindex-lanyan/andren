@@ -3,6 +3,8 @@
 #include "eventloop.hh"
 
 #include <algorithm>
+#include <condition_variable>
+#include <mutex>
 
 
 namespace chrindex::andren::network
@@ -11,6 +13,8 @@ namespace chrindex::andren::network
     {
         m_size = std::max(size, 2u);
         m_tpool = nullptr;
+        m_cvmut = new std::mutex [m_size];
+        m_cv = new std::condition_variable [m_size];
         m_bqueForTask = new base::DBuffer<Task>[m_size];
         m_exit = false;
     }
@@ -20,6 +24,8 @@ namespace chrindex::andren::network
         shutdown();
         delete [] m_tpool;
         delete [] m_bqueForTask;
+        delete [] m_cv;
+        delete [] m_cvmut;
     }
 
     bool EventLoop::addTask(Task task, EventLoopTaskType type)
@@ -58,7 +64,7 @@ namespace chrindex::andren::network
         }
 
         m_bqueForTask[index].pushBack(std::move(task));
-        m_cv.notify_all();
+        m_cv[index].notify_one();
         return true;
     }
 
@@ -80,10 +86,10 @@ namespace chrindex::andren::network
     {
         // 设置退出标识
         m_exit = true;
-        m_cv.notify_all();
         // 唤醒所有的线程
         for (uint32_t i = 0; i < m_size && m_tpool; i++)
         {
+            m_cv[i].notify_all();
             if (m_tpool[i].joinable())
             {
                 m_tpool[i].join();
@@ -112,8 +118,8 @@ namespace chrindex::andren::network
 
         if(result.empty())
         {
-            std::unique_lock<std::mutex>locker(m_cvmut);
-            m_cv.wait_for(locker,std::chrono::microseconds(100));
+            std::unique_lock<std::mutex>locker(m_cvmut[index]);
+            m_cv[index].wait_for(locker,std::chrono::microseconds(100));
             return ;
         }
         //for (auto & task : result.value() )

@@ -58,8 +58,8 @@ namespace chrindex::andren::network
 
     private :
         uint32_t m_size;
-        std::mutex m_cvmut;
-        std::condition_variable m_cv;
+        std::mutex *m_cvmut;
+        std::condition_variable *m_cv;
         std::thread * m_tpool;
         base::DBuffer<Task>* m_bqueForTask;
         std::atomic<bool> m_exit;
