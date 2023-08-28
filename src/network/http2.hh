@@ -30,7 +30,6 @@
 
 namespace chrindex::andren::network
 {
-    
     class Http2ndRequest
     {
     public :
@@ -71,10 +70,12 @@ namespace chrindex::andren::network
     public :
 
         Http2ndStream(){ id = 0; recvFrameFlags= false; }
-        Http2ndStream(Http2ndStream && ) {}
         ~Http2ndStream(){}
 
-        void operator=( Http2ndStream&& ){}
+        DEFAULT_COPY_CONSTRUCTION(Http2ndStream);
+        DEFAULT_COPY_OPERATOR(Http2ndStream);
+        DEFAULT_MOVE_CONSTRUCTION(Http2ndStream);
+        DEFAULT_MOVE_OPERATOR(Http2ndStream);
 
         int push_frame(Http2ndFrame && frame)
         {
@@ -203,6 +204,28 @@ namespace chrindex::andren::network
          */
         using OnPushPromiseFrame = std::function<int(Http2ndStream * , Http2ndSession *  , Http2ndFrame::push_promise const &)>;
 
+        /**
+         * @brief 关闭会话通知。
+         * 当用于通信的socket fd在read时返回0，则触发此回调。
+         */
+        using OnSessionClose = std::function<void()>;
+
+
+        struct CBGroup
+        {
+            OnReqRecvDone onReqRecvDone;
+            OnStreamClosed onStreamClosed;
+            OnHeadDone onHeadDone;
+            OnNewHead onNewHead;
+            OnDataChunkRecv onDataChunkRecv;
+            OnPushPromiseFrame onPushPromiseFrame;
+            OnSessionClose onSessionClose;
+        };
+
+
+        void setOnCallback(CBGroup && cbg);
+
+
         // 1是server ， 2是client
         Http2ndSession( int endType  , SSLStream && sslstream) ;
 
@@ -224,6 +247,12 @@ namespace chrindex::andren::network
         Http2ndStream * findStreamById(int stream_id);
 
         bool eraseStreamById(int stream_id);
+
+        nghttp2_session * sessionReference() const;
+
+        SSLStream * streamReference() const;
+
+        bool tryHandShakeAndInit();
 
     private :
 
@@ -262,6 +291,7 @@ namespace chrindex::andren::network
             OnNewHead onNewHead;
             OnDataChunkRecv onDataChunkRecv;
             OnPushPromiseFrame onPushPromiseFrame;
+            OnSessionClose onSessionClose;
         };
         std::unique_ptr<_private> member;
     };

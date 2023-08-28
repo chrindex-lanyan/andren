@@ -12,6 +12,21 @@ namespace chrindex::andren::network
         member->endType = endType;
         member->ssl = std::move(sslstream);
 
+        member->ssl.setOnClose([this]()
+        {
+            nghttp2RealRecv(0,0);
+            member->onSessionClose();
+        });
+
+        member->ssl.setOnRead([this](ssize_t ret , std::string && data)
+        {
+            if (ret >0)
+            {
+                nghttp2RealRecv(std::move(data));
+            }
+        });
+        member->ssl.setOnWrite([](auto ...){});
+
         nghttp2_session_callbacks * cbs =0;
 
         nghttp2_session_callbacks_new(&cbs);
@@ -48,6 +63,26 @@ namespace chrindex::andren::network
         member = std::move(_.member);
     }
 
+    void Http2ndSession::setOnCallback(CBGroup && cbg)
+    {
+        member->onReqRecvDone = std::move(cbg.onReqRecvDone);
+        member->onStreamClosed = std::move(cbg.onStreamClosed);
+        member->onHeadDone = std::move(cbg.onHeadDone);
+        member->onNewHead = std::move(cbg.onNewHead);
+        member->onDataChunkRecv = std::move(cbg.onDataChunkRecv);
+        member->onPushPromiseFrame = std::move(cbg.onPushPromiseFrame);
+        member->onSessionClose = std::move(cbg.onSessionClose);
+    }
+
+    bool Http2ndSession::tryHandShakeAndInit()
+    {
+        if(1 != member->ssl.reference_sslio()->handShake())
+        {
+            return false;
+        }
+        return member->ssl.startListenReadEvent();
+    }
+
     bool Http2ndSession::valid() const 
     { 
         return member != nullptr;
@@ -61,6 +96,16 @@ namespace chrindex::andren::network
     bool Http2ndSession::asendRequeste(Http2ndRequest const & )
     {
         return true;
+    }
+
+    nghttp2_session * Http2ndSession::sessionReference() const
+    {
+        return member->session;
+    }
+
+    SSLStream * Http2ndSession::streamReference()const
+    {
+        return &member->ssl;
     }
 
     void Http2ndSession::regCallbacks( nghttp2_session_callbacks * cbs)
