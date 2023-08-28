@@ -84,8 +84,8 @@ int testTcpServer()
     std::shared_ptr<network::Acceptor> acceptor;
     base::Socket ssock(AF_INET, SOCK_STREAM,0);
     base::EndPointIPV4 epv4(serverip,serverport);
-    int ret ;
-    bool bret;
+    int ret =0;
+    bool bret=false;
 
     // 配置SSL
     bret=config_server_ssl(creator, sslctx);
