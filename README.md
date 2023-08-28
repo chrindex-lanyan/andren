@@ -216,10 +216,9 @@ base64库理论上可以直接用OpenSSL的替换掉。
     {
         使用nghttp2，nghttp3以支持http2/3。
         其实nghttp2也支持http3.0。但nghttp3却是专门用于支持http3.0。
-        nghttp2支持http1.1和http2.0。但是这个库的接口较为繁琐，这并不是nghttp2的锅，
-        因为http2.0是二进制协议，且它引入了stream和frame的概念之后，状态的处理变得复杂起来，和http1.0完全就不是一个东西了。
-        在我对http还是不够了解的情况下，这种复杂更甚。我可能会通过其他方式由浅入深地去重新认识http。
-    } （停滞） 
+        nghttp2支持http1.1和http2.0。
+        这个部分目前仍在开发，我对nghttp2的理解还不够，目前进度缓慢。
+    } （正在） 
 
 ### Redis：
     {
