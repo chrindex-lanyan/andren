@@ -163,9 +163,7 @@ namespace chrindex::andren::network
         int ret =0 ;
         auto self = reinterpret_cast<Http2ndSession*>(user_data);
 
-        // 我翻阅了源码，该函数确实会在其他帧处理回调函数之后才被回调，这意味着流在其他的回调函数已被创建。
-        // 且流的用户数据指针不为空。
-        // 为了避免不必要的查找，在流被创建时我已将流指针放到用户数据指针里。
+        // 试图取指针。但在begin head回调被调用前该指针可能为空。
         auto stream_data = reinterpret_cast<Http2ndStream*>(nghttp2_session_get_stream_user_data(session, frame->hd.stream_id));
         
         if (stream_data==nullptr)
