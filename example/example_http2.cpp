@@ -12,7 +12,7 @@ using namespace chrindex::andren;
 std::atomic<int> m_exit;
 
 std::string serverip = "192.168.88.3";
-int32_t serverport = 8317;
+int32_t serverport = 8080;
 
 std::string prevPath = "./test_key/";
 
@@ -42,32 +42,48 @@ bool config_server_ssl(base::aSSLContextCreator &creator, base::aSSLContext & ct
             {
                 "h2", []() -> bool
                 {
-                    genout("SSL Server : Client Support Protocol `h2`.\n");
+                    genout("HTTPS Server : SSL Client Support Protocol `h2`.\n");
                     return true;
                 }
             },
             {
                 "h2c", []() -> bool
                 {
-                    genout("SSL Server : Client Support Protocol `h2c`.\n");
+                    genout("HTTPS Server : SSL Client Support Protocol `h2c`.\n");
                     return true;
                 }
             }
         });
+
+    creator.setCallbackForLetMeDecideOn_select_next_protocol([](
+        unsigned char const **out, unsigned char *outlen, 
+        unsigned char const *in, unsigned int inlen)->int
+    {
+        auto rv = network::proxy_nghttp2_select_next_protocol(const_cast<unsigned char **>(out), outlen, in, inlen);
+
+        std::string usedP(reinterpret_cast<char const*>(out[0]), *outlen);
+        genout("HTTPS Server : SSL CTX : nghttp2 selected next protocol ret = %d."
+            " Using Protocol [%s].\n", rv , usedP.c_str() );
+
+        if (rv != 1) {
+            return SSL_TLSEXT_ERR_NOACK;
+        }
+
+        return SSL_TLSEXT_ERR_OK;
+    });
+    
     if (auto pctx = creator.startCreate(1); pctx.key()==0)
     {
         ctx = pctx.value();
-        genout("SSL Server : Create OpenSSL Context Done.\n");
+        genout("HTTPS Server : SSL Create OpenSSL Context Done.\n");
     }
     else
     {
-        errout("SSL Server : Create OpenSSL Context Failed. ErrCode=%d.\n",pctx.key());
+        errout("HTTPS Server : SSL Create OpenSSL Context Failed. ErrCode=%d.\n",pctx.key());
         return false;
     }
     return true;
 }
-
-
 
 
 int test_http2server()
@@ -79,8 +95,8 @@ int test_http2server()
     std::shared_ptr<network::Acceptor> acceptor;
     base::Socket ssock(AF_INET, SOCK_STREAM,0);
     base::EndPointIPV4 epv4(serverip,serverport);
-    int ret =0;
-    bool bret=false;
+    int ret [[maybe_unused]] =0;
+    bool bret [[maybe_unused]] =false;
 
     // 配置SSL
     bret=config_server_ssl(creator, sslctx);
@@ -124,7 +140,7 @@ int test_http2server()
 
         /// Configurate OpenSSL 
         base::aSSL assl = createSSLFromCtx(sslctx); 
-        bool bret = session->streamReference()->usingSSL(std::move(assl), 1);
+        bool bret [[maybe_unused]] = session->streamReference()->usingSSL(std::move(assl), 1);
         assert(bret);
 
         /// 握手
@@ -136,36 +152,43 @@ int test_http2server()
             // OnReqRecvDone
             [](network::Http2ndStream * , network::Http2ndSession *)->int
             {
+                genout("HTTPS Server : Request Recv Done.\n");
                 return 0;
             },
 
             // OnStreamClosed
             [](network::Http2ndStream *, uint32_t errcode , network::Http2ndSession *)->int
             {
+                genout("HTTPS Server : Stream Closed.\n");
                 return 0;
             },
 
             // OnHeadDone
-            [](network::Http2ndStream * , network::Http2ndSession *)->int 
+            [](network::Http2ndStream * stream , network::Http2ndSession *)->int 
             {
+                genout("HTTPS Server : Head Done.REQ = [%s].\n", 
+                    stream->referent_request()->headers[":path"].c_str());
                 return 0;
             },
 
             // OnNewHead
             [](network::Http2ndStream * , network::Http2ndSession *)->int 
             {
+                genout("HTTPS Server : New Head Done.\n");
                 return 0;
             },
 
             // OnDataChunkRecv
             [](network::Http2ndStream * ,uint8_t flags, std::string && data , network::Http2ndSession *)->int 
             {
+                genout("HTTPS Server : Data Recv : [%s].\n", data.c_str());
                 return 0;
             },
 
             // OnPushPromiseFrame
             [](network::Http2ndStream * , network::Http2ndSession *, network::Http2ndFrame::push_promise const &)->int 
             {
+                genout("HTTPS Server : Push Promise.\n");
                 return 0;
             },
 
