@@ -66,6 +66,17 @@ namespace chrindex::andren::base
         m_endType = 2;
     }
 
+    void aSSLContextCreator::setServerProxy_set_alpn_select_cb(alpn_select_cb_type cb)
+    {
+        m_set_alpn_select_cb = std::move(cb);
+    }
+
+    void aSSLContextCreator::setCallbackForLetMeDecideOn_select_next_protocol(alpn_select_cb_type cb)
+    {
+        m_set_alpn_select_decide_cb = std::move(cb);
+       
+    }
+
     KVPair<int, SSL_CTX *> aSSLContextCreator::startCreate(int method)
     {
         using CtxResult = KVPair<int,SSL_CTX *>;
@@ -138,6 +149,14 @@ namespace chrindex::andren::base
     int aSSLContextCreator::select_next_protocol(unsigned char const **out, unsigned char *outlen,
                                                  unsigned char const *in, unsigned int inlen)
     {
+        /// 如果设置了外部函数，则有外部回调函数决定是否协议握手成功
+        if (m_set_alpn_select_decide_cb)
+        {
+            return m_set_alpn_select_decide_cb(out,outlen,in,inlen);
+        }
+
+        /// 否则由内部的方式决定是否握手成功
+
         std::string key;
         unsigned int i = 0;
 
@@ -202,22 +221,33 @@ namespace chrindex::andren::base
 
 #if OPENSSL_VERSION_NUMBER >= 0x10002000L
         /// 客户端选定了哪个协议
-        SSL_CTX_set_alpn_select_cb(
-            ctx, [](SSL *ssl, unsigned char const **out, unsigned char *outlen, unsigned char const *in, unsigned int inlen, void *arg) -> int
-            {
-                    int rv;
-                    (void)ssl;
+        if (!m_set_alpn_select_cb)
+        {
+            SSL_CTX_set_alpn_select_cb(
+                ctx, [](SSL *ssl, unsigned char const **out, unsigned char *outlen, unsigned char const *in, unsigned int inlen, void *arg) -> int
+                {
+                        int rv;
+                        (void)ssl;
+                        auto pself = reinterpret_cast<aSSLContextCreator *>(arg);
+                        rv = pself->select_next_protocol(out, outlen, in, inlen);
+                        
+                        if (rv != 0)
+                        {
+                            return SSL_TLSEXT_ERR_NOACK;
+                        }
+                        return SSL_TLSEXT_ERR_OK; 
+                },
+                this);
+        }
+        else 
+        {
+            SSL_CTX_set_alpn_select_cb(ctx, [](SSL *ssl, unsigned char const **out, unsigned char *outlen, unsigned char const *in, unsigned int inlen, void *arg)->int
+                {
                     auto pself = reinterpret_cast<aSSLContextCreator *>(arg);
-                    rv = pself->select_next_protocol(out, outlen, in, inlen);
-                    fprintf(stdout,"SSL Server : Select NextProtocol Ret = %d.\n",rv);
-                    if (rv != 0)
-                    {
-                        return SSL_TLSEXT_ERR_NOACK;
-                    }
-                    return SSL_TLSEXT_ERR_OK; 
-            },
-            this);
-        bret = bret ? true : false;
+                    return pself->m_set_alpn_select_cb(out, outlen, in, inlen);
+                },this);
+        }
+        bret = true;
 #endif /* OPENSSL_VERSION_NUMBER >= 0x10002000L */
 
         return bret;
@@ -400,31 +430,6 @@ namespace chrindex::andren::base
         return SSL_connect(m_ssl.handle());
     }
 
-    // KVPair<ssize_t, std::string> aSSLSocketIO::read()
-    // {
-    //     ssize_t size;
-    //     std::string buffer;
-    //     char ch;
-
-    //     // 试探性地读取一个字节，这样SSL_pending才有用。
-    //     size = SSL_read(m_ssl.handle(), &ch, sizeof(ch));
-    //     if(size <=0)
-    //     {
-    //         return {std::move(size),{}};
-    //     }
-
-    //     size = SSL_pending(m_ssl.handle());
-    //     if (size <= 0)
-    //     {
-    //         buffer.push_back(ch);
-    //         return {buffer.size(), std::move(buffer)};
-    //     }
-    //     buffer.resize(size+1);
-    //     buffer[0] = (ch);
-    //     size = SSL_read(m_ssl.handle(), &buffer[1], buffer.size());
-    //     return {buffer.size(), std::move(buffer)};
-    // }
-
     KVPair<ssize_t, std::string> aSSLSocketIO::read()
     {
         ssize_t size;
@@ -432,12 +437,8 @@ namespace chrindex::andren::base
 
         // 让SSL调用::recv但是没法存到用户缓冲区，这样SSL_pending就是要分配缓冲区的大小。
         size = SSL_read(m_ssl.handle(), 0,0);
-        
-        //fprintf(stdout,"aSSLSocketIO::read() :: Try Read  ret = %ld.  SSL_error = %ld , errno = %d\n",size, m_ssl.getErrNo(),errno);
 
         size = SSL_pending(m_ssl.handle());
-
-        //fprintf(stdout,"aSSLSocketIO::read() :: Pending ret = %ld.  SSL_error = %ld , errno = %d\n",size, m_ssl.getErrNo(),errno);
 
         if (size <= 0 )
         {
@@ -445,8 +446,6 @@ namespace chrindex::andren::base
         }
         buffer.resize(size);
         size = SSL_read(m_ssl.handle(), &buffer[0], buffer.size());
-
-        //fprintf(stdout,"aSSLSocketIO::read() :: Real Read ret = %ld.  SSL_error = %ld , errno = %d\n",size, m_ssl.getErrNo(),errno);
 
         return {buffer.size(), std::move(buffer)};
     }

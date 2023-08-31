@@ -19,6 +19,9 @@ namespace chrindex::andren::base
     class aSSLContextCreator
     {
     public:
+
+        using alpn_select_cb_type = std::function<int(unsigned char const **out, unsigned char *outlen, unsigned char const *in, unsigned int inlen)>;
+
         /// @brief 
         /// @param endType 默认是0，即不适用ALPN；1-服务端；2-客户端。
         /// 请注意，该设置会被setSupportedProtoForServer 函数或者
@@ -71,8 +74,11 @@ namespace chrindex::andren::base
         /// @param protoList CPL列表以及每个Protocol被选中时的回调函数。
         void setSupportedProtoForClient(std::vector<ProtocolsHandler> protoList);
 
-        /// @brief 
-        /// @return 
+        /// @brief 这个函数将替代内部的设置回调函数，从而避免调用内部的设置回调函数。
+        void setServerProxy_set_alpn_select_cb(alpn_select_cb_type cb);
+
+        /// @brief 在使用内部的设置回调函数时，将选择的决定权交由此回调，而不是内部的设置回调函数。
+        void setCallbackForLetMeDecideOn_select_next_protocol(alpn_select_cb_type cb);
         
         /// @brief 开始创建SSL Context
         /// @param method 1为Server Method ， 2为Client Method
@@ -101,6 +107,8 @@ namespace chrindex::andren::base
         /// @return 
         int select_next_protocol(unsigned char const **out, unsigned char *outlen,
                                  unsigned char const *in, unsigned int inlen);
+        
+        
 
     private:
         std::string m_primaryKeyFile;
@@ -108,6 +116,8 @@ namespace chrindex::andren::base
         int m_flags;
         std::string m_next_proto_list;
         std::unordered_map<std::string, std::function<bool()>> m_protocbs;
+        alpn_select_cb_type m_set_alpn_select_cb;
+        alpn_select_cb_type m_set_alpn_select_decide_cb;
         int m_endType; // 服务端还是客户端
     };
 
