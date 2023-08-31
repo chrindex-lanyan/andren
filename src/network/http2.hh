@@ -256,7 +256,7 @@ namespace chrindex::andren::network
 
     private :
 
-        void regCallbacks( nghttp2_session_callbacks * cbs);
+        void regCallbacks( nghttp2_session_callbacks * cbs ,int endType);
 
         static ssize_t nghttp2RealSend(nghttp2_session *session, const uint8_t *data, size_t length, int flags, void *user_data);
 
@@ -280,7 +280,7 @@ namespace chrindex::andren::network
             _private(){ session = 0; endType =0;  }
 
             nghttp2_session * session;
-            SSLStream ssl;
+            std::shared_ptr<SSLStream> ssl;
             std::map<int, Http2ndStream> streams;
             int endType;
 
@@ -295,5 +295,10 @@ namespace chrindex::andren::network
         };
         std::unique_ptr<_private> member;
     };
+
+    /// @brief 该函数直接调用nghttp2_select_next_protocol。
+    extern int proxy_nghttp2_select_next_protocol(
+        unsigned char **out,unsigned char *outlen,
+        const unsigned char *in, unsigned int inlen);
 
 }

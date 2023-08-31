@@ -1,6 +1,9 @@
 ﻿
 #include "http2.hh"
+#include "sslstream.hh"
+#include <memory>
 #include <nghttp2/nghttp2.h>
+#include <sys/types.h>
 
 
 namespace chrindex::andren::network
@@ -10,28 +13,28 @@ namespace chrindex::andren::network
     {
         member = std::make_unique<_private>();
         member->endType = endType;
-        member->ssl = std::move(sslstream);
+        member->ssl = std::make_shared<SSLStream>( std::move(sslstream));
 
-        member->ssl.setOnClose([this]()
+        member->ssl->setOnClose([this]()
         {
             nghttp2RealRecv(0,0);
             member->onSessionClose();
         });
 
-        member->ssl.setOnRead([this](ssize_t ret , std::string && data)
+        member->ssl->setOnRead([this](ssize_t ret , std::string && data)
         {
             if (ret >0)
             {
                 nghttp2RealRecv(std::move(data));
             }
         });
-        member->ssl.setOnWrite([](auto ...){});
+        member->ssl->setOnWrite([](auto ...){});
 
         nghttp2_session_callbacks * cbs =0;
 
         nghttp2_session_callbacks_new(&cbs);
 
-        regCallbacks(cbs);
+        regCallbacks(cbs, endType);
 
         if (endType == 1)
         {
@@ -76,11 +79,11 @@ namespace chrindex::andren::network
 
     bool Http2ndSession::tryHandShakeAndInit()
     {
-        if(1 != member->ssl.reference_sslio()->handShake())
+        if(1 != member->ssl->reference_sslio()->handShake())
         {
             return false;
         }
-        return member->ssl.startListenReadEvent();
+        return member->ssl->startListenReadEvent();
     }
 
     bool Http2ndSession::valid() const 
@@ -105,10 +108,10 @@ namespace chrindex::andren::network
 
     SSLStream * Http2ndSession::streamReference()const
     {
-        return &member->ssl;
+        return member->ssl.get();
     }
 
-    void Http2ndSession::regCallbacks( nghttp2_session_callbacks * cbs)
+    void Http2ndSession::regCallbacks( nghttp2_session_callbacks * cbs, int endType [[maybe_unused]] )
     {
         // 实际`发送数据`的回调函数
         nghttp2_session_callbacks_set_send_callback(cbs, &Http2ndSession::nghttp2RealSend);
@@ -133,10 +136,17 @@ namespace chrindex::andren::network
 
     ssize_t Http2ndSession::nghttp2RealSend(nghttp2_session *session, const uint8_t *data, size_t length, int flags, void *user_data)
     {
-        auto self = reinterpret_cast<Http2ndSession*>(user_data);
-        bool bret = self->member->ssl.asend(std::string(reinterpret_cast<char const *>(data), length));
+        if (length==0)
+        {
+            return 0;
+        }
 
-        return bret ? 0 : -1 ;
+        fprintf(stdout,"Http2ndSession::RealSend. Length = %zu.\n", length);
+
+        auto self = reinterpret_cast<Http2ndSession*>(user_data);
+        bool bret = self->member->ssl->asend(std::string(reinterpret_cast<char const *>(data), length));
+
+        return bret ? static_cast<ssize_t>(length) : -1 ;
     }
 
     int Http2ndSession::nghttp2OnFrameRecv(nghttp2_session *session,const nghttp2_frame *frame, void *user_data)
@@ -148,6 +158,7 @@ namespace chrindex::andren::network
         // 请注意，因为Head和Push_Promise帧可能会被分割成更小的CONTINUATION 帧。
         // 因此在整个Head或者Push_Promise帧完成前不会被回调，也就是说CONTINUATION 帧
         // 对此回调函数是透明的。
+        fprintf(stdout,"Http2ndSession::Frame Recv.\n");
 
         int ret =0 ;
         auto self = reinterpret_cast<Http2ndSession*>(user_data);
@@ -156,6 +167,13 @@ namespace chrindex::andren::network
         // 且流的用户数据指针不为空。
         // 为了避免不必要的查找，在流被创建时我已将流指针放到用户数据指针里。
         auto stream_data = reinterpret_cast<Http2ndStream*>(nghttp2_session_get_stream_user_data(session, frame->hd.stream_id));
+        
+        if (stream_data==nullptr)
+        {
+            auto & stream = self->member->streams[frame->hd.stream_id] ;
+            stream_data = &stream;
+        }
+
         stream_data->push_frame(frame);
 
         if(frame->data.hd.flags & NGHTTP2_FLAG_END_HEADERS) // 头完整地收到了。
@@ -180,6 +198,8 @@ namespace chrindex::andren::network
     
     int Http2ndSession::nghttp2OnStreamClose(nghttp2_session *session, int32_t stream_id, uint32_t error_code, void *user_data)
     {
+        fprintf(stdout,"Http2ndSession::Stream Closed.\n");
+
         auto self = reinterpret_cast<Http2ndSession*>(user_data);
         auto iter = self->member->streams.find(stream_id); 
 
@@ -198,8 +218,18 @@ namespace chrindex::andren::network
 
     int Http2ndSession::nghttp2OnHeadDone(nghttp2_session *session, const nghttp2_frame *frame, const uint8_t *name, size_t namelen, const uint8_t *value, size_t valuelen, uint8_t flags, void *user_data)
     {
-        //auto self = reinterpret_cast<Http2ndSession*>(user_data);
+        fprintf(stdout,"Http2ndSession::On Header name[%s] ,value[%s] Recv.\n",
+             std::string(reinterpret_cast<char const*>(name),namelen).c_str(), 
+             std::string(reinterpret_cast<char const*>(value),valuelen).c_str());
+
+        auto self = reinterpret_cast<Http2ndSession*>(user_data);
         auto stream_data = reinterpret_cast<Http2ndStream*>(nghttp2_session_get_stream_user_data(session, frame->hd.stream_id));
+
+        if (stream_data==nullptr)
+        {
+            auto & stream = self->member->streams[frame->hd.stream_id] ;
+            stream_data = &stream;
+        }
 
         std::string _name( reinterpret_cast<char const *>(name), namelen) , _value (reinterpret_cast<char const *>(value) ,valuelen);
 
@@ -212,6 +242,8 @@ namespace chrindex::andren::network
     
     int Http2ndSession::nghttp2OnHeader(nghttp2_session *session, const nghttp2_frame *frame, void *user_data)
     {
+        fprintf(stdout,"Http2ndSession::Begin Head Frame Recv.\n");
+
         if (frame->hd.type != NGHTTP2_HEADERS 
             || frame->headers.cat != NGHTTP2_HCAT_REQUEST
             || frame->headers.cat != NGHTTP2_HCAT_RESPONSE
@@ -264,6 +296,8 @@ namespace chrindex::andren::network
 
     int Http2ndSession::nghttp2OnDataChunkRecv(nghttp2_session *session, uint8_t flags, int32_t stream_id, const uint8_t *data, size_t len, void *user_data)
     {
+        fprintf(stdout,"Http2ndSession::On Data Chunk Recv.\n");
+
         /**
         * @brief 
         * 虽然每个帧都会回调nghttp2OnFrameRecv，但nghttp2_frame 结构并不包含数据部分，因此需要使用
@@ -272,6 +306,13 @@ namespace chrindex::andren::network
         */
         auto self = reinterpret_cast<Http2ndSession*>(user_data);
         auto stream_data = reinterpret_cast<Http2ndStream*>(nghttp2_session_get_stream_user_data(session, stream_id));
+        
+        if (stream_data==nullptr)
+        {
+            auto & stream = self->member->streams[stream_id] ;
+            stream_data = &stream;
+        }
+        
         std::string _data( reinterpret_cast<char const *>(data), len );
         int ret = self->member->onDataChunkRecv(stream_data,flags,std::move(_data),self);
         
@@ -286,9 +327,12 @@ namespace chrindex::andren::network
 
     ssize_t Http2ndSession::nghttp2RealRecv(char const * data, size_t size)
     {
+        fprintf(stdout,"Http2ndSession::RealRecv. size = %zu.\n",size);
+
         ssize_t readlen ;
 
         readlen = nghttp2_session_mem_recv(member->session, reinterpret_cast<uint8_t const *>(data), size );
+        fprintf(stdout,"Http2ndSession::RealRecv. nghttp2 mem recv = %ld.\n",readlen);
         if (readlen < 0) 
         {    
             return -1;
@@ -303,6 +347,12 @@ namespace chrindex::andren::network
         return readlen;
     }    
 
+    int proxy_nghttp2_select_next_protocol(
+        unsigned char **out,unsigned char *outlen,
+        const unsigned char *in, unsigned int inlen)
+    {
+        return nghttp2_select_next_protocol(out, outlen, in, inlen);
+    }
 
 }
 
