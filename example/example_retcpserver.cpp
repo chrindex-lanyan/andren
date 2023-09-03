@@ -111,7 +111,7 @@ int testTcpServer()
         bool bret = link->startListenReadEvent();
         assert(bret);
 
-        /// 强引用保存且仅保存到对象池
+        /// 强引用保存到对象MAP
         /// 反正用到的时候可以查
         bret = repoller->saveObject(fd, true, link, [](bool ret, std::any * obj)
         {
