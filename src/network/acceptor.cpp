@@ -3,6 +3,7 @@
 #include "acceptor.hh"
 #include "eventloop.hh"
 #include <cassert>
+#include <cstdio>
 #include <memory>
 #include <sys/epoll.h>
 #include <sys/socket.h>
@@ -70,14 +71,14 @@ namespace  chrindex::andren::network
                     return ;
                 }
                 sockaddr_storage ss;
-                uint32_t len;
+                uint32_t len = sizeof(ss);
                 base::Socket cli = self->data->m_sock.accept(reinterpret_cast<sockaddr*>(&ss), &len);
                 if (cli.valid())[[likely]]
                 {
                     self->data->m_onAccept(std::make_shared<SockStream>(std::move(cli), self->data->m_wep));
                 }
             });
-            rp->append(fd, events_listen);
+            bret = rp->append(fd, events_listen);
             assert(bret);
         },EventLoopTaskType::IO_TASK);
 
