@@ -61,7 +61,7 @@ namespace chrindex::andren::network
 
     bool RePoller::setReadyCallback(int fd , OnEventUP && onEventUP)
     {
-        if (!onEventUP|| fd==0 || fd ==1) // 不允许以下值：0,-1
+        if (!onEventUP|| fd==0 || fd == -1) // 不允许以下值：0,-1
         {
             return false;
         }
@@ -121,16 +121,21 @@ namespace chrindex::andren::network
         int usedTimeoutMsec = (numEvMap > 0) ? (1) : (timeoutMsec); // 如果有自定义events要处理，就选择最小wait时间。
         num = data->m_ep.wait(ec, usedTimeoutMsec); // N Msec Per Tick
 
-        if (num < 0) [[unlikely]] // wait failed
+        if (num < 0 && errno != EINTR) [[unlikely]] // wait failed
         {
-            //fprintf(stderr,"RePoller::work():: wait failed. exit...\n");
+            //fprintf(stderr,"RePoller::work():: wait failed, errno = %m. exit...\n",errno);
             data->m_shutdown = true;
             return ;
         }
         else if(num == 0 ) // timeout
         {
             //ignore
-            //fprintf(stderr,"RePoller::work():: timeout...\n");
+            //fprintf(stderr,"RePoller::work():: timeout...msec = %d\n",usedTimeoutMsec);
+        }
+        else 
+        { 
+            // ignore
+            //fprintf(stdout,"EPOLL Wait Some(%d).\n" ,num ); 
         }
 
         // 整合Events
