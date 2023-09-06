@@ -18,7 +18,7 @@ namespace chrindex::andren::network
         /// 当可读且读取完成时
         /// 返回ssize_t的值,ret==0时socket关闭，ret>0时有数据，否则无数据或者出错。
         /// 当ret<0时，用户自行判断要不要aclose它。如果aclose，则下一次回调onClose。
-        using OnRead  = std::function<void(ssize_t ret , std::string &&, base::EndPointIPV4 remote)>;
+        using OnRead  = std::function<void(ssize_t ret , std::string &&, std::string && remote_struct)>;
 
         /// 当发送完成时
         using OnWrite = std::function<void(ssize_t ret , std::string &&)>;
@@ -37,7 +37,11 @@ namespace chrindex::andren::network
         /// 可以选择为数据报套接字绑定出入口和端口号
         bool bindAddr(std::string const & ip, int port);
         
+        /// 为unix域间套接字绑定文件
+        bool bindAddr(std::string const & domainName );
+        
         /// 可以选择为数据报套接字绑定出入口和端口号
+        /// 指定sockaddr_un时，请勿直接传递该结构的全部大小。
         bool bindAddr(sockaddr * addr , size_t size);
 
         /// 返回内部Socket实例的引用。
@@ -67,6 +71,14 @@ namespace chrindex::andren::network
 
         bool asend(base::EndPointIPV4 remote , std::string && data);
 
+        bool asend(sockaddr * saddr , size_t saddr_size , std::string const& data);
+        
+        bool asend(sockaddr * saddr , size_t saddr_size , std::string && data);
+
+        bool asend(std::string const & domainName , std::string const& data);
+
+        bool asend(std::string const & domainName , std::string && data);
+
         /// async close。
         /// 如果返回true，则该函数会self = shared_from_this(),
         /// 并将self保存到一个EventLoop任务中。
@@ -84,7 +96,7 @@ namespace chrindex::andren::network
         /// 从一个Socket对象读数据(非阻塞读)。
         /// 返回ssize_t的值,ret==0时socket关闭，ret>0时有数据，否则无数据或者出错。
         /// 当ret<0时，用户自行判断要不要aclose它。如果aclose，则下一次回调onClose。
-        base::KVPair<ssize_t,std::string> tryRead(sockaddr_storage &ss);
+        base::KVPair<ssize_t,std::string> tryRead(sockaddr_storage &ss, uint32_t &len);
 
         /// 监听ReadEvent
         void listenReadEvent(int fd);

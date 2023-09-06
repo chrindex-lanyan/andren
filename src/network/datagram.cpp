@@ -42,6 +42,17 @@ namespace chrindex::andren::network {
             return data->m_sock.valid() && (0==data->m_sock.bind(addr,size));
         }
 
+        bool DataGram::bindAddr(std::string const & domainName)
+        {
+            sockaddr_un saddr ;
+            base::ZeroMemRef(saddr);
+            saddr.sun_family = AF_UNIX;
+            ::memcpy(saddr.sun_path, domainName.c_str(), 
+                std::min(sizeof(saddr.sun_path) -1 , domainName.size()));
+            size_t size = domainName.size() + 1 + sizeof(saddr.sun_family);
+            return data->m_sock.valid() 
+                && bindAddr(reinterpret_cast<sockaddr*>(&saddr), size);
+        }
 
         base::Socket * DataGram::reference_handle()
         {
@@ -95,6 +106,34 @@ namespace chrindex::andren::network {
 
         bool DataGram::asend(base::EndPointIPV4 remote , std::string && message)
         {
+            return asend(remote.toAddr(),remote.addrSize(),std::move(message));
+        }
+
+        bool DataGram::asend(std::string const & domainName , std::string const& data)
+        {
+            auto m = data;
+            return asend(domainName, std::move(m));
+        }
+
+        bool DataGram::asend(std::string const & domainName , std::string && data)
+        {
+            sockaddr_un saddr ;
+            base::ZeroMemRef(saddr);
+            saddr.sun_family = AF_UNIX;
+            ::memcpy(saddr.sun_path, domainName.c_str(), 
+                std::min(sizeof(saddr.sun_path), domainName.size()));
+            size_t size = domainName.size() + 1 + sizeof(saddr.sun_family);
+            return asend(reinterpret_cast<sockaddr*>(&saddr), size, std::move(data));
+        }
+
+        bool DataGram::asend(sockaddr * saddr , size_t saddr_size , std::string const& message)
+        {
+            auto m = message;
+            return asend(saddr, saddr_size, std::move(m));
+        }
+
+        bool DataGram::asend(sockaddr * saddr , size_t saddr_size , std::string && message)
+        {
             if(!data->m_sock.valid())
             {
                 return false;
@@ -103,11 +142,13 @@ namespace chrindex::andren::network {
             {
                 if (auto ev = rp->eventLoopReference().lock(); ev)[[likely]]
                 {
-                    return ev->addTask([ remote = std::move(remote),  self = shared_from_this(), msg = std::move(message)]()
+                    std::string addr(reinterpret_cast<char const *>(saddr), saddr_size);
+                    return ev->addTask([ remote = std::move(addr),  self = shared_from_this(), msg = std::move(message)]()
                     mutable{
                         if(self->data->m_sock.valid())[[likely]]
                         {
-                            ssize_t ret = self->data->m_sock.sendto(msg.c_str(), msg.size(), 0, remote.toAddr(),remote.addrSize());
+                            ssize_t ret = self->data->m_sock.sendto(msg.c_str(), msg.size(), 0, 
+                                reinterpret_cast<sockaddr const *>(remote.c_str()),remote.size());
                             if(self->data->m_onWrite){ self->data->m_onWrite(ret,std::move(msg)); }
                         }
                     },EventLoopTaskType::IO_TASK);
@@ -159,12 +200,13 @@ namespace chrindex::andren::network {
         }
 
 
-        base::KVPair<ssize_t,std::string> DataGram::tryRead(sockaddr_storage & ss)
+        base::KVPair<ssize_t,std::string> DataGram::tryRead(sockaddr_storage & ss, uint32_t &len)
         {
             base::Socket & sock = data->m_sock;
             std::string  tmp(2048,0);
-            uint32_t len= sizeof(ss);
-            ssize_t ret = sock.recvfrom(&tmp[0], tmp.size(), MSG_WAITALL , reinterpret_cast<sockaddr*>(&ss), &len);
+            len = sizeof(ss);
+            ssize_t ret = sock.recvfrom(&tmp[0], tmp.size(), MSG_WAITALL ,
+                 reinterpret_cast<sockaddr*>(&ss), &len);
             
             if(ret < 0) // no data to read
             {
@@ -195,8 +237,9 @@ namespace chrindex::andren::network {
                     }
                     if (events & EPOLLIN)[[likely]]
                     {
-                        sockaddr_storage ss;
-                        base::KVPair<ssize_t , std::string> result = self->tryRead(ss);
+                        sockaddr_storage ss ;
+                        uint32_t len=0; 
+                        base::KVPair<ssize_t , std::string> result = self->tryRead(ss, len);
                         if (result.key() == 0) [[unlikely]]
                         {
                             if(self->data->m_onClose){self->data->m_onClose();} 
@@ -210,8 +253,11 @@ namespace chrindex::andren::network {
                         }
                         else  [[likely]]
                         {
-                            base::EndPointIPV4 epv4(reinterpret_cast<sockaddr_in*>(&ss));
-                            if(self->data->m_onRead){self->data->m_onRead(result.key(),std::move(result.value()),std::move(epv4));}
+                            std::string saddr_structure(reinterpret_cast<char const *>(&ss),len);
+                            if(self->data->m_onRead){
+                                self->data->m_onRead(result.key(),std::move(result.value()),
+                                std::move(saddr_structure));
+                            }
                         }
                     }
                 });
