@@ -295,8 +295,9 @@ int testUDP()
     });
 
 
-    udg->setOnRead([wudg](ssize_t ret, std::string && data,base::EndPointIPV4 epv4)mutable
+    udg->setOnRead([wudg](ssize_t ret, std::string && data,std::string && saddr_structure)mutable
     {
+        base::EndPointIPV4 epv4(reinterpret_cast<sockaddr_in*>(&saddr_structure[0]));
         if (ret < 200)
         {
             genout("UDP : Read Some Data From Remote[%s:%d], EchoBack ...Size = [%ld]. Content = [%s].\n",epv4.ip().c_str(),epv4.port(),ret,data.c_str());

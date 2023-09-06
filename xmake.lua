@@ -22,10 +22,10 @@ main_ext_head_pattern = main_project_src .. "./include/**.h"
 
 --- third part pattern
 base64_lib_src_pattern = third_part_dir .. "./base64_src/base64.cpp"
--- llhttp_lib_src_pattern = third_part_dir .. "./llhttp_src/generate_src/*.c"
+llhttp_lib_src_pattern = third_part_dir .. "./llhttp_src/generate_src/*.c"
 
 base64_lib_head_pattern = third_part_dir .. "./base64_src/base64.h"
--- llhttp_lib_head_pattern = third_part_dir .. "./llhttp_src/generate_src/*.h"
+llhttp_lib_head_pattern = third_part_dir .. "./llhttp_src/generate_src/*.h"
 nlohmannJson_lib_hea_pattern = third_part_dir .. "./nlohmann_json/*.hpp"
 
 --- example pattern
@@ -50,7 +50,7 @@ example_asyncfile_pattern = example_src .. "./example_afio.cpp"
 example_grpc_pattern = example_src .. "./example_grpc.cpp"
 example_sslstream_pattern = example_src .. "./example_sslstream.cpp"
 example_https2_pattern = example_src .. "./example_http2.cpp"
-
+example_unixdomain_pattern = example_src .. "./example_unixdomain_socket.cpp"
 
 
 target("andren")
@@ -61,14 +61,14 @@ target("andren")
     add_headerfiles(main_ext_head_pattern)
 
     add_headerfiles(base64_lib_head_pattern)
-    -- add_headerfiles(llhttp_lib_head_pattern)
+    add_headerfiles(llhttp_lib_head_pattern)
     add_headerfiles(nlohmannJson_lib_hea_pattern)
 
     -- src list
     add_files(main_cpp_src_pattern)
     add_files(main_c_src_pattern)
     add_files(base64_lib_src_pattern)
-    -- add_files(llhttp_lib_src_pattern)
+    add_files(llhttp_lib_src_pattern)
 
     -- link lib list
     add_links("pthread") -- posix thread library (System)
@@ -99,14 +99,14 @@ target("andren_a")
     add_headerfiles(main_ext_head_pattern)
 
     add_headerfiles(base64_lib_head_pattern)
-    -- add_headerfiles(llhttp_lib_head_pattern)
+    add_headerfiles(llhttp_lib_head_pattern)
     add_headerfiles(nlohmannJson_lib_hea_pattern)
 
     -- src list
     add_files(main_cpp_src_pattern)
     add_files(main_c_src_pattern)
     add_files(base64_lib_src_pattern)
-    -- add_files(llhttp_lib_src_pattern)
+    add_files(llhttp_lib_src_pattern)
 
     -- link lib list
     add_links("pthread") -- posix thread library (System)
@@ -252,4 +252,11 @@ target("test_https2")
     add_files(example_https2_pattern)
     add_links("fmt")
     add_deps("andren", {private = true})
+
+target("test_unixdomain")
+    set_kind("binary")
+    add_files(example_unixdomain_pattern)
+    add_links("fmt")
+    add_deps("andren", {private = true})
+
     
