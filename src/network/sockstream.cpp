@@ -149,9 +149,11 @@ namespace chrindex::andren::network
     bool SockStream::asyncConnect(std::string & unixdoamin , std::function<void(bool bret)> onConnect)
     {
         sockaddr_un addr;
+        base::ZeroMemRef(addr);
         addr.sun_family = AF_UNIX;
         ::memcpy(addr.sun_path , unixdoamin.c_str() , std::min(sizeof(addr.sun_path), unixdoamin.size()));
-        return asyncConnect(reinterpret_cast<sockaddr*>(&addr), sizeof(addr) , std::move(onConnect));
+        size_t size = unixdoamin.size() + 1 + sizeof(addr.sun_family);
+        return asyncConnect(reinterpret_cast<sockaddr*>(&addr), size, std::move(onConnect));
     }
 
     bool SockStream::asyncConnect(sockaddr * saddr , size_t saddr_size , std::function<void(bool bret)> onConnect)

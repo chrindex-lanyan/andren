@@ -81,6 +81,7 @@ namespace chrindex::andren::network
 
         /// async connect
         /// 当然，其他结构（如IPV6），可以使用这个接口。
+        /// 指定sockaddr_un时，请勿直接传递该结构的全部大小。
         bool asyncConnect(sockaddr * saddr , size_t saddr_size , std::function<void(bool bret)>);
 
         /// 返回内部Socket实例的引用.
