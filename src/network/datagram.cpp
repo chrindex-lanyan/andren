@@ -1,12 +1,21 @@
 ﻿
 #include "datagram.hh"
+#include <cmath>
 #include <memory>
 #include <netinet/in.h>
 #include <sys/socket.h>
-
+#include <unistd.h>
+#include <sys/un.h>
 
 
 namespace chrindex::andren::network {
+
+        DataGram::DataGram(base::Socket && sock, std::weak_ptr<RePoller> wrp)
+        {
+            data = std::make_unique<_private>();
+            data->m_sock = std::move(sock);
+            data->wrp = wrp;
+        }
 
         DataGram::DataGram(std::weak_ptr<RePoller> wrp)
         {
@@ -26,6 +35,11 @@ namespace chrindex::andren::network {
         {
             base::EndPointIPV4 epv4(ip,port);
             return data->m_sock.valid() && (0==data->m_sock.bind(epv4.toAddr(), epv4.addrSize()));
+        }
+
+        bool DataGram::bindAddr(sockaddr * addr , size_t size)
+        {
+            return data->m_sock.valid() && (0==data->m_sock.bind(addr,size));
         }
 
 
@@ -102,20 +116,24 @@ namespace chrindex::andren::network {
             return false;
         }
 
-        bool DataGram::aclose()
+        bool DataGram::aclose(bool unlink_file)
         {
             if (auto rp = data->wrp.lock();rp)[[likely]]
             {
                 if(auto ev = rp->eventLoopReference().lock();ev)[[likely]]
                 {
-                    return ev->addTask([ self = shared_from_this()]()
+                    return ev->addTask([ self = shared_from_this(), unlink_file]()
                     {
                         int fd = self->data->m_sock.handle();
-                        //fprintf(stdout,"DataGram::aclose ::FD [%d] Close And No Clear.\n",fd);
+                        int domain = self->data->m_sock.domain();
+                        if(domain == AF_UNIX && unlink_file)
+                        {
+                            self->data->m_sock.unlink();
+                        }
                         self->data->m_sock.closeAndNoClear();
                         if(auto rp = self->data->wrp.lock();rp)[[likely]]
                         {
-                            // UDP Socket的Closed似乎不会触发EPOLLIN，所以我手动触发一下。
+                            // 我手动触发一下。
                             rp->notifyEvents(fd, EPOLLIN);
                         }
                     },EventLoopTaskType::IO_TASK);

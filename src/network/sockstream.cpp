@@ -1,8 +1,10 @@
 ﻿#include "sockstream.hh"
 #include "eventloop.hh"
 #include <cstdio>
+#include <cstring>
 #include <memory>
 #include <sys/socket.h>
+#include <sys/un.h>
 
 namespace chrindex::andren::network
 {
@@ -12,11 +14,10 @@ namespace chrindex::andren::network
         data = std::make_unique<_private>();
         data->m_sock = std::move(sock);
         data->wrp = wrp;
-        //fprintf(stdout,"SockStream::SockStream %lu.\n",(uint64_t)this);
     }
     SockStream::~SockStream()
     {
-        //fprintf(stdout,"SockStream::~SockStream %lu.\n",(uint64_t)this);
+        //
     }
 
     void SockStream::setOnClose(OnClose const & cb)
@@ -119,14 +120,19 @@ namespace chrindex::andren::network
     }
 
     /// async close
-    bool SockStream::aclose()
+    bool SockStream::aclose(bool unlink_file)
     {
         if (auto rp = data->wrp.lock();rp)[[likely]]
         {
             if(auto ev = rp->eventLoopReference().lock();ev)[[likely]]
             {
-                return ev->addTask([ self = shared_from_this()]()
+                return ev->addTask([ self = shared_from_this(),unlink_file]()
                 {
+                    int domain = self->data->m_sock.domain();
+                    if (domain == AF_UNIX && unlink_file)
+                    {
+                        self->data->m_sock.unlink();
+                    }
                     self->data->m_sock.closeAndNoClear();
                 },EventLoopTaskType::IO_TASK);
             }
@@ -136,17 +142,33 @@ namespace chrindex::andren::network
 
     bool SockStream::asyncConnect(std::string const &ip , int port, std::function<void(bool bret)> onConnect)
     {
+        base::EndPointIPV4 epv4(ip,port);
+        return asyncConnect(epv4.toAddr(),epv4.addrSize(), std::move(onConnect));
+    }
+
+    bool SockStream::asyncConnect(std::string & unixdoamin , std::function<void(bool bret)> onConnect)
+    {
+        sockaddr_un addr;
+        addr.sun_family = AF_UNIX;
+        ::memcpy(addr.sun_path , unixdoamin.c_str() , std::min(sizeof(addr.sun_path), unixdoamin.size()));
+        return asyncConnect(reinterpret_cast<sockaddr*>(&addr), sizeof(addr) , std::move(onConnect));
+    }
+
+    bool SockStream::asyncConnect(sockaddr * saddr , size_t saddr_size , std::function<void(bool bret)> onConnect)
+    {
         auto rp = data->wrp.lock();
         auto ev = rp? rp->eventLoopReference().lock() : std::shared_ptr<EventLoop>{};
         if (!ev || !data->m_sock.valid())[[unlikely]]
         {
             return false;
         }
-        base::EndPointIPV4 epv4(ip,port);
-        return ev->addTask([ _addr = std::move(epv4) ,cb = std::move(onConnect) ,
+        
+        std::string addr(reinterpret_cast<char*>(saddr), saddr_size);
+        
+        return ev->addTask([ _addr = std::move(addr) ,cb = std::move(onConnect) ,
              self= shared_from_this()]()mutable
         {
-            int ret = self->data->m_sock.connect(_addr.toAddr(), _addr.addrSize());
+            int ret = self->data->m_sock.connect(reinterpret_cast<sockaddr const*>(_addr.c_str()), _addr.size());
             if(ret == 0)
             {
                 self->listenReadEvent(self->data->m_sock.handle());

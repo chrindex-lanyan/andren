@@ -27,12 +27,18 @@ namespace chrindex::andren::network
         /// 当socket关闭时。
         using OnClose = std::function<void()>;
 
+        /// 如果需要使用Unix域间套接字，那么这个构造或许有用。
+        DataGram(base::Socket && sock, std::weak_ptr<RePoller> wrp);
+
         DataGram(std::weak_ptr<RePoller> wrp);
         DataGram(DataGram&&) =delete;
         ~DataGram();
 
-        /// 可以选择为UDP套接字绑定出入口和端口号
+        /// 可以选择为数据报套接字绑定出入口和端口号
         bool bindAddr(std::string const & ip, int port);
+        
+        /// 可以选择为数据报套接字绑定出入口和端口号
+        bool bindAddr(sockaddr * addr , size_t size);
 
         /// 返回内部Socket实例的引用。
         /// 返回值永远不为空。
@@ -64,7 +70,8 @@ namespace chrindex::andren::network
         /// async close。
         /// 如果返回true，则该函数会self = shared_from_this(),
         /// 并将self保存到一个EventLoop任务中。
-        bool aclose();
+        /// 对于域间套接字，unlink操作是可选的，默认是false。
+        bool aclose(bool unlink_file = false);
 
         /// 开始监听ReadEvent。
         /// 调用此函数前，请确保已设置了OnRead、OnWrite、OnClose。

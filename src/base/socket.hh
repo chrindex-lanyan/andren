@@ -257,6 +257,11 @@ namespace chrindex::andren::base
         /// @return 刚刚关闭的套接字
         int closeAndReturn();
 
+        /// 获取域
+        int domain() const;
+
+        /// 对于域间套接字，这是可选的操作
+        void unlink();
 
     private:
         int m_fd;

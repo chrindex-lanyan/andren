@@ -6,6 +6,7 @@
 
 #include <functional>
 #include <memory>
+#include <sys/socket.h>
 
 
 namespace chrindex::andren::network
@@ -66,13 +67,21 @@ namespace chrindex::andren::network
         /// async close。
         /// 如果返回true，则该函数会self = shared_from_this(),
         /// 并将self保存到一个EventLoop任务中。
-        bool aclose();
+        bool aclose(bool unlink_file = false);
 
         /// async connect
         /// 如果返回true，则该函数会self = shared_from_this(),
         /// 并将self保存到一个EventLoop任务中。
         /// 该函数会使用到POLLER的EVENTLOOP，因此需要先启动POLLER
         bool asyncConnect(std::string const &ip , int port , std::function<void(bool bret)>);
+
+        /// async connect
+        /// Unix域间套接字支持。
+        bool asyncConnect(std::string & unixdoamin , std::function<void(bool bret)>);
+
+        /// async connect
+        /// 当然，其他结构（如IPV6），可以使用这个接口。
+        bool asyncConnect(sockaddr * saddr , size_t saddr_size , std::function<void(bool bret)>);
 
         /// 返回内部Socket实例的引用.
         /// 实例生存期内，该指针永不为空。

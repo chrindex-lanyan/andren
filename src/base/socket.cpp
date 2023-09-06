@@ -13,6 +13,7 @@
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
 #include <netdb.h>
+#include <sys/un.h>
 
 #include <stdarg.h>
 
@@ -205,6 +206,25 @@ namespace chrindex::andren::base
         ::close(m_fd);
         m_fd = -1;
         return ret;
+    }
+
+    int Socket::domain() const
+    {
+        int domain = 0;
+        socklen_t len = sizeof(domain);
+
+        if (::getsockopt(m_fd, SOL_SOCKET, SO_DOMAIN, &domain, &len) == -1) {
+            return -1;
+        };
+        return domain;
+    }
+
+    void Socket::unlink()
+    {
+        sockaddr_un unaddr;
+        uint32_t size = sizeof(unaddr);
+        getsockname(reinterpret_cast<sockaddr*>(&unaddr), &size);
+        ::unlink(unaddr.sun_path);
     }
 
     LocalSocket::LocalSocket()
