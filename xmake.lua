@@ -51,6 +51,9 @@ example_grpc_pattern = example_src .. "./example_grpc.cpp"
 example_sslstream_pattern = example_src .. "./example_sslstream.cpp"
 example_https2_pattern = example_src .. "./example_http2.cpp"
 example_unixdomain_pattern = example_src .. "./example_unixdomain_socket.cpp"
+example_freelockshmem_pattern = example_src .. "./example_freelockshmem.cpp"
+example_detachtcpserver_pattern = example_src .. "./example_detachtcpserver.cpp"
+
 
 
 target("andren")
@@ -259,4 +262,15 @@ target("test_unixdomain")
     add_links("fmt")
     add_deps("andren", {private = true})
 
+target("test_freelockshmem")
+    set_kind("binary")
+    add_files(example_freelockshmem_pattern)
+    add_links("fmt")
+    add_deps("andren", {private = true})
+ 
+target("test_detachtcpserver")
+    set_kind("binary")
+    add_files(example_detachtcpserver_pattern)
+    add_links("fmt")
+    add_deps("andren", {private = true})   
     
