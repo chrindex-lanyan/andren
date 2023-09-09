@@ -100,6 +100,8 @@ namespace chrindex::andren::base
 
         T *reference() { return m_pdata; }
 
+        T const* reference_const() const{ return m_pdata; }
+
         bool valid() const { return m_pdata != 0; }
 
         bool owner() const { return m_owner; }

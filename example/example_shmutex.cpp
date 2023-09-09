@@ -10,7 +10,7 @@ int test_shmmutex_owner()
 {   
     ShmMutex<ShmOwner> shmMutex;
 
-    shmMutex = std::move(ShmMutex<ShmOwner>(SHARED_MEM_NAME));
+    shmMutex = ShmMutex<ShmOwner>(SHARED_MEM_NAME);
 
     if (shmMutex.valid())
     {
@@ -35,7 +35,7 @@ int test_refshmutex()
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    shmMutex = std::move(ShmMutex<ShmReference>(SHARED_MEM_NAME));
+    shmMutex = ShmMutex<ShmReference>(SHARED_MEM_NAME);
 
     if (shmMutex.valid())
     {

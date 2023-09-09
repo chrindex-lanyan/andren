@@ -1,6 +1,7 @@
 ﻿
 
 #include "../include/andren.hh"
+#include <cassert>
 
 #define SHARED_MEM_NAME "/my_shared_memory"
 
@@ -18,7 +19,7 @@ int test_shmemowner()
     std::string msg = "hello world";
     int ret =0;
 
-    shmem = std::move(SharedMem<MyData>(SHARED_MEM_NAME, true));
+    shmem = SharedMem<MyData>(SHARED_MEM_NAME, true);
     if (shmem.valid())
     {
         // clear
@@ -33,6 +34,7 @@ int test_shmemowner()
         pthread_mutexattr_init(&mutex_attr);
         pthread_mutexattr_setpshared(&mutex_attr, PTHREAD_PROCESS_SHARED);
         ret = pthread_mutex_init(shared_mutex, &mutex_attr);
+        assert(ret == 0);
 
         fprintf(stdout,"[parent] prepare lock mutex.\n");
 
@@ -58,7 +60,7 @@ int test_refshmemref()
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    shmem = std::move(SharedMem<MyData>(SHARED_MEM_NAME));
+    shmem = SharedMem<MyData>(SHARED_MEM_NAME);
     if (shmem.valid())
     {
         // clear
