@@ -5,7 +5,10 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
+#include <deque>
 #include <fmt/core.h>
+#include <iterator>
 #include <string>
 #include <sys/types.h>
 #include <thread>
@@ -30,6 +33,8 @@ int64_t now_msec ()
 
 int  test_flshmem_ref()
 {
+    std::deque<std::string> result_que;
+
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     network::FreeLockShareMemReader reader(shmem_name);
@@ -44,7 +49,19 @@ int  test_flshmem_ref()
         if (reader.readable())
         {
             size = reader.read_some(data);
-            genout("Child :: Read Some Data(%ld bytes) :%s.\n",size,data.c_str());
+            //genout("Child :: Read Some Data(%ld bytes) :%s.\n",size,data.c_str());
+            result_que.push_back(fmt::format("Child :: Read Some Data({} bytes) :{}.\n", size, data));
+        }
+
+        if (result_que.size() > 100 || m_exit == 1)
+        {
+            std::thread([results = std::move(result_que)]()
+            {
+                for (auto & r: results)
+                {
+                    ::fwrite(r.c_str(),1,r.size(),stdout);
+                }
+            }).detach();
         }
         else 
         {
@@ -119,8 +136,6 @@ int benchmark_write(int size, int count)
 
 int benchmark_read(int size, pid_t parent)
 {
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
     ::kill(parent,SIGUSR1);
     genout("Child :: FL SharedMemory : Starting Read Data ... .\n");
 
