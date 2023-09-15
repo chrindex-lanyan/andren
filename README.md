@@ -16,7 +16,7 @@
 脚本`install_xmake.sh`用于安装xmake构建工具。xmake的官网是`https://xmake.io/#/` 。<br>
 脚本`prepare_dependent.sh`用于安装依赖到的第三方库。
 脚本`update_compile_commands.sh`用于通过xmake生成`compile_commands.json`，这对在vscode里使用clangd插件很友好。
-lua脚本`xmake.lua`用于生成库（.so或者.a），然后生成example。注意不要使用过多的线程编译，可能会爆内存。
+lua脚本`xmake.lua`用于生成库（.so或者.a），然后生成example。注意不要使用过多的线程编译，否则可能会爆内存。
 
 ## 其他第三方库
 third-part文件夹下有三个子文件夹，对应着三个引用的库。
