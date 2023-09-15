@@ -57,8 +57,8 @@ base64库理论上可以直接用OpenSSL的替换掉。
 ### Log：
     {
         使用File提供异步日志功能。日志仅提供4个等级(Err、Warn、Debug、Info)，并打印行数。
-        目前这玩意实现的比较简陋，可能以后会改成Thread Local的。
-    } OK
+        目前它不是ThreadLocal的，而且我也没有使用它。我打算参考学习一下其他库的LOG模块，然后再重写一个。
+    } （搁置）
 
 ### Json：
     {
