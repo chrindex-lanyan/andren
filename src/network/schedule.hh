@@ -23,6 +23,8 @@ namespace chrindex::andren::network
 
         int32_t doSchedule(uint64_t key) const;
 
+        uint32_t threads() const;
+
     private :
 
         int m_threadSize;

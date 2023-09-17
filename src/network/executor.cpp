@@ -70,4 +70,9 @@ namespace chrindex::andren::network
         return this == &e;
     }
 
+    uint32_t Executor::threadCount() const
+    {
+        return m_schedule.threads();
+    }
+
 }

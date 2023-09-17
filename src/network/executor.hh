@@ -21,6 +21,8 @@ namespace chrindex::andren::network
 
         bool valid()const ;
 
+        uint32_t threadCount() const;
+
         bool addTask(int key , std::function<void(Executor *)> task);
 
         bool addTask(std::string const & key , std::function<void(Executor *)> task);
@@ -34,7 +36,6 @@ namespace chrindex::andren::network
     private :
         Schedule m_schedule;
         std::unique_ptr<TaskDistributor> m_ev;
-
     };
 
 

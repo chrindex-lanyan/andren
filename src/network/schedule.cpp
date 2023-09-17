@@ -34,4 +34,9 @@ namespace chrindex::andren::network
         return key % m_threadSize;
     }
 
+    uint32_t Schedule::threads() const
+    {
+        return m_threadSize;
+    }
+
 }
