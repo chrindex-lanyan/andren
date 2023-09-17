@@ -10,7 +10,7 @@ namespace chrindex::andren::network
 
     void UdpPackage::operator=(UdpPackage &&_) {}
 
-    void UdpPackage::setEventLoop(std::weak_ptr<EventLoop> ev) {}
+    void UdpPackage::setEventLoop(std::weak_ptr<TaskDistributor> ev) {}
 
     void UdpPackage::setEpoller(std::weak_ptr<base::Epoll> ep) {}
 

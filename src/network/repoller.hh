@@ -2,7 +2,7 @@
 
 #include "../base/andren_base.hh"
 
-#include "eventloop.hh"
+#include "task_distributor.hh"
 #include <atomic>
 #include <functional>
 #include <map>
@@ -46,12 +46,12 @@ namespace chrindex::andren::network
         /// epollWaitPerTick_msec指每次epoll wait的超时时间。
         /// 如果设置的过大将影响IO线程的其他任务的执行。
         /// 建议设置为1~10 MSEC.
-        bool start(std::weak_ptr<EventLoop> wev, int epollWaitPerTick_msec);
+        bool start(std::weak_ptr<TaskDistributor> wev, int epollWaitPerTick_msec);
 
         /// 设置polling标志为shutdown，此操作会让下一次polling结束后，不再继续polling。
         void stop();
 
-        std::weak_ptr<EventLoop> eventLoopReference() const;
+        std::weak_ptr<TaskDistributor> eventLoopReference() const;
 
      public:
         /// ##### Note 1 下列函数仅能在IO线程被调用
@@ -142,7 +142,7 @@ namespace chrindex::andren::network
             std::map<int, OnEventUP> m_callbacks;
             std::map<int, int>        m_customEvents; // 需要手动发送的events
             base::Epoll m_ep;
-            std::weak_ptr<EventLoop> m_wev;
+            std::weak_ptr<TaskDistributor> m_wev;
         };
 
         std::unique_ptr<_private> data;

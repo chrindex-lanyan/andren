@@ -4,7 +4,7 @@
 #include "../../base/andren_base.hh"
 
 
-#include "../eventloop.hh"
+#include "../task_distributor.hh"
 #include "propoller.hh"
 
 
@@ -76,7 +76,7 @@ namespace chrindex::andren::network
         /// @param pp 
         bool setProPoller(std::weak_ptr<ProPoller> pp  );
 
-        void setEventLoop(std::weak_ptr<EventLoop> ev);
+        void setEventLoop(std::weak_ptr<TaskDistributor> ev);
 
         /// @brief 断开连接并返回套接字
         /// 请注意，断开连接不等于套接字被关闭。
@@ -103,7 +103,7 @@ namespace chrindex::andren::network
 
             // #### 
 
-            std::weak_ptr<EventLoop> m_ev;
+            std::weak_ptr<TaskDistributor> m_ev;
             std::weak_ptr<ProPoller> m_pp;
         } ;
 

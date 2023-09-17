@@ -24,7 +24,7 @@ int32_t serverport = 8317;
 
 int testTcpServer()
 {
-    std::shared_ptr<network::EventLoop> eventLoop;
+    std::shared_ptr<network::TaskDistributor> eventLoop;
     std::shared_ptr<network::RePoller> repoller;
     std::shared_ptr<network::Acceptor> acceptor;
     base::Socket ssock(AF_INET, SOCK_STREAM,0);
@@ -32,7 +32,7 @@ int testTcpServer()
     int ret ;
     bool bret;
 
-    eventLoop = std::make_shared<network::EventLoop>(4); // 4个线程
+    eventLoop = std::make_shared<network::TaskDistributor>(4); // 4个线程
 
     // 开始事件循环
     bret = eventLoop->start();
@@ -142,13 +142,13 @@ int testTcpServer()
 
 int testTcpClient()
 {
-    std::shared_ptr<network::EventLoop> eventLoop;
+    std::shared_ptr<network::TaskDistributor> eventLoop;
     std::shared_ptr<network::RePoller> repoller;
     std::shared_ptr<network::SockStream> link;
     base::Socket csock(AF_INET, SOCK_STREAM,0);
     bool bret;
 
-    eventLoop = std::make_shared<network::EventLoop>(4); // 4个线程
+    eventLoop = std::make_shared<network::TaskDistributor>(4); // 4个线程
 
     // 开始事件循环
     bret = eventLoop->start();
@@ -255,12 +255,12 @@ end_clean:
 
 int testUDP()
 {
-    std::shared_ptr<network::EventLoop> eventLoop;
+    std::shared_ptr<network::TaskDistributor> eventLoop;
     std::shared_ptr<network::RePoller> repoller;
     std::shared_ptr<network::DataGram> udg;
     bool bret;
 
-    eventLoop = std::make_shared<network::EventLoop>(4); // 4个线程
+    eventLoop = std::make_shared<network::TaskDistributor>(4); // 4个线程
 
     // 开始事件循环
     bret = eventLoop->start();

@@ -1,5 +1,5 @@
 ﻿#include "sockstream.hh"
-#include "eventloop.hh"
+#include "task_distributor.hh"
 #include <cstdio>
 #include <cstring>
 #include <memory>
@@ -82,7 +82,7 @@ namespace chrindex::andren::network
                 return ev->addTask([fd ,  self = shared_from_this()]()
                 {
                     self->listenReadEvent(fd);
-                },EventLoopTaskType::IO_TASK);
+                },TaskDistributorTaskType::IO_TASK);
             }
         }
         return false;
@@ -113,7 +113,7 @@ namespace chrindex::andren::network
                         ssize_t ret = self->data->m_sock.send(msg.c_str(), msg.size(), 0);
                         if (self->data->m_onWrite){ self->data->m_onWrite( ret, std::move(msg)); }
                     }
-                },EventLoopTaskType::IO_TASK);
+                },TaskDistributorTaskType::IO_TASK);
             }
         }
         return false;
@@ -134,7 +134,7 @@ namespace chrindex::andren::network
                         self->data->m_sock.unlink();
                     }
                     self->data->m_sock.closeAndNoClear();
-                },EventLoopTaskType::IO_TASK);
+                },TaskDistributorTaskType::IO_TASK);
             }
         }
         return false;
@@ -159,7 +159,7 @@ namespace chrindex::andren::network
     bool SockStream::asyncConnect(sockaddr * saddr , size_t saddr_size , std::function<void(bool bret)> onConnect)
     {
         auto rp = data->wrp.lock();
-        auto ev = rp? rp->eventLoopReference().lock() : std::shared_ptr<EventLoop>{};
+        auto ev = rp? rp->eventLoopReference().lock() : std::shared_ptr<TaskDistributor>{};
         if (!ev || !data->m_sock.valid())[[unlikely]]
         {
             return false;
@@ -176,7 +176,7 @@ namespace chrindex::andren::network
                 self->listenReadEvent(self->data->m_sock.handle());
             }
             if (cb){ cb(ret == 0); }
-        },EventLoopTaskType::IO_TASK);
+        },TaskDistributorTaskType::IO_TASK);
     }
 
     base::KVPair<ssize_t,std::string> SockStream::tryRead()

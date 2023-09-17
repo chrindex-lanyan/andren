@@ -2,7 +2,7 @@
 
 #include "../../base/andren_base.hh"
 
-#include "../eventloop.hh"
+#include "../task_distributor.hh"
 
 namespace chrindex::andren::network
 {
@@ -29,7 +29,7 @@ namespace chrindex::andren::network
         /// @brief 开始polling。
         /// 当且仅当EventLoop可用（即使未启动）。
         /// @return true为成功。
-        bool start(std::shared_ptr<EventLoop> ev);
+        bool start(std::shared_ptr<TaskDistributor> ev);
 
     public:
 
@@ -72,13 +72,13 @@ namespace chrindex::andren::network
         /// @param timeoutMsec 毫秒。不建议太低。
         /// @param cb 回调函数。要求必须有效。
         /// @return 操作是否成功。true为成功。
-        bool findAndWait( int fd , int events , int timeoutMsec, EventLoop* wev , OnFind cb);
+        bool findAndWait( int fd , int events , int timeoutMsec, TaskDistributor* wev , OnFind cb);
 
     /// ########  END AAA #### 
 
     private:
 
-        bool processEvents(std::weak_ptr<EventLoop> ev);
+        bool processEvents(std::weak_ptr<TaskDistributor> ev);
 
         /// @brief 更改Epoll
         /// @param fd 

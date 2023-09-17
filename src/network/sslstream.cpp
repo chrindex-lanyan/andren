@@ -1,5 +1,5 @@
 ﻿#include "sslstream.hh"
-#include "eventloop.hh"
+#include "task_distributor.hh"
 #include <chrono>
 #include <cstddef>
 #include <cstdio>
@@ -137,7 +137,7 @@ namespace chrindex::andren::network
                 return ev->addTask([fd ,  self = shared_from_this()]()
                 {
                     self->listenReadEvent(fd);
-                },EventLoopTaskType::IO_TASK);
+                },TaskDistributorTaskType::IO_TASK);
             }
         }
         return false;
@@ -173,7 +173,7 @@ namespace chrindex::andren::network
                             self->data->m_onWrite( ret, std::move(msg));
                         }
                     }
-                },EventLoopTaskType::IO_TASK);
+                },TaskDistributorTaskType::IO_TASK);
             }
         }
         return false;
@@ -189,7 +189,7 @@ namespace chrindex::andren::network
                 return ev->addTask([ self = shared_from_this()]()
                 {
                     self->real_close();
-                },EventLoopTaskType::IO_TASK);
+                },TaskDistributorTaskType::IO_TASK);
             }
         }
         return false;
@@ -198,7 +198,7 @@ namespace chrindex::andren::network
     bool SSLStream::asyncConnect(std::string const &ip , int port, std::function<void(bool bret)> onConnect)
     {
         auto rp = data->wrp.lock();
-        auto ev = rp? rp->eventLoopReference().lock() : std::shared_ptr<EventLoop>{};
+        auto ev = rp? rp->eventLoopReference().lock() : std::shared_ptr<TaskDistributor>{};
         if (!ev || !data->m_sock.valid())[[unlikely]]
         {
             return false;
@@ -213,7 +213,7 @@ namespace chrindex::andren::network
                 self->listenReadEvent(self->data->m_sock.handle());
             }
             if (cb){ cb(ret == 0); }
-        },EventLoopTaskType::IO_TASK);
+        },TaskDistributorTaskType::IO_TASK);
     }
 
     base::KVPair<ssize_t,std::string> SSLStream::tryRead()

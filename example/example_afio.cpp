@@ -17,7 +17,7 @@ std::atomic<int> g_exit;
 
 int testAFIO()
 {
-    std::shared_ptr<network::EventLoop> ev = std::make_shared<network::EventLoop>(4);
+    std::shared_ptr<network::TaskDistributor> ev = std::make_shared<network::TaskDistributor>(4);
     bool bret = false;
 
     bret = ev->start();

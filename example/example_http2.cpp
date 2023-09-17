@@ -90,7 +90,7 @@ int test_http2server()
 {
     base::aSSLContextCreator creator;
     base::aSSLContext sslctx;
-    std::shared_ptr<network::EventLoop> eventLoop = std::make_shared<network::EventLoop>(4); // 4个线程
+    std::shared_ptr<network::TaskDistributor> eventLoop = std::make_shared<network::TaskDistributor>(4); // 4个线程
     std::shared_ptr<network::RePoller> repoller;
     std::shared_ptr<network::Acceptor> acceptor;
     base::Socket ssock(AF_INET, SOCK_STREAM,0);

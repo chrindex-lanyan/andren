@@ -24,7 +24,7 @@ int test_Eventloop()
         return -3;
     }
 
-    std::shared_ptr<network::EventLoop> ev = std::make_shared<network::EventLoop>(4);
+    std::shared_ptr<network::TaskDistributor> ev = std::make_shared<network::TaskDistributor>(4);
     bool bret = false;
 
     bret = ev->start();
@@ -36,7 +36,7 @@ int test_Eventloop()
         {
             genout ("Hello World. -- [%d]\n",i);
         },
-        network::EventLoopTaskType::IO_TASK);
+        network::TaskDistributorTaskType::IO_TASK);
         assert(bret);
         //std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -45,7 +45,7 @@ int test_Eventloop()
     {
         genout("\nuse `ctrl + c` to exit.\n");
     },
-    network::EventLoopTaskType::IO_TASK);
+    network::TaskDistributorTaskType::IO_TASK);
 
     while(1)
     {

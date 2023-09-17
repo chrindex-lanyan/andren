@@ -19,17 +19,17 @@ namespace chrindex::andren::network
         return !m_exit;
     }
 
-    bool ProPoller::start(std::shared_ptr<EventLoop> ev)
+    bool ProPoller::start(std::shared_ptr<TaskDistributor> ev)
     {
         if (!ev)
         {
             return false;
         }
-        std::weak_ptr<EventLoop> wev = ev;
+        std::weak_ptr<TaskDistributor> wev = ev;
         m_exit = false;
         bool bret = ev->addTask([this , self = shared_from_this() , wev]()
                     { processEvents(wev); },
-                    EventLoopTaskType::IO_TASK);
+                    TaskDistributorTaskType::IO_TASK);
         m_exit = !bret;
         return bret;
     }
@@ -83,7 +83,7 @@ namespace chrindex::andren::network
         return -1;
     }
 
-    bool ProPoller::findAndWait(int fd, int events, int timeoutMsec , EventLoop* wev  , OnFind cb)
+    bool ProPoller::findAndWait(int fd, int events, int timeoutMsec , TaskDistributor* wev  , OnFind cb)
     {
         if (!wev || !m_epoll.valid() || !cb)
         {
@@ -126,7 +126,7 @@ namespace chrindex::andren::network
                         (std::chrono::system_clock().now().time_since_epoch()).count();
             timeoutMsec = timeoutMsec + now - crrt;
             findAndWait(fd,events,timeoutMsec,wev,std::move(cb));
-        },EventLoopTaskType::IO_TASK);
+        },TaskDistributorTaskType::IO_TASK);
 
         return true;
     }
@@ -140,7 +140,7 @@ namespace chrindex::andren::network
         return 0 == m_epoll.control(ctrl,fd,ev);
     }
 
-    bool ProPoller::processEvents(std::weak_ptr<EventLoop> wev)
+    bool ProPoller::processEvents(std::weak_ptr<TaskDistributor> wev)
     {
         auto ev = wev.lock();
         if (!ev || !m_epoll.valid())
@@ -176,7 +176,7 @@ namespace chrindex::andren::network
         }
         ev->addTask([this, wev , self = shared_from_this()]()
                     { processEvents(wev); },
-                    EventLoopTaskType::IO_TASK);
+                    TaskDistributorTaskType::IO_TASK);
         return true;
     }
 

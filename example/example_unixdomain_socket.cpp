@@ -29,14 +29,14 @@ std::string domainName = "MyUnixSocket";
 
 int testUnixDomainStreamServer()
 {
-    std::shared_ptr<network::EventLoop> eventLoop;
+    std::shared_ptr<network::TaskDistributor> eventLoop;
     std::shared_ptr<network::RePoller> repoller;
     std::shared_ptr<network::Acceptor> acceptor;
     base::Socket ssock(AF_UNIX, SOCK_STREAM,0);
     int ret ;
     bool bret;
 
-    eventLoop = std::make_shared<network::EventLoop>(4); // 4个线程
+    eventLoop = std::make_shared<network::TaskDistributor>(4); // 4个线程
 
     // 开始事件循环
     bret = eventLoop->start();
@@ -157,13 +157,13 @@ int testUnixDomainStreamServer()
 
 int testUnixDomainStreamClient()
 {
-    std::shared_ptr<network::EventLoop> eventLoop;
+    std::shared_ptr<network::TaskDistributor> eventLoop;
     std::shared_ptr<network::RePoller> repoller;
     std::shared_ptr<network::SockStream> link;
     base::Socket csock(AF_UNIX, SOCK_STREAM,0);
     bool bret;
 
-    eventLoop = std::make_shared<network::EventLoop>(4); // 4个线程
+    eventLoop = std::make_shared<network::TaskDistributor>(4); // 4个线程
 
     // 开始事件循环
     bret = eventLoop->start();
@@ -265,12 +265,12 @@ int testUnixDomainStreamClient()
 
 int testUnixDomainDataGram()
 {
-    std::shared_ptr<network::EventLoop> eventLoop;
+    std::shared_ptr<network::TaskDistributor> eventLoop;
     std::shared_ptr<network::RePoller> repoller;
     std::shared_ptr<network::DataGram> udg;
     bool bret;
 
-    eventLoop = std::make_shared<network::EventLoop>(4); // 4个线程
+    eventLoop = std::make_shared<network::TaskDistributor>(4); // 4个线程
 
     // 开始事件循环
     bret = eventLoop->start();
@@ -343,12 +343,12 @@ int testUnixDomainDataGram()
 
 int testUnixDomainDataGram_sub()
 {
-    std::shared_ptr<network::EventLoop> eventLoop;
+    std::shared_ptr<network::TaskDistributor> eventLoop;
     std::shared_ptr<network::RePoller> repoller;
     std::shared_ptr<network::DataGram> udg;
     bool bret;
 
-    eventLoop = std::make_shared<network::EventLoop>(4); // 4个线程
+    eventLoop = std::make_shared<network::TaskDistributor>(4); // 4个线程
 
     // 开始事件循环
     bret = eventLoop->start();

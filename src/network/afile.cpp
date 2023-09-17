@@ -1,6 +1,6 @@
 ﻿
 #include "afile.hh"
-#include "eventloop.hh"
+#include "task_distributor.hh"
 #include <cassert>
 #include <fcntl.h>
 #include <memory>
@@ -19,7 +19,7 @@ namespace chrindex::andren::network
             m_file.close();
         }
 
-        void AFile::setEventLoop(std::weak_ptr<EventLoop> wev)
+        void AFile::setEventLoop(std::weak_ptr<TaskDistributor> wev)
         {
             m_wev = wev;
         }
@@ -56,7 +56,7 @@ namespace chrindex::andren::network
             {
                 self->m_file.close();
                 onControl(false);
-            }, EventLoopTaskType::IO_TASK);
+            }, TaskDistributorTaskType::IO_TASK);
         }
 
         /// open文件.
@@ -82,7 +82,7 @@ namespace chrindex::andren::network
             {
                 if (self->m_file.handle() >0 ){self->m_file.close();}
                 onControl(self->open(path,  flags,createMode));
-            },EventLoopTaskType::IO_TASK);
+            },TaskDistributorTaskType::IO_TASK);
         }
 
         /// 发送一个写请求。
@@ -110,7 +110,7 @@ namespace chrindex::andren::network
                 self->switchNonblock(false);
                 ssize_t ret = self->m_file.write(data.c_str(), data.size());
                 ow(ret , std::move(data));
-            },EventLoopTaskType::IO_TASK);
+            },TaskDistributorTaskType::IO_TASK);
         }
 
         /// 发送一个读请求。
@@ -154,7 +154,7 @@ namespace chrindex::andren::network
                     }
                 }
                 oread(count == 0 ? ret : count,std::move(data));
-            },EventLoopTaskType::IO_TASK);
+            },TaskDistributorTaskType::IO_TASK);
             return true;
         }
 

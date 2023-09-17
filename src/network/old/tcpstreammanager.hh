@@ -2,7 +2,7 @@
 
 #include "tcpstream.hh"
 
-#include "../eventloop.hh"
+#include "../task_distributor.hh"
 #include "propoller.hh"
 
 namespace chrindex::andren::network
@@ -34,7 +34,7 @@ namespace chrindex::andren::network
 
         ~TcpStreamManager();
 
-        void setEventLoop(std::weak_ptr<EventLoop> ev);
+        void setEventLoop(std::weak_ptr<TaskDistributor> ev);
 
         void setProPoller(std::weak_ptr<ProPoller> pp);
 
@@ -45,7 +45,7 @@ namespace chrindex::andren::network
         void stop();
 
     private:
-        std::weak_ptr<EventLoop> m_ev;
+        std::weak_ptr<TaskDistributor> m_ev;
         std::weak_ptr<ProPoller> m_pp;
         TcpStream m_server;
         std::atomic<bool> m_stop;

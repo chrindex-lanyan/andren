@@ -73,7 +73,7 @@ namespace chrindex::andren::network
             }
             onConnected(0);
             return ;
-        }, EventLoopTaskType::IO_TASK);
+        }, TaskDistributorTaskType::IO_TASK);
     }
 
     std::shared_ptr<TcpStream> TcpStream::accept()
@@ -177,7 +177,7 @@ namespace chrindex::andren::network
                     _onRead(-5,{});
                 }
             } );
-        },EventLoopTaskType::IO_TASK);
+        },TaskDistributorTaskType::IO_TASK);
 
         return true;
     }
@@ -304,7 +304,7 @@ namespace chrindex::andren::network
             });
         }
         
-        ,EventLoopTaskType::IO_TASK);
+        ,TaskDistributorTaskType::IO_TASK);
 
         return bret;
     }
@@ -358,7 +358,7 @@ namespace chrindex::andren::network
         return true;
     }
 
-    void TcpStream::setEventLoop(std::weak_ptr<EventLoop> ev)
+    void TcpStream::setEventLoop(std::weak_ptr<TaskDistributor> ev)
     {
         if (!pdata)
         {

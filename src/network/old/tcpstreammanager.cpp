@@ -15,7 +15,7 @@ namespace chrindex::andren::network
         stop();
     }
 
-    void TcpStreamManager::setEventLoop(std::weak_ptr<EventLoop> ev)
+    void TcpStreamManager::setEventLoop(std::weak_ptr<TaskDistributor> ev)
     {
         m_ev = std::move(ev);
     }
@@ -144,7 +144,7 @@ namespace chrindex::andren::network
             
             return ;
         } , 
-        EventLoopTaskType::IO_TASK);
+        TaskDistributorTaskType::IO_TASK);
 
         return bret ? (TSM_Error::OK) : (TSM_Error::EVENTLOOP_ADD_TASK_FAILED);
     }

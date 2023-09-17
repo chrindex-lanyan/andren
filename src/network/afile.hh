@@ -5,7 +5,7 @@
 #include <functional>
 #include <memory>
 
-#include "eventloop.hh"
+#include "task_distributor.hh"
 
 
 
@@ -32,7 +32,7 @@ namespace chrindex::andren::network
 
         ~AFile();
 
-        void setEventLoop(std::weak_ptr<EventLoop> wev);
+        void setEventLoop(std::weak_ptr<TaskDistributor> wev);
 
         /// open文件。
         /// 提供了这个接口，用于AFile实例刚刚创建的时期。
@@ -88,7 +88,7 @@ namespace chrindex::andren::network
 
     private :
         base::File m_file;
-        std::weak_ptr<EventLoop> m_wev;
+        std::weak_ptr<TaskDistributor> m_wev;
     };
 
 

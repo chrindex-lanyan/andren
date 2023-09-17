@@ -1,6 +1,6 @@
 ﻿
 #include "repoller.hh"
-#include "eventloop.hh"
+#include "task_distributor.hh"
 #include <memory>
 #include <unistd.h>
 
@@ -69,7 +69,7 @@ namespace chrindex::andren::network
         return true;
     }
 
-    bool RePoller::start(std::weak_ptr<EventLoop> wev, int epollWaitPerTick_msec)
+    bool RePoller::start(std::weak_ptr<TaskDistributor> wev, int epollWaitPerTick_msec)
     {
         auto ev = wev.lock();
         if (!ev)
@@ -87,7 +87,7 @@ namespace chrindex::andren::network
         data->m_shutdown = true;
     }
 
-    std::weak_ptr<EventLoop> RePoller::eventLoopReference() const
+    std::weak_ptr<TaskDistributor> RePoller::eventLoopReference() const
     {
         if (data)
         {
@@ -106,7 +106,7 @@ namespace chrindex::andren::network
             {
                 workNextTick(timeoutMsec);
             }
-        },EventLoopTaskType::IO_TASK);
+        },TaskDistributorTaskType::IO_TASK);
     }
 
     void RePoller::work(int timeoutMsec)
@@ -214,7 +214,7 @@ namespace chrindex::andren::network
                 cb(true,&obj);
                 data->m_objects[id] =  std::move(obj);
             }
-        },EventLoopTaskType::IO_TASK);
+        },TaskDistributorTaskType::IO_TASK);
     }
 
 
@@ -254,7 +254,7 @@ namespace chrindex::andren::network
                     cb(false , nullptr ); 
                 }
             }
-        },EventLoopTaskType::IO_TASK);
+        },TaskDistributorTaskType::IO_TASK);
     }
 
 

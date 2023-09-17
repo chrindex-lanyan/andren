@@ -151,7 +151,7 @@ namespace chrindex::andren::network {
                                 reinterpret_cast<sockaddr const *>(remote.c_str()),remote.size());
                             if(self->data->m_onWrite){ self->data->m_onWrite(ret,std::move(msg)); }
                         }
-                    },EventLoopTaskType::IO_TASK);
+                    },TaskDistributorTaskType::IO_TASK);
                 }
             }
             return false;
@@ -177,7 +177,7 @@ namespace chrindex::andren::network {
                             // 我手动触发一下。
                             rp->notifyEvents(fd, EPOLLIN);
                         }
-                    },EventLoopTaskType::IO_TASK);
+                    },TaskDistributorTaskType::IO_TASK);
                 }
             }
             return false;
@@ -193,7 +193,7 @@ namespace chrindex::andren::network {
                     return ev->addTask([fd ,  self = shared_from_this()]()
                     {
                         self->listenReadEvent(fd);
-                    },EventLoopTaskType::IO_TASK);
+                    },TaskDistributorTaskType::IO_TASK);
                 }
             }
             return false;

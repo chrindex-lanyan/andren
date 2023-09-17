@@ -28,7 +28,7 @@ std::atomic<uint64_t> m_uid = 1;
 
 std::string serverip = "192.168.88.3";
 int32_t serverport = 8317;
-std::shared_ptr<network::EventLoop> eventLoop;
+std::shared_ptr<network::TaskDistributor> eventLoop;
 std::shared_ptr<network::RePoller> repoller;
 std::shared_ptr<network::Acceptor> acceptor;
 base::Socket ssock(AF_INET, SOCK_STREAM,0);
@@ -113,7 +113,7 @@ int sendToSharedMemory(TransSendData const & data)
         eventLoop->addTask([data]()
         {
             sendToSharedMemory(data);
-        },network::EventLoopTaskType::IO_TASK);
+        },network::TaskDistributorTaskType::IO_TASK);
     }
 
     return 0;
@@ -133,7 +133,7 @@ int readFromSharedMemory()
     eventLoop->addTask([]()
     {
         readFromSharedMemory();
-    },network::EventLoopTaskType::IO_TASK);
+    },network::TaskDistributorTaskType::IO_TASK);
     
     return 0;
 }
@@ -151,7 +151,7 @@ int tcpServer()
     int ret ;
     bool bret;
 
-    eventLoop = std::make_shared<network::EventLoop>(4); // 4个线程
+    eventLoop = std::make_shared<network::TaskDistributor>(4); // 4个线程
 
     // 开始事件循环
     bret = eventLoop->start();
@@ -282,7 +282,7 @@ int tcpServer()
                 ev->addTask([tsd]() mutable
                 {
                     ::sendToSharedMemory(tsd);
-                },network::EventLoopTaskType::IO_TASK);
+                },network::TaskDistributorTaskType::IO_TASK);
 
                
                 for (size_t index = pos 
@@ -302,7 +302,7 @@ int tcpServer()
                     ev->addTask([tsd]() mutable
                     {
                         ::sendToSharedMemory(tsd);
-                    },network::EventLoopTaskType::IO_TASK);
+                    },network::TaskDistributorTaskType::IO_TASK);
                 }
             }
             else 
@@ -318,7 +318,7 @@ int tcpServer()
                 ev->addTask([tsd]() mutable
                 {
                     ::sendToSharedMemory(tsd);
-                },network::EventLoopTaskType::IO_TASK);
+                },network::TaskDistributorTaskType::IO_TASK);
             }
 
         });
@@ -363,7 +363,7 @@ int tcpServer()
     eventLoop->addTask([]()
     {
         readFromSharedMemory();
-    },network::EventLoopTaskType::IO_TASK);
+    },network::TaskDistributorTaskType::IO_TASK);
 
     while(1)
     {

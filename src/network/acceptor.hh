@@ -5,7 +5,7 @@
 #include <memory>
 
 
-#include "eventloop.hh"
+#include "task_distributor.hh"
 #include "sockstream.hh"
 #include "repoller.hh"
 
@@ -18,7 +18,7 @@ namespace chrindex::andren::network
 
         //Acceptor();
 
-        Acceptor(std::weak_ptr<EventLoop> wev , std::weak_ptr<RePoller> wep);
+        Acceptor(std::weak_ptr<TaskDistributor> wev , std::weak_ptr<RePoller> wep);
         Acceptor(Acceptor&&)=delete;
         ~Acceptor();
 
@@ -47,7 +47,7 @@ namespace chrindex::andren::network
         struct _private 
         {
             OnAccept m_onAccept;
-            std::weak_ptr<EventLoop> m_wev;
+            std::weak_ptr<TaskDistributor> m_wev;
             std::weak_ptr<RePoller> m_wep;
             base::Socket m_sock;
         };

@@ -1,6 +1,6 @@
 ﻿
 
-#include "eventloop.hh"
+#include "task_distributor.hh"
 
 #include <algorithm>
 #include <condition_variable>
@@ -9,7 +9,7 @@
 
 namespace chrindex::andren::network
 {
-    EventLoop::EventLoop(uint32_t size)
+    TaskDistributor::TaskDistributor(uint32_t size)
     {
         m_size = std::max(size, 2u);
         m_tpool = nullptr;
@@ -19,7 +19,7 @@ namespace chrindex::andren::network
         m_exit = false;
     }
 
-    EventLoop::~EventLoop()
+    TaskDistributor::~TaskDistributor()
     {
         shutdown();
         delete [] m_tpool;
@@ -28,19 +28,19 @@ namespace chrindex::andren::network
         delete [] m_cvmut;
     }
 
-    bool EventLoop::addTask(Task task, EventLoopTaskType type)
+    bool TaskDistributor::addTask(Task task, TaskDistributorTaskType type)
     {
         bool bret = false;
 
-        if (type == EventLoopTaskType::IO_TASK)
+        if (type == TaskDistributorTaskType::IO_TASK)
         {
             bret = addTask(std::move(task), 0 );
         }
-        else if (type == EventLoopTaskType::SHCEDULE_TASK)
+        else if (type == TaskDistributorTaskType::SHCEDULE_TASK)
         {
             bret = addTask(std::move(task), 1 );
         }
-        else if (type == EventLoopTaskType::FURTURE_TASK)
+        else if (type == TaskDistributorTaskType::FURTURE_TASK)
         {
             uint64_t randmsec = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock()
                 .now().time_since_epoch()).count();
@@ -51,7 +51,7 @@ namespace chrindex::andren::network
         return bret;
     }
 
-    bool EventLoop::addTask(Task task, uint32_t index)
+    bool TaskDistributor::addTask(Task task, uint32_t index)
     {
         if(m_tpool == nullptr || !task)
         {
@@ -68,7 +68,7 @@ namespace chrindex::andren::network
         return true;
     }
 
-    bool EventLoop::start()
+    bool TaskDistributor::start()
     {
         m_exit = false;        
         m_tpool = new std::thread[m_size];
@@ -82,7 +82,7 @@ namespace chrindex::andren::network
         return true;
     }
 
-    void EventLoop::shutdown()
+    void TaskDistributor::shutdown()
     {
         // 设置退出标识
         m_exit = true;
@@ -97,12 +97,12 @@ namespace chrindex::andren::network
         }
     }
 
-    bool EventLoop::isShutdown()const 
+    bool TaskDistributor::isShutdown()const 
     {
         return m_exit;
     }
 
-    void EventLoop::startNextLoop(uint32_t index)
+    void TaskDistributor::startNextLoop(uint32_t index)
     {
         while(!m_exit)
         {
@@ -110,7 +110,7 @@ namespace chrindex::andren::network
         }
     }
 
-    void EventLoop::work(uint32_t index)
+    void TaskDistributor::work(uint32_t index)
     {
         //std::optional<std::deque<Task>> result;
         std::deque<Task> result;

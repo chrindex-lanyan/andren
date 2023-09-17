@@ -1,7 +1,7 @@
 ﻿
 
 #include "acceptor.hh"
-#include "eventloop.hh"
+#include "task_distributor.hh"
 #include <cassert>
 #include <cstdio>
 #include <memory>
@@ -12,7 +12,7 @@
 
 namespace  chrindex::andren::network
 {
-    Acceptor::Acceptor(std::weak_ptr<EventLoop> wev , std::weak_ptr<RePoller> wep)
+    Acceptor::Acceptor(std::weak_ptr<TaskDistributor> wev , std::weak_ptr<RePoller> wep)
     {
         data = std::make_unique<_private>();
         data->m_wev = wev;
@@ -80,7 +80,7 @@ namespace  chrindex::andren::network
             });
             bret = rp->append(fd, events_listen);
             assert(bret);
-        },EventLoopTaskType::IO_TASK);
+        },TaskDistributorTaskType::IO_TASK);
 
         return bret;
     }
@@ -101,7 +101,7 @@ namespace  chrindex::andren::network
                 ep->cancle(fd);
             }
             cb();
-        },EventLoopTaskType::IO_TASK);
+        },TaskDistributorTaskType::IO_TASK);
     }
 
 

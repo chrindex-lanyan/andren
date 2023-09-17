@@ -6,27 +6,27 @@
 
 namespace chrindex::andren::network
 {
-    enum EventLoopTaskType:int
+    enum TaskDistributorTaskType:int
     {
         SHCEDULE_TASK,  // 定时器任务（线程1~n）
         IO_TASK,        // io任务（线程1）
         FURTURE_TASK,   // 常规任务（线程1~n）
     };
     
-    class EventLoop : public std::enable_shared_from_this<EventLoop> , base::noncopyable
+    class TaskDistributor : public std::enable_shared_from_this<TaskDistributor> , base::noncopyable
     {
     public :
 
         using Task = std::function<void()>;
 
-        EventLoop(uint32_t size = std::thread::hardware_concurrency());
-        ~EventLoop();
+        TaskDistributor(uint32_t size = std::thread::hardware_concurrency());
+        ~TaskDistributor();
 
         /// @brief 添加任务
         /// @param task 任务函数
         /// @param type 任务类型
         /// @return 添加成功与否
-        bool addTask(Task task , EventLoopTaskType type);
+        bool addTask(Task task , TaskDistributorTaskType type);
 
         /// @brief 添加任务
         /// @param task 任务函数

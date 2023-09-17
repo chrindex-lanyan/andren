@@ -2,7 +2,7 @@
 
 #include "../../base/andren_base.hh"
 
-#include "../eventloop.hh"
+#include "../task_distributor.hh"
 
 
 
@@ -19,7 +19,7 @@ namespace chrindex::andren::network
 
         void operator=(UdpPackage && _);
 
-        void setEventLoop(std::weak_ptr<EventLoop> ev);
+        void setEventLoop(std::weak_ptr<TaskDistributor> ev);
 
         void setEpoller(std::weak_ptr<base::Epoll> ep);
 
