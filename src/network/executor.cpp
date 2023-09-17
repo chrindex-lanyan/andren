@@ -55,7 +55,7 @@ namespace chrindex::andren::network
         return m_ev && m_ev->addTask([this, t = std::move(task)]()
         {
             t(this);
-        }, m_schedule.doSchedule(reinterpret_cast<uint64_t>(this)));
+        }, m_schedule.doSchedule(reinterpret_cast<uint64_t>(&task)));
     }
 
     void Executor::operator=(Executor && e)
