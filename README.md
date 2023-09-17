@@ -1,9 +1,9 @@
 # andren
 一个库，由两部分组成，分别为base部分和network部分。但是这个区分并不很严格，因为base也可以提供网络功能。<br>
-这是一个学习性质的库，目前存在许多理解和实践上的问题，以及潜在的bug，不要指望稳定性和可靠性。<br>
+这是一个学习性质的库，目前存在着未解决的问题，以及潜在的bug，对于某些比较复杂的类，其实现是尝试性的。<br>
 
 ## 分支
-学习性质的库，要啥分支。。。直接主分支就是dev（  <br>
+暂不打算弄dev分支。 <br>
 
 ## 开发环境：
     Ubuntu  = Ubuntu 22.04 LTS x86_64 
@@ -16,7 +16,7 @@
 脚本`install_xmake.sh`用于安装xmake构建工具。xmake的官网是`https://xmake.io/#/` 。<br>
 脚本`prepare_dependent.sh`用于安装依赖到的第三方库。
 脚本`update_compile_commands.sh`用于通过xmake生成`compile_commands.json`，这对在vscode里使用clangd插件很友好。
-lua脚本`xmake.lua`用于生成库（.so或者.a），然后生成example。注意不要使用过多的线程编译，可能会爆内存。
+lua脚本`xmake.lua`用于生成库（.so或者.a），然后生成example。注意不要使用过多的线程编译，否则可能会爆内存。
 
 ## 其他第三方库
 third-part文件夹下有三个子文件夹，对应着三个引用的库。
@@ -35,7 +35,7 @@ base64库理论上可以直接用OpenSSL的替换掉。
         File、Thread、Thread Pool、Log、GZIP File、Json、Timer、协程、Singal、Pipe、ShareMem、Socket、Epoll、编码转换、Base64、PGSQL、MYSQL。
     }
 
-<br>上述所有的类，尤其是封装的类，都不保证提供所有的方法（如部分System call）。
+<br>上述所有的类，尤其是封装的类，都不保证提供所有的方法（如部分System call），因为实在太多了，只能等到用的时候补充。
     
 
 ### File: 
@@ -57,8 +57,8 @@ base64库理论上可以直接用OpenSSL的替换掉。
 ### Log：
     {
         使用File提供异步日志功能。日志仅提供4个等级(Err、Warn、Debug、Info)，并打印行数。
-        目前这玩意实现的比较简陋，可能以后会改成Thread Local的。
-    } OK
+        目前它不是ThreadLocal的，而且我也没有使用它。我打算参考学习一下其他库的LOG模块，然后再重写一个。
+    } （搁置）
 
 ### Json：
     {
@@ -141,14 +141,13 @@ base64库理论上可以直接用OpenSSL的替换掉。
     {
         PostgreSQL C API 简单包装。不保证提供所有接口。
         普通SQL，预处理SQL，同步和异步Query。
-        PGSQL 的体验非常良好，即使我已经意识到它并没有MYSQL那么易用，
-        但libpq客户端库的体验仍然非常良好。
+        PGSQL 并没有MYSQL那么易用，但libpq的体验确实非常好。
     } OK
 
 ### MYSQL：
     {
         MYSQL C API 简单包装。不保证提供所有接口。(Statement)
-        预处理部分的接口实在不好包装。
+        预处理部分的接口实在不好包装，因为某些数据的类型或者长度我没有方便的方法拿到，这要求用户预先知道类型或者长度。
     } OK 
 
 
@@ -157,7 +156,7 @@ base64库理论上可以直接用OpenSSL的替换掉。
 
 ### 有什么类:
     {
-        NGHTTP、HiRedis、TCP、UDP、IO_Uring、Event Loop及其相关的类
+        NGHTTP、HiRedis、TCP、UDP、IO_Uring、Event Loop、FreelockShareMemory及其相关的类
     }
 
 ### TCP/UDP：
@@ -169,11 +168,11 @@ base64库理论上可以直接用OpenSSL的替换掉。
                 该版本迁移到了OLD文件夹。
                 eventloop.cpp + propoller.cpp + tcpstreammanager.cpp + tcpstream.cpp + udppackage.cpp 及其各自的.hh头文件。
                 这个版本尚且存在难以解决的明显的BUG，比并且实践上的诸多问题导致其几乎不可用。
-                因为思路从其他地方借鉴过来的，我认为暂时可以先留着。
+                因为思路从其他地方借鉴过来的，我认为暂时可以先留着，或许以后重构时会有用。
             }，
             版本2：{
                 eventloop.cpp + repoller.cpp + sockstream.cpp + acceptor.cpp + datagram.cpp 及其各自的.hh头文件。
-                这个版本勉强可用，暂未发现明显BUG。
+                这个版本可用，暂未发现明显BUG。
             }
         }
     }（OK）
@@ -186,20 +185,21 @@ base64库理论上可以直接用OpenSSL的替换掉。
 ### EventLoop：
     {
         Eventloop每次循环按顺序处理各类事件：{
-            1. EventLoop基于ThreadPool 。各线程依照顺序标记为1 ~ n，线程池中线程数量不能少于2个。
-            2. 定时器任务（仅线程2）。 截取且仅截取一次当前时间，并取出所有超时任务进行执行。
-            3. 网络IO任务（仅线程1）。 处理网络断开事件，新连接事件、可读事件、可写事件。断开的网络在此一次性清理。
-            4. 文件IO任务（仅线程1）。 处理IO可读可写事件。
+            1. EventLoop基于ThreadPool 。（强制）各线程依照顺序标记为1 ~ n，线程池中线程数量不能少于2个。
+            2. 定时器任务（仅线程2）。 （约定）截取且仅截取一次当前时间，并取出所有超时任务进行执行。
+            3. 网络IO任务（仅线程1）。 （约定）处理网络断开事件，新连接事件、可读事件、可写事件。断开的网络在此一次性清理。
+            4. 文件IO任务（仅线程1）。 （约定）处理IO可读可写事件。
             5. 普通任务（线程1 ~ n）。 处理任务队列里的任务。
         }
         根据具体的情况，该部分可能会存在增删。
-        第四项可能需要IO_URING写完。
+        第四项可能需要IO_URING写完，目前做了一个简单的模拟。
     } （OK）
 
 ### RePoller：
     {
         使用base部分的EPOLL封装，并且结合EventLoop，做到事件分发。
-        支持手动发送事件（如果你觉得Epoll Wait不出来）。同时也支持非正常fd（即FD <=-2 ，该FD不被EPOLL_CTL_ADD），用于支持可控触发。
+        支持手动发送事件（如果你觉得Epoll Wait不出来）。同时也支持非Epoll的fd（即FD <=-2 ，该FD不被EPOLL_CTL_ADD），用于支持可控触发。
+        对于文件或者自定义的FD，可以对其取负值，这样RePoller不会将之注册监听到EPOLL。
         此RePoller不对Channel服务，也没有提供一个Channel抽象，而是做进一步的事件分派，并帮助FD Provider接入EventLoop。
         具体怎么去处理这个事件，是FD Provider的事情。
         RePoller还附带有一个简单的对象生命周期托管功能。
@@ -217,12 +217,18 @@ base64库理论上可以直接用OpenSSL的替换掉。
         使用nghttp2，nghttp3以支持http2/3。
         其实nghttp2也支持http3.0。但nghttp3却是专门用于支持http3.0。
         nghttp2支持http1.1和http2.0。
-        这个部分目前仍在开发，我对nghttp2的理解还不够，目前进度缓慢。
+        这个部分目前仍在开发，已完成的功能是接收Request；因为我对nghttp2的理解还不够，导致目前进度比较缓慢。
     } （正在） 
 
 ### Redis：
     {
         Redis客户端 c api。以hiredis为基础，只做基本的包装。
         可替代的客户端库很多，比如ACL的，体验就不错。
-        等我先把http2的部分和编码转换的部分写完，再写这部分。
-    } （正在）
+    } （计划）
+
+### FreeLock SharedMemory ：
+    {
+        使用内存屏障在共享内存的基础上，把锁去掉了。
+        目前它的性能，在虚拟机上测出来比较弱，而且还有内存拷贝的花销没解决。
+        未来打算弄一个环形队列，队列的每一个节点都是一个动态大小的缓冲区。
+    }（OK）
