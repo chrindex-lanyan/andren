@@ -71,6 +71,11 @@ namespace chrindex::andren::base
             return m_val;
         }
 
+        VTy value_from_copy() const
+        {
+            return m_val;
+        }
+
     public:
         bool operator>(const KVPair_t &_another)
         {
