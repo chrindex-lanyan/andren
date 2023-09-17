@@ -91,6 +91,7 @@ target("andren")
     add_links("fmt") -- string format library
     add_links("nghttp2") -- libnghttp2 library
     add_links("nghttp3") -- libnghttp3 library
+    add_links("uring")  -- liburing
     -- link lib dir list 
     -- add_linkdirs("your path")
 
@@ -129,6 +130,7 @@ target("andren_a")
     add_links("fmt") -- string format library
     add_links("nghttp2") -- libnghttp2 library
     add_links("nghttp3") -- libnghttp3 library
+    add_links("uring")   -- liburing
 
     -- link lib dir list 
     -- add_linkdirs("your path")

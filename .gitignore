@@ -5,3 +5,4 @@
 bin
 build
 test_key
+setProxy.sh
