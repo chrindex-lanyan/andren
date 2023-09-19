@@ -37,5 +37,9 @@ namespace chrindex::andren::base
 
 #define DELETE_MOVE_OPERATOR(TYPE) TYPE&operator=(TYPE &&)=delete
 
+#define _IN_ 
+#define _OUT_  
+#define _IN_OUT_
+
 }
 
