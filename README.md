@@ -165,14 +165,13 @@ base64库理论上可以直接用OpenSSL的替换掉。
         UDP和TCP大部分基本写好了，但是没有支持IPV6。
         目前有两个版本：{
             版本1：{
-                该版本迁移到了OLD文件夹。
-                eventloop.cpp + propoller.cpp + tcpstreammanager.cpp + tcpstream.cpp + udppackage.cpp 及其各自的.hh头文件。
-                这个版本尚且存在难以解决的明显的BUG，比并且实践上的诸多问题导致其几乎不可用。
-                因为思路从其他地方借鉴过来的，我认为暂时可以先留着。
+                task_distributor.cpp + repoller.cpp + sockstream.cpp + acceptor.cpp + datagram.cpp 及其各自的.hh头文件。
+                这个版本使用任务分派和epoll的poller。
             }，
             版本2：{
-                eventloop.cpp + repoller.cpp + sockstream.cpp + acceptor.cpp + datagram.cpp 及其各自的.hh头文件。
-                这个版本可用，暂未发现明显BUG。
+                task_distributor.cpp + executor.cpp + schedule.cpp + events_service.cpp + eventloop.cpp及其各自头文件。
+                这个版本使用eventloop 、eventsservice、executor等设施，在iouring等的基础下下实现异步。
+                具体的异步方式有继承了eventservice的类实现，比如iouring的io完成通知在io_service.cpp的IOService中提供。
             }
         }
     }（OK）
