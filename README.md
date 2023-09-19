@@ -181,7 +181,9 @@ base64库理论上可以直接用OpenSSL的替换掉。
     {
         使用liburing ，而不是直接使用系统调用。
         io_uring在此主要是处理网络io的fd和文件io的fd。
-    } （正在）
+        目前仅仅完成了Socket FD和文件FD的最基本的支持，暂未测试。
+        io_uring实例存在于IOService类中。
+    } （OK）
 
 ### TaskDistributor：
     {
@@ -208,8 +210,14 @@ base64库理论上可以直接用OpenSSL的替换掉。
 
         EventLoop依赖TaskDistributor（自定义分配），因为事件的分发需要使用到任务分发机制。
         EventLoop对所有的事件集，都使用统一的int64_t类型的key作为事件fd，
-        对于某些系统支持的fd，其key的值等于fd。
-        EventLoop还将为每个key提供对象生命周期寄存功能，便于用户保存与key对应的context。
+        EventLoop支持上诉事件集，是由EventsService提供的，
+        目前实现了IOService（继承自EventsService，使用liburing）。
+
+        因为每个线程都有一个EventsService表，因此理论上每种EventsService都能在
+        每个线程中创建一个各自不同的实例，以更好地利用多核处理器的性能。
+
+        通常使用Schedule类可以自动分配具体的功能到某个线程对应的Service，其分配结果是稳定的。
+
     }（计划中）
 
 ### RePoller：
