@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <condition_variable>
 #include <mutex>
+#include <thread>
 
 
 namespace chrindex::andren::network
@@ -68,6 +69,30 @@ namespace chrindex::andren::network
         return true;
     }
 
+    bool TaskDistributor::addTask_ASAP(Task task , uint32_t index)
+    {
+        if(m_tpool == nullptr || !task)
+        {
+            return false;
+        }
+
+        if (index >= m_size)
+        {
+            index = m_size -1;
+        }
+
+        if(threadId(index) == std::this_thread::get_id())
+        {
+            task();
+        }
+        else 
+        {
+            m_bqueForTask[index].pushBack(std::move(task));
+            m_cv[index].notify_one();
+        }
+        return true;
+    }
+
     bool TaskDistributor::start()
     {
         m_exit = false;        
@@ -100,6 +125,11 @@ namespace chrindex::andren::network
     bool TaskDistributor::isShutdown()const 
     {
         return m_exit;
+    }
+
+    std::thread::id TaskDistributor::threadId(uint32_t index)const
+    {
+        return m_tpool[index].get_id();
     }
 
     void TaskDistributor::startNextLoop(uint32_t index)
