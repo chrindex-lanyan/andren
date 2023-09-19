@@ -1,25 +1,25 @@
 ﻿
 #include"EventLoop.hh"
+#include "events_service.hh"
+#include "executor.hh"
 #include "schedule.hh"
+#include <future>
+#include <thread>
 #include <utility>
 
 namespace chrindex::andren::network
 {
 
-    EventLoop::EventLoop()
+    EventLoop::EventLoop(uint32_t nthread)
     {
-        m_pdata =0;
-    }
-
-    EventLoop::EventLoop(EventLoop && el) noexcept
-    {
-        m_exec = std::move(el.m_exec);
-        m_pdata = std::move(el.m_pdata);
-        el.m_pdata =0;
+        m_shutdown = false;
+        m_exec = Executor(nthread);
+        m_pdata = new _Private_Thread_Local[  m_exec.threadCount() ];
     }
 
     EventLoop::EventLoop(Executor && _move_executor)
     {
+        m_shutdown = false;
         m_exec = std::move(_move_executor);
         m_pdata = new _Private_Thread_Local[  m_exec.threadCount() ];
     }
@@ -30,22 +30,56 @@ namespace chrindex::andren::network
             delete [] m_pdata;
         }
     }
-
-    void EventLoop::operator=(EventLoop && el) noexcept
-    {
-        this->~EventLoop();
-        m_exec = std::move(el.m_exec);
-        m_pdata = std::move(el.m_pdata);
-    }
     
     bool EventLoop::operator==(EventLoop && el) const noexcept
     {
         return this == &el;
     }
 
-    void EventLoop::processEvents()
+    bool EventLoop::start()
     {
-        //
+        if (!m_exec.valid() || !m_pdata)
+        {
+            return false;
+        }
+        m_shutdown = false;
+        return startNextStep();
+    }
+
+    bool EventLoop::shutdown()
+    {
+        m_shutdown = true;
+        return true;
+    }
+
+    bool EventLoop::startNextStep()
+    {
+        if (m_shutdown)
+        {
+            return false;
+        }
+        for (uint32_t index = 0; index < m_exec.threadCount(); index++)
+        {
+            bool bret= m_exec.addTask(index,[this](Executor * , uint32_t index)
+            {
+                processEvents(index);
+            });
+            if (!bret)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void EventLoop::processEvents(uint32_t index)
+    {
+        auto context = m_pdata[index];
+        for (auto const & service: context.m_services)
+        {
+            service.second->processEvents();
+        }
+        startNextStep();
     }
 
     void EventLoop::addService(EventsService * _move_service)
@@ -55,8 +89,10 @@ namespace chrindex::andren::network
             return ;
         }
         uint32_t index = Schedule(threadCount()).doSchedule(_move_service->getKey());
-
-        m_pdata[index].m_services[_move_service->getKey()] = _move_service;
+        addServiceConfigTask(index, [this, _move_service](uint32_t index)
+        {
+            m_pdata[index].m_services[_move_service->getKey()] = _move_service;
+        },true);
     }
 
     void EventLoop::delService(int64_t service_key,
@@ -67,22 +103,67 @@ namespace chrindex::andren::network
             return ;
         }
         uint32_t index = Schedule(threadCount()).doSchedule(service_key);
-        auto iter = m_pdata[index].m_services.find(service_key);
-        if (before) { before(iter->second); }
-        m_pdata[index].m_services.erase(iter);
+        addServiceConfigTask(index, [this, service_key, be = std::move(before)](uint32_t index)
+        {
+            auto iter = m_pdata[index].m_services.find(service_key);
+            if (be) 
+            { 
+                be(iter->second); 
+            }
+            m_pdata[index].m_services.erase(iter);
+        },true);
     }
 
     void EventLoop::modService(EventsService * _move_service)
+    {
+        if (!m_exec.valid() || !m_pdata || !_move_service) [[unlikely]]
+        {
+            return ;
+        }
+        int64_t service_key = _move_service->getKey();
+        uint32_t index = Schedule(threadCount()).doSchedule(service_key);
+        addServiceConfigTask(index, [this, _move_service, service_key](uint32_t index)
+        {
+            m_pdata[index].m_services[service_key] = _move_service;
+        },true);
+    }
+
+    void EventLoop::findService(int64_t service_key, std::function<void(EventsService * _refernce_service)> after)
     {
         if (!m_exec.valid() || !m_pdata) [[unlikely]]
         {
             return ;
         }
+        uint32_t index = Schedule(threadCount()).doSchedule(service_key);
+
+        addServiceConfigTask(index, [t = std::move(after), this,service_key](uint32_t index)
+        {
+            EventsService * ptr = nullptr;
+            auto iter = m_pdata[index].m_services.find(service_key);
+            if (iter != m_pdata[index].m_services.end())
+            {
+                ptr = iter->second;
+            }
+            t(ptr);
+        } , true);
     }
 
-    void EventLoop::findService(int64_t service_key)
+    void EventLoop::addServiceConfigTask(uint32_t threadindex ,std::function<void(uint32_t index)> task, bool asap)
     {
-
+        if (asap)
+        {
+            m_exec.addTask_ASAP(threadindex,[ t = std::move(task) ](Executor *, uint32_t index)
+            {
+                t(index);
+            });
+        }
+        else 
+        {
+            m_exec.addTask(threadindex,[ t = std::move(task) ](Executor *, uint32_t index)
+            {
+                t(index);
+            });
+        }
     }
 
     uint32_t EventLoop::threadCount()const
