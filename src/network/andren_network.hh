@@ -18,3 +18,8 @@
 #include "http3.hh"
 #include "http1.1.hh"
 #include "freelock_smem.hh"
+#include "task_distributor.hh"
+#include "executor.hh"
+#include "events_service.hh"
+#include "io_service.hh"
+
