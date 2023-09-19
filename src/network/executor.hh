@@ -23,15 +23,23 @@ namespace chrindex::andren::network
 
         uint32_t threadCount() const;
 
-        bool addTask(int key , std::function<void(Executor *)> task);
+        bool addTask(int32_t key , std::function<void(Executor *)> task);
 
-        bool addTask(std::string const & key , std::function<void(Executor *)> task);
+        bool addTask(uint32_t threadindex , std::function<void(Executor * , uint32_t threadIndex)> task);
+
+        bool addTask_ASAP(int32_t key , std::function<void(Executor *)> task);
+
+        bool addTask_ASAP(uint32_t threadindex , std::function<void(Executor * , uint32_t threadIndex)> task);
 
         bool addTaskRandom(std::function<void(Executor *)> task);
+
+        bool addTaskRandom_ASAP(std::function<void(Executor *)> task);
 
         void operator=(Executor &&);
 
         bool operator==(Executor &) const;
+
+        std::thread::id threadId(uint32_t index)const;
 
     private :
         Schedule m_schedule;
