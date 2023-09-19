@@ -64,6 +64,7 @@ namespace chrindex::andren::network
         io_context(io_context const & other) 
         {
             onEvents = other.onEvents;
+            userdata = other.userdata;
             req_real = other.req_real;
             req_context = reinterpret_cast<io_request*>(&req_real[0]);
         }
@@ -71,6 +72,7 @@ namespace chrindex::andren::network
         void operator=(io_context const & other)
         {
             onEvents = other.onEvents;
+            userdata = other.userdata;
             req_real = other.req_real;
             req_context = reinterpret_cast<io_request*>(&req_real[0]);
         }
@@ -79,6 +81,7 @@ namespace chrindex::andren::network
         DEFAULT_MOVE_OPERATOR(io_context);
         
         std::function<void(io_context *)> onEvents;
+        std::any userdata;
         std::string req_real;
         io_request* req_context;
     };
