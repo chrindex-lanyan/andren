@@ -5,7 +5,6 @@
 
 #include "task_distributor.hh"
 
-#include "old/network_old.hh"
 
 #include "acceptor.hh"
 #include "datagram.hh"
