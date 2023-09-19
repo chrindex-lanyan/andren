@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <functional>
 #include <optional>
 #include <vector>
 #include <stdint.h>
@@ -101,6 +102,30 @@ namespace chrindex::andren::base
         uint64_t size() const
         {
             return m_data.size();
+        }
+
+        void foreach_pair(std::function<void(pair_t &)> cb)
+        {
+            if (!cb)
+            {
+                return ;
+            }
+            for (auto & pair : m_data)
+            {
+                cb(pair);
+            }
+        }
+
+        void foreach_pair_const(std::function<void(pair_t const&)> cb)
+        {
+            if (!cb)
+            {
+                return ;
+            }
+            for (auto const & pair : m_data)
+            {
+                cb(pair);
+            }
         }
 
     private:

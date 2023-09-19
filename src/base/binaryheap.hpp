@@ -3,6 +3,7 @@
 #include <optional>
 #include <vector>
 #include <stdint.h>
+#include <functional>
 
 #include "KVPair.hpp"
 
@@ -90,6 +91,30 @@ namespace chrindex::andren::base
                 sift_down(0);
             }
             return ret;
+        }
+
+        void foreach_pair(std::function<void(pair_t &)> cb)
+        {
+            if (!cb)
+            {
+                return ;
+            }
+            for (auto & pair : m_data)
+            {
+                cb(pair);
+            }
+        }
+
+        void foreach_pair_const(std::function<void(pair_t const&)> cb)
+        {
+            if (!cb)
+            {
+                return ;
+            }
+            for (auto const & pair : m_data)
+            {
+                cb(pair);
+            }
         }
 
         void clear()

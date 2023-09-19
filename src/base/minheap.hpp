@@ -2,6 +2,7 @@
 
 #include <utility>
 #include <stdint.h>
+#include <functional>
 
 namespace chrindex::andren::base
 {
@@ -63,6 +64,16 @@ namespace chrindex::andren::base
         typename HeapTy::opt_pair_t extract_min_pair()
         {
             return m_heap.extract_min_pair();
+        }
+
+        void foreach_pair(std::function<void(typename HeapTy::pair_t &)> cb)
+        {
+            m_heap.foreach_pair(std::move(cb));
+        }
+
+        void foreach_pair_const(std::function<void(typename HeapTy::pair_t const&)> cb)
+        {
+            m_heap.foreach_pair_const(std::move(cb));
         }
 
         void clear()
