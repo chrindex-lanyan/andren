@@ -2,11 +2,6 @@
 
 namespace chrindex::andren::network
 {
-    EventsService::EventsService()
-    {
-        m_key =-1;
-    }
-
     EventsService::EventsService(int64_t key)
     {
         m_key = key;

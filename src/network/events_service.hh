@@ -10,7 +10,6 @@ namespace chrindex::andren::network
     class EventsService
     {
     public :
-        EventsService();
         EventsService(int64_t key);
         EventsService(EventsService && ) noexcept;
         virtual ~EventsService();
