@@ -43,8 +43,7 @@ example_pgsql_pattern = example_src .. "./example_pgsql.cpp"
 example_DBuffer_pattern = example_src .. "./example_DBuffer.cpp"
 example_socket_pattern = example_src .. "./example_socket.cpp"
 example_ssl_pattern = example_src .. "./example_ssl.cpp"
--- example_tcpserver_pattern = example_src .. "./example_tcpserver.cpp"
-example_eventloop_pattern = example_src .. "./example_eventloop.cpp"
+example_taskdistributor_pattern = example_src .. "./example_taskdistributor.cpp"
 example_retcpserver_pattern = example_src .. "./example_retcpserver.cpp"
 example_asyncfile_pattern = example_src .. "./example_afio.cpp"
 example_grpc_pattern = example_src .. "./example_grpc.cpp"
@@ -76,7 +75,6 @@ target("andren")
     -- link lib list
     add_links("pthread") -- posix thread library (System)
     add_links("dl")  -- dynamic linking library (System)
-    -- add_links("curl") -- CURL Library (With SSL) 
     add_links("ssl") -- OpenSSL
     add_links("crypto") -- OpenSSL need
     add_links("hiredis") -- Hiredis library (A minimalistic C client library for the Redis database)
@@ -115,7 +113,6 @@ target("andren_a")
     -- link lib list
     add_links("pthread") -- posix thread library (System)
     add_links("dl")  -- dynamic linking library (System)
-    -- add_links("curl") -- CURL Library (With SSL) 
     add_links("ssl") -- OpenSSL
     add_links("crypto") -- OpenSSL need
     add_links("hiredis") -- Hiredis library (A minimalistic C client library for the Redis database)
@@ -210,16 +207,10 @@ target("test_ssl_socket")
     add_files(example_ssl_pattern)
     add_links("fmt")
     add_deps("andren", {private = true})
-    
--- target("test_tcpserver_socket")
---     set_kind("binary")
---     add_files(example_tcpserver_pattern)
---     add_links("fmt")
---     add_deps("andren", {private = true})
 
-target("test_eventloop")
+target("test_taskdistributor")
     set_kind("binary")
-    add_files(example_eventloop_pattern)
+    add_files(example_taskdistributor_pattern)
     add_links("fmt")
     add_deps("andren", {private = true})
 
