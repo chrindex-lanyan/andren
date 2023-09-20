@@ -44,7 +44,7 @@ example_DBuffer_pattern = example_src .. "./example_DBuffer.cpp"
 example_socket_pattern = example_src .. "./example_socket.cpp"
 example_ssl_pattern = example_src .. "./example_ssl.cpp"
 example_taskdistributor_pattern = example_src .. "./example_taskdistributor.cpp"
-example_retcpserver_pattern = example_src .. "./example_retcpserver.cpp"
+example_epoll_tcpserver_pattern = example_src .. "./example_epoll_tcpserver.cpp"
 example_asyncfile_pattern = example_src .. "./example_afio.cpp"
 example_grpc_pattern = example_src .. "./example_grpc.cpp"
 example_sslstream_pattern = example_src .. "./example_sslstream.cpp"
@@ -214,9 +214,9 @@ target("test_taskdistributor")
     add_links("fmt")
     add_deps("andren", {private = true})
 
-target("test_retcpserver")
+target("test_epoll_tcpserver")
     set_kind("binary")
-    add_files(example_retcpserver_pattern)
+    add_files(example_epoll_tcpserver_pattern)
     add_links("fmt")
     add_deps("andren", {private = true})
     
