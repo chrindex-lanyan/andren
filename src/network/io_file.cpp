@@ -25,7 +25,7 @@ namespace chrindex::andren::network
         immediately_close();
     }
 
-    void io_file::async_open(std::function<void(io_file *self)> onOpen , IOService & ioservice  ,
+    void io_file::async_open(std::function<void(io_file *self, int32_t ret)> onOpen , IOService & ioservice  ,
         std::string const & path, int dir_fd, uint32_t flags , uint32_t mode )
     {
         io_context context;
@@ -45,7 +45,7 @@ namespace chrindex::andren::network
             iofile.resume(cqe_res);
             if (onOpen)
             {
-                onOpen(&iofile);
+                onOpen(&iofile,cqe_res);
             }
             return true;
         };
