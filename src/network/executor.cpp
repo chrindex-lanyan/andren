@@ -13,7 +13,7 @@ namespace chrindex::andren::network
 
     Executor::Executor(uint32_t nthreads) : 
         m_schedule(nthreads),
-        m_ev(std::make_unique<TaskDistributor>(nthreads))
+        m_ev(std::make_shared<TaskDistributor>(nthreads))
     {
         m_ev->start();
     }
@@ -26,7 +26,10 @@ namespace chrindex::andren::network
 
     Executor::~Executor()
     {
-        m_ev->shutdown();
+        if (m_ev)
+        {
+            m_ev->shutdown();
+        }
     }
 
     bool Executor::valid()const 

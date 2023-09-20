@@ -43,7 +43,7 @@ namespace chrindex::andren::network
 
     private :
         Schedule m_schedule;
-        std::unique_ptr<TaskDistributor> m_ev;
+        std::shared_ptr<TaskDistributor> m_ev;
     };
 
 
