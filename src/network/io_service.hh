@@ -14,7 +14,7 @@
 namespace chrindex::andren::network
 {
     /// io request structure
-    /// sizeof 1024 
+    /// size 1024 
     struct io_request
     {
         enum REQ { OPEN, CONNECT, ACCEPT, 
@@ -23,7 +23,7 @@ namespace chrindex::andren::network
         struct general_t
         {
             REQ _IN_OUT_ req;
-            int64_t uid;
+            int64_t _IN_ uid;
             uint32_t _IN_OUT_ size; // socklen / path len / buf len 
             int32_t _IN_ flags; // for : file / socket
             int32_t _IN_OUT_ fd;// for : file / socket
@@ -31,7 +31,7 @@ namespace chrindex::andren::network
 
         union {
             struct addr_t{
-                sockaddr_storage _OUT_ ss;
+                sockaddr_storage _IN_OUT_ ss;
             } addr;// for : accept
 
             struct file_t{
