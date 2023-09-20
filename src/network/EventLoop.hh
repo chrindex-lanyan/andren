@@ -25,7 +25,7 @@ namespace chrindex::andren::network
         
         bool operator==(EventLoop && ev) const noexcept;
 
-        void addService(EventsService * _move_service);
+        void addService(EventsService * _service);
 
         void delService(int64_t service_key, 
             std::function<void(EventsService * _refernce_service)> before);

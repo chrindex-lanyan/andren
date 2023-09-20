@@ -82,16 +82,16 @@ namespace chrindex::andren::network
         startNextStep();
     }
 
-    void EventLoop::addService(EventsService * _move_service)
+    void EventLoop::addService(EventsService * _service)
     {
-        if (!_move_service || !m_exec.valid() || !m_pdata) [[unlikely]]
+        if (!_service || !m_exec.valid() || !m_pdata) [[unlikely]]
         {
             return ;
         }
-        uint32_t index = Schedule(threadCount()).doSchedule(_move_service->getKey());
-        addServiceConfigTask(index, [this, _move_service](uint32_t index)
+        uint32_t index = Schedule(threadCount()).doSchedule(_service->getKey());
+        addServiceConfigTask(index, [this, _service](uint32_t index)
         {
-            m_pdata[index].m_services[_move_service->getKey()] = _move_service;
+            m_pdata[index].m_services[_service->getKey()] = _service;
         },true);
     }
 
