@@ -68,6 +68,9 @@ namespace chrindex ::andren::base
         /// @return 文件描述符
         int handle() const;
 
+        /// @brief 取走fd 。
+        int take_handle() ;
+
         /// @brief fd控制
         /// @param fd 文件描述符
         /// @param cmd 控制命令

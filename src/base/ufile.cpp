@@ -94,6 +94,13 @@ namespace chrindex ::andren::base
         return m_fd;
     }
 
+    int File::take_handle() 
+    {
+        int ret = m_fd;
+        m_fd = -1;
+        return ret;
+    }
+
     int File::fcntl(int fd, int cmd)
     {
         return ::fcntl(fd, cmd);
