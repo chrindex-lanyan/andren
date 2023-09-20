@@ -21,4 +21,9 @@
 #include "executor.hh"
 #include "events_service.hh"
 #include "io_service.hh"
+#include "database_service.hh"
 
+#include "io_file.hh"
+#include "io_datagram.hh"
+#include "io_tcp.hh"
+#include "database_pgsql.hh"

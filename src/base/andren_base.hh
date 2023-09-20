@@ -7,6 +7,7 @@
 #include "scoperun.hpp"
 #include "memclear.hpp"
 #include "stringTool.hh"
+#include "uid_creator.hh"
 #include "DBuffer.hpp"
 #include "circleque.hpp"
 #include <fmt/core.h>
