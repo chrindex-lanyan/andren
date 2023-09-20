@@ -10,18 +10,18 @@ namespace chrindex::andren::network
     class EventsService
     {
     public :
-        EventsService(int64_t key);
+        EventsService(uint64_t key);
         EventsService(EventsService && ) noexcept;
         virtual ~EventsService();
 
         void operator =(EventsService &&) noexcept;
 
-        using Processor = std::function<void (std::vector<base::KVPair<int64_t, int>> & )>;
-        using EventsHandler = std::function<void (int64_t key , int events)>;
+        using Processor = std::function<void (std::vector<base::KVPair<uint64_t, int>> & )>;
+        using EventsHandler = std::function<void (uint64_t key , int events)>;
 
         void processEvents();
 
-        int64_t getKey () const;
+        uint64_t getKey () const;
     
     protected:
     
@@ -30,7 +30,7 @@ namespace chrindex::andren::network
 
     private :
 
-        int64_t m_key;
+        uint64_t m_key;
         Processor m_processor;
         EventsHandler m_handler;
 

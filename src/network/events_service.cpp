@@ -2,7 +2,7 @@
 
 namespace chrindex::andren::network
 {
-    EventsService::EventsService(int64_t key)
+    EventsService::EventsService(uint64_t key)
     {
         m_key = key;
     }
@@ -42,7 +42,7 @@ namespace chrindex::andren::network
     {
         if (m_processor)[[likely]]
         {
-            std::vector<base::KVPair<int64_t, int>> result;
+            std::vector<base::KVPair<uint64_t, int>> result;
             m_processor(result);
             if (m_handler)[[likely]]
             {
@@ -54,7 +54,7 @@ namespace chrindex::andren::network
         }
     }
 
-    int64_t EventsService::getKey () const
+    uint64_t EventsService::getKey () const
     {
         return m_key;
     }
