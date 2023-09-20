@@ -36,7 +36,7 @@ namespace chrindex::andren::network
         m_uring = std::move(ios.m_uring);
     }
 
-    bool IOService::submitRequest(int uid, io_context && _context)
+    bool IOService::submitRequest(uint64_t uid, io_context && _context)
     {
         auto & context = m_fds_context[uid];
 
@@ -96,8 +96,8 @@ namespace chrindex::andren::network
         {
             io_uring_prep_send(sqe, 
                 context.req_context->general.fd, 
-                context.req_context->ioData.bufData.buf, 
-                sizeof(context.req_context->ioData.bufData.buf), 
+                context.req_context->ioData.bufData.buf_ptr, 
+                context.req_context->general.size, 
                 context.req_context->general.flags);
             break;
         }
@@ -167,7 +167,7 @@ namespace chrindex::andren::network
 
     void IOService::init()
     {
-        setNotifier([this](std::vector<base::KVPair<int64_t, int>> & events [[maybe_unused]])
+        setNotifier([this](std::vector<base::KVPair<uint64_t, int>> & events [[maybe_unused]])
         {
             auto tmp_uring = std::move(m_uring);
             tmp_uring.foreach_pair([&events, this](base::KVPair<int, std::shared_ptr<io_uring>> & pair)
@@ -195,8 +195,7 @@ namespace chrindex::andren::network
                 int count =0;
                 io_uring_for_each_cqe(puring,head,pcqe)
                 {
-                    int64_t ioctx_ptr = 0;
-                    ::memcpy(&ioctx_ptr, &pcqe->user_data ,sizeof(uint64_t)) ;
+                    uint64_t ioctx_ptr = pcqe->user_data;
                     events.push_back({ ioctx_ptr, pcqe->res});
                     count++;
                 }
@@ -205,21 +204,23 @@ namespace chrindex::andren::network
                 /// 更新剩余提交数后放回uring结构
                 m_uring.push({submit_count - count , std::move(pair.value())});
             });
-
         });
 
-        setEventsHandler([this](int64_t key [[maybe_unused]] , int ev [[maybe_unused]])
+        setEventsHandler([this](uint64_t key [[maybe_unused]] , int cqe_res [[maybe_unused]]) 
         {
             auto ioctx_ptr = reinterpret_cast<io_context *>(key);
             auto iter = m_fds_context.find(ioctx_ptr->req_context->general.uid);
-            auto _tmp = std::move(iter->second); 
-            m_fds_context.erase(iter);  
+            bool bret = true;
+            
             if(ioctx_ptr->onEvents)
             {
-                ioctx_ptr->onEvents(ioctx_ptr);
+                bret = ioctx_ptr->onEvents(ioctx_ptr, cqe_res);
+            }
+            if (bret)
+            {
+                m_fds_context.erase(iter);  
             }
         });
-
     }
 
 }

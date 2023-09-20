@@ -23,7 +23,7 @@ namespace chrindex::andren::network
         struct general_t
         {
             REQ _IN_OUT_ req;
-            int64_t _IN_ uid;
+            uint64_t _IN_ uid;
             uint32_t _IN_OUT_ size; // socklen / path len / buf len 
             int32_t _IN_ flags; // for : file / socket
             int32_t _IN_OUT_ fd;// for : file / socket
@@ -46,44 +46,47 @@ namespace chrindex::andren::network
                 // for other structure
                 char _IN_OUT_ _others_structure[_OTHER_STRUCTURE_SIZE_];
 
+                char * _IN_ buf_ptr; // for : write
+
 #define _BUF_SIZE_ (1024 - ( sizeof(general) + sizeof(_others_structure)))
-                // for : read , write
+                // for : read 
                 char _IN_OUT_ buf[_BUF_SIZE_]; 
             } bufData;
         } _IN_OUT_ ioData ;
     };
 
-    struct io_context
+    struct io_context :public base::noncopyable
     {
-        io_context() : req_real(sizeof(io_request),0)
+        io_context() : req_context(std::make_unique<io_request>())
         {
-            req_context = reinterpret_cast<io_request*>(&req_real[0]);
+            //
         }
         DEFAULT_DECONSTRUCTION(io_context);
         
-        io_context(io_context const & other) 
+        io_context(io_context && other) 
         {
-            onEvents = other.onEvents;
-            userdata = other.userdata;
-            req_real = other.req_real;
-            req_context = reinterpret_cast<io_request*>(&req_real[0]);
+            onEvents = std::move(other.onEvents);
+            userdata = std::move(other.userdata);
+            req_context = std::move(other.req_context);
         }
         
-        void operator=(io_context const & other)
+        void operator=(io_context && other)
         {
-            onEvents = other.onEvents;
-            userdata = other.userdata;
-            req_real = other.req_real;
-            req_context = reinterpret_cast<io_request*>(&req_real[0]);
+            onEvents = std::move(other.onEvents);
+            userdata = std::move(other.userdata);
+            req_context = std::move(other.req_context);
         }
+
         
-        DEFAULT_MOVE_CONSTRUCTION(io_context);
-        DEFAULT_MOVE_OPERATOR(io_context);
-        
-        std::function<void(io_context *)> onEvents;
-        std::any userdata;
-        std::string req_real;
-        io_request* req_context;
+        /// @brief events done.
+        /// @param io_context* last submited io_context
+        /// @return Return the `true` indicates that the io operation 
+        /// submitted to io_service has been completed, and then the 
+        /// events should be removed by io_service; 
+        /// otherwise `false` should be returned.
+        std::function<bool (io_context *, int32_t cqe_res)> onEvents;
+        std::shared_ptr<void> userdata;
+        std::unique_ptr<io_request> req_context;
     };
 
     class IOService : public EventsService ,base::noncopyable
@@ -96,7 +99,7 @@ namespace chrindex::andren::network
 
         void operator= (IOService && ios) noexcept;
 
-        bool submitRequest(int uid, io_context && context);
+        bool submitRequest(uint64_t uid, io_context && context);
 
     private :
 
@@ -111,7 +114,7 @@ namespace chrindex::andren::network
         void init();
 
     private :
-        std::map<int , io_context> m_fds_context;
+        std::map<uint64_t , io_context> m_fds_context;
         base::MinHeap<base::FourWayHeap<int, std::shared_ptr<io_uring>>> m_uring;
     };
 
