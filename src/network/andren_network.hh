@@ -19,6 +19,7 @@
 #include "freelock_smem.hh"
 #include "task_distributor.hh"
 #include "executor.hh"
+#include "EventLoop.hh"
 #include "events_service.hh"
 #include "io_service.hh"
 #include "database_service.hh"
