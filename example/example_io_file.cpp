@@ -24,11 +24,15 @@ int test_io_file()
     network::EventLoop eventloop(4);
     network::IOService io_service (base::create_uid_u64(), 32);
     network::io_file myfile ;
+    sigset_t sigmask;
     bool bret ;
+    
+    sigemptyset(&sigmask);
+    sigaddset(&sigmask, SIGINT);
 
     eventloop.start();
 
-    io_service.init();
+    io_service.init(sigmask);
     bret = eventloop.addService(&io_service);
     assert(bret);
 
@@ -55,10 +59,14 @@ int test_io_file()
 
     assert(bret);
 
-    while (m_exit != 1)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
+    // while (m_exit != 1)
+    // {
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    // }
+    
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
+    eventloop = network::EventLoop{};
 
     return 0;
 }
