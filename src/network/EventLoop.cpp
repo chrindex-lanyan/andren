@@ -59,7 +59,7 @@ namespace chrindex::andren::network
 
     bool EventLoop::startNextStep()
     {
-        for (uint32_t index = 0; index < m_exec.threadCount() && !m_shutdown; index++)
+        for (uint32_t index = 0; index < m_exec.threadCount(); index++)
         {
             bool bret= m_exec.addTask(index,[this](Executor * , uint32_t index)
             {
@@ -78,10 +78,6 @@ namespace chrindex::andren::network
         auto context = m_pdata[index];
         for (auto const & service: context->m_services)
         {
-            if (m_shutdown)
-            {
-                return ;
-            }
             service.second->processEvents();
         }
         startNextStep();
