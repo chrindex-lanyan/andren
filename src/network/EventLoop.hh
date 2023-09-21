@@ -18,22 +18,22 @@ namespace chrindex::andren::network
     {
     public :
         EventLoop(uint32_t nthread = std::thread::hardware_concurrency());
-        EventLoop(EventLoop &&) = delete;
+        EventLoop(EventLoop &&) noexcept;
         EventLoop(Executor && _move_executor);
         ~EventLoop ();
 
-        void operator=(EventLoop && ev) = delete;
+        void operator=(EventLoop && ev) noexcept;
         
         bool operator==(EventLoop && ev) const noexcept;
 
-        void addService(EventsService * _service);
+        bool addService(EventsService * _service);
 
-        void delService(int64_t service_key, 
+        bool delService(int64_t service_key, 
             std::function<void(EventsService * _refernce_service)> before);
 
-        void modService(EventsService * _move_service);
+        bool modService(EventsService * _move_service);
 
-        void findService(int64_t service_key, std::function<void(EventsService * _refernce_service)> after);
+        bool findService(int64_t service_key, std::function<void(EventsService * _refernce_service)> after);
 
         uint32_t threadCount()const;
 
@@ -43,22 +43,38 @@ namespace chrindex::andren::network
 
     private :
 
+        struct _private_data ;
+
         bool startNextStep();
 
         void addServiceConfigTask(uint32_t threadindex ,std::function<void(uint32_t index)> task, bool asap);
 
-        void processEvents(uint32_t index);
+        void processEvents(uint32_t index, _private_data * p_data);
 
     private :
-        Executor m_exec;
-        
+
         struct _Private_Thread_Local
         {
             std::map<int64_t, EventsService *> m_services;
         };
 
-        std::vector<std::shared_ptr<_Private_Thread_Local>> m_pdata;
-        std::atomic<bool> m_shutdown;
+        struct _private_data 
+        {
+            _private_data ()
+            {
+                printf("eventloop :: _private_data 构造.\n");
+            }
+            ~_private_data ()
+            {
+                printf("eventloop :: _private_data 析构.\n");
+            }
+            
+            std::atomic<bool> m_shutdown;
+            Executor m_exec;
+            std::vector<std::shared_ptr<_Private_Thread_Local>> m_pdata;
+        };
+        std::shared_ptr<_private_data> data;
+        
     };
 
 
