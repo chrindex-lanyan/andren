@@ -29,7 +29,8 @@ int test_io_file()
     eventloop.start();
 
     io_service.init();
-    eventloop.addService(&io_service);
+    bret = eventloop.addService(&io_service);
+    assert(bret);
 
     bret = myfile.async_open([&io_service](network::io_file * pfile,int32_t ret)
     {
@@ -58,6 +59,8 @@ int test_io_file()
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
+
+    eventloop = std::move(network::EventLoop{1});
 
     return 0;
 }
