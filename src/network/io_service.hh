@@ -2,6 +2,7 @@
 
 #include "../base/andren_base.hh"
 #include "events_service.hh"
+#include <cstdint>
 #include <deque>
 #include <functional>
 #include <future>
@@ -13,6 +14,8 @@
 
 namespace chrindex::andren::network
 {
+    static inline constexpr auto DEFAULT_QUEUE_SIZE = 128;
+
     /// io request structure
     /// size 1024 
     struct io_request
@@ -93,7 +96,7 @@ namespace chrindex::andren::network
     {
     public :
 
-        IOService (int64_t key);
+        IOService (int64_t key, uint32_t entries_size = DEFAULT_QUEUE_SIZE);
         IOService (IOService && ios) noexcept;
         ~IOService();
 
@@ -103,20 +106,24 @@ namespace chrindex::andren::network
 
         bool submitRequest(uint64_t uid, io_context && context);
 
+        uint32_t sqe_used() const;
+
+        uint32_t entries_size() const;
+
     private :
 
-        io_uring * init_a_new_io_uring(int used);
+        io_uring * init_a_new_io_uring(uint32_t size);
 
-        io_uring_sqe * get_sqe_and_record_one();
-
-        io_uring_sqe * find_empty_sqe(io_uring ** ppuring);
+        io_uring_sqe * find_empty_sqe();
 
         void deinit_io_uring();
 
 
     private :
         std::map<uint64_t , io_context> m_fds_context;
-        base::MinHeap<base::FourWayHeap<int, std::shared_ptr<io_uring>>> m_uring;
+        uint32_t m_size;
+        std::atomic<uint32_t> m_used;
+        std::unique_ptr<io_uring> m_uring;
     };
 
 }
