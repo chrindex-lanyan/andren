@@ -17,7 +17,8 @@ namespace chrindex::andren::network
     class EventLoop :public base::noncopyable
     {
     public :
-        EventLoop(uint32_t nthread = std::thread::hardware_concurrency());
+        EventLoop();
+        EventLoop(uint32_t nthread );
         EventLoop(EventLoop &&) noexcept;
         EventLoop(Executor && _move_executor);
         ~EventLoop ();
@@ -62,11 +63,11 @@ namespace chrindex::andren::network
         {
             _private_data ()
             {
-                printf("eventloop :: _private_data 构造.\n");
+                //printf("eventloop :: _private_data 构造.\n");
             }
             ~_private_data ()
             {
-                printf("eventloop :: _private_data 析构.\n");
+                //printf("eventloop :: _private_data 析构.\n");
             }
             
             std::atomic<bool> m_shutdown;

@@ -13,6 +13,10 @@
 
 namespace chrindex::andren::network
 {
+    EventLoop::EventLoop()
+    {
+        data = nullptr;
+    }
 
     EventLoop::EventLoop(uint32_t nthread)
     {
