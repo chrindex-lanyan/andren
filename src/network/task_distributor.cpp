@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <condition_variable>
+#include <cstdio>
 #include <mutex>
 #include <thread>
 
@@ -12,7 +13,7 @@ namespace chrindex::andren::network
 {
     TaskDistributor::TaskDistributor(uint32_t size)
     {
-        m_size = std::max(size, 2u);
+        m_size = std::max(size, 1u);
         m_tpool = nullptr;
         m_cvmut = new std::mutex [m_size];
         m_cv = new std::condition_variable [m_size];
@@ -39,13 +40,17 @@ namespace chrindex::andren::network
         }
         else if (type == TaskDistributorTaskType::SHCEDULE_TASK)
         {
-            bret = addTask(std::move(task), 1 );
+            bret = addTask(std::move(task), m_size > 1 ? 1:0 );
         }
         else if (type == TaskDistributorTaskType::FURTURE_TASK)
         {
-            uint64_t randmsec = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock()
-                .now().time_since_epoch()).count();
-            int32_t randindex = randmsec%(m_size-1);
+            int32_t randindex  = 0 ;
+            if (m_size>1)
+            {
+                uint64_t randmsec = std::chrono::duration_cast<std::chrono::milliseconds>
+                    (std::chrono::system_clock().now().time_since_epoch()).count();
+                randindex = randmsec%(m_size-1);
+            }
             bret = addTask(std::move(task), randindex );
         }
 
@@ -99,7 +104,7 @@ namespace chrindex::andren::network
         m_tpool = new std::thread[m_size];
         for (uint32_t i=0;i< m_size;i++)
         {
-            m_tpool[i] = std::thread([i ,this, self = shared_from_this()]()
+            m_tpool[i] = std::thread([i ,this /*, self = shared_from_this()*/]()
             {
                 startNextLoop(i);
             });
