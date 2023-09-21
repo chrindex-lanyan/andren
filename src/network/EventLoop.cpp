@@ -4,6 +4,7 @@
 #include "executor.hh"
 #include "schedule.hh"
 #include <future>
+#include <memory>
 #include <thread>
 #include <utility>
 
@@ -14,21 +15,25 @@ namespace chrindex::andren::network
     {
         m_shutdown = false;
         m_exec = Executor(nthread);
-        m_pdata = new _Private_Thread_Local[  m_exec.threadCount() ];
+        for (uint32_t i = 0; i < nthread ; i++)
+        {
+            m_pdata.push_back(std::make_shared<_Private_Thread_Local>());
+        }
     }
 
     EventLoop::EventLoop(Executor && _move_executor)
     {
         m_shutdown = false;
         m_exec = std::move(_move_executor);
-        m_pdata = new _Private_Thread_Local[  m_exec.threadCount() ];
+        for (uint32_t i = 0; i < m_exec.threadCount() ; i++)
+        {
+            m_pdata.push_back(std::make_shared<_Private_Thread_Local>());
+        }
     }
 
     EventLoop::~EventLoop ()
     {
-        if (m_pdata){
-            delete [] m_pdata;
-        }
+        m_shutdown = true;
     }
     
     bool EventLoop::operator==(EventLoop && el) const noexcept
@@ -38,7 +43,7 @@ namespace chrindex::andren::network
 
     bool EventLoop::start()
     {
-        if (!m_exec.valid() || !m_pdata)
+        if (!m_exec.valid() || !m_pdata.empty())
         {
             return false;
         }
@@ -54,11 +59,7 @@ namespace chrindex::andren::network
 
     bool EventLoop::startNextStep()
     {
-        if (m_shutdown)
-        {
-            return false;
-        }
-        for (uint32_t index = 0; index < m_exec.threadCount(); index++)
+        for (uint32_t index = 0; index < m_exec.threadCount() && !m_shutdown; index++)
         {
             bool bret= m_exec.addTask(index,[this](Executor * , uint32_t index)
             {
@@ -75,8 +76,12 @@ namespace chrindex::andren::network
     void EventLoop::processEvents(uint32_t index)
     {
         auto context = m_pdata[index];
-        for (auto const & service: context.m_services)
+        for (auto const & service: context->m_services)
         {
+            if (m_shutdown)
+            {
+                return ;
+            }
             service.second->processEvents();
         }
         startNextStep();
@@ -84,39 +89,39 @@ namespace chrindex::andren::network
 
     void EventLoop::addService(EventsService * _service)
     {
-        if (!_service || !m_exec.valid() || !m_pdata) [[unlikely]]
+        if (!_service || !m_exec.valid() || m_pdata.empty()) [[unlikely]]
         {
             return ;
         }
         uint32_t index = Schedule(threadCount()).doSchedule(_service->getKey());
         addServiceConfigTask(index, [this, _service](uint32_t index)
         {
-            m_pdata[index].m_services[_service->getKey()] = _service;
+            m_pdata[index]->m_services[_service->getKey()] = _service;
         },true);
     }
 
     void EventLoop::delService(int64_t service_key,
             std::function<void(EventsService * _refernce_service)> before)
     {
-        if (!m_exec.valid() || !m_pdata) [[unlikely]]
+        if (!m_exec.valid() || m_pdata.empty()) [[unlikely]]
         {
             return ;
         }
         uint32_t index = Schedule(threadCount()).doSchedule(service_key);
         addServiceConfigTask(index, [this, service_key, be = std::move(before)](uint32_t index)
         {
-            auto iter = m_pdata[index].m_services.find(service_key);
+            auto iter = m_pdata[index]->m_services.find(service_key);
             if (be) 
             { 
                 be(iter->second); 
             }
-            m_pdata[index].m_services.erase(iter);
+            m_pdata[index]->m_services.erase(iter);
         },true);
     }
 
     void EventLoop::modService(EventsService * _move_service)
     {
-        if (!m_exec.valid() || !m_pdata || !_move_service) [[unlikely]]
+        if (!m_exec.valid() || m_pdata.empty() || !_move_service) [[unlikely]]
         {
             return ;
         }
@@ -124,13 +129,13 @@ namespace chrindex::andren::network
         uint32_t index = Schedule(threadCount()).doSchedule(service_key);
         addServiceConfigTask(index, [this, _move_service, service_key](uint32_t index)
         {
-            m_pdata[index].m_services[service_key] = _move_service;
+            m_pdata[index]->m_services[service_key] = _move_service;
         },true);
     }
 
     void EventLoop::findService(int64_t service_key, std::function<void(EventsService * _refernce_service)> after)
     {
-        if (!m_exec.valid() || !m_pdata) [[unlikely]]
+        if (!m_exec.valid() || m_pdata.empty()) [[unlikely]]
         {
             return ;
         }
@@ -139,8 +144,8 @@ namespace chrindex::andren::network
         addServiceConfigTask(index, [t = std::move(after), this,service_key](uint32_t index)
         {
             EventsService * ptr = nullptr;
-            auto iter = m_pdata[index].m_services.find(service_key);
-            if (iter != m_pdata[index].m_services.end())
+            auto iter = m_pdata[index]->m_services.find(service_key);
+            if (iter != m_pdata[index]->m_services.end())
             {
                 ptr = iter->second;
             }

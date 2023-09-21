@@ -6,6 +6,7 @@
 #include <functional>
 #include <future>
 #include <map>
+#include <memory>
 #include <thread>
 #include <unordered_map>
 
@@ -56,7 +57,7 @@ namespace chrindex::andren::network
             std::map<int64_t, EventsService *> m_services;
         };
 
-        _Private_Thread_Local * m_pdata;
+        std::vector<std::shared_ptr<_Private_Thread_Local>> m_pdata;
         std::atomic<bool> m_shutdown;
     };
 
