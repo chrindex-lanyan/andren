@@ -11,6 +11,7 @@
 #include <memory>
 #include <sys/socket.h>
 #include <utility>
+#include <sys/types.h>
 
 
 namespace chrindex::andren::network
@@ -189,9 +190,9 @@ namespace chrindex::andren::network
         }
     }
 
-    void IOService::init()
+    void IOService::init(sigset_t sigmask)
     {
-        setNotifier([this](std::vector<base::KVPair<uint64_t, int>> & events)
+        setNotifier([this,sigmask](std::vector<base::KVPair<uint64_t, int>> & events)mutable
         {
             working_request();
 
@@ -209,26 +210,21 @@ namespace chrindex::andren::network
             if (ret < 0)
             {
                 /// error
-                printf ("IOService::init:: submit failed."
+                printf ("IOService::init:: Submit Failed."
                     " submit count=%d. ret = %d.\n",submit_count,ret);
                 return ;
             }
             struct io_uring_cqe * pcqe = 0;
             struct __kernel_timespec kspec;
-            sigset_t sigmask;
-
-            kspec.tv_nsec =  std::max(1000u ,std::min(10000u , submit_count * 1));
+            
+            kspec.tv_nsec = 1000;
             kspec.tv_sec = 0;
             
-            sigemptyset(&sigmask);
-            sigaddset(&sigmask, SIGINT);
-
             ret = io_uring_wait_cqes(puring, &pcqe, 
                 1, &kspec, &sigmask);// 阻塞等待
             if (ret !=0 && errno != ETIME)
             {
-                int eNum = errno;
-                printf ("IOService::init:: wait cqe failed. errno = [%d : %m].\n", eNum, errno);
+                printf ("IOService::init:: Wait CQE Failed. errno = [%d : %m].\n", errno, errno);
                 return ;
             }
             
@@ -237,14 +233,31 @@ namespace chrindex::andren::network
             io_uring_for_each_cqe(puring,head,pcqe)
             {
                 uint64_t ioctx_ptr = reinterpret_cast<uint64_t>(io_uring_cqe_get_data(pcqe));
-                events.push_back({ ioctx_ptr, pcqe->res});
-                printf("IOService::init:: Context Address = %lu.\n",ioctx_ptr);
+                if(ioctx_ptr)
+                {
+                    events.push_back({ ioctx_ptr, pcqe->res});    
+                }
                 count++;
+                printf("IOService::init:: Context Address = %lu.\n",ioctx_ptr);
             }
+            
+            // if(pcqe)
+            // {
+            //     uint64_t ioctx_ptr = reinterpret_cast<uint64_t>(io_uring_cqe_get_data(pcqe));
+            //     if(ioctx_ptr)
+            //     {
+            //         events.push_back({ ioctx_ptr, pcqe->res});    
+            //     }
+            //     count++;
+            //     printf("IOService::init:: Context Address = %lu.\n",ioctx_ptr);
+            // }
 
             /// 更新剩余
-            io_uring_cq_advance(puring, count);
-            m_used.fetch_sub(count,std::memory_order_seq_cst);
+            if(count > 0)
+            {
+                io_uring_cq_advance(puring, count);
+                m_used.fetch_sub(count,std::memory_order_seq_cst);
+            }
         });
 
         setEventsHandler([this](uint64_t key, int cqe_res) 

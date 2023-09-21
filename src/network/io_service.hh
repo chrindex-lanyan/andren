@@ -102,7 +102,7 @@ namespace chrindex::andren::network
 
         void operator= (IOService && ios) noexcept;
 
-        void init();
+        void init(sigset_t sigmask);
 
         bool submitRequest(uint64_t uid, io_context && context);
 
