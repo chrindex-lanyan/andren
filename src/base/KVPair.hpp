@@ -34,6 +34,9 @@ namespace chrindex::andren::base
 
         KVPair(KVPair &&_another)
         {
+            if (this == &_another){
+                return ;
+            }
             m_key = std::move(_another.m_key);
             m_val = std::move(_another.m_val);
         }
@@ -49,6 +52,9 @@ namespace chrindex::andren::base
 
         KVPair_t &operator=(KVPair_t &&_another)
         {
+            if (this == &_another){
+                return *this;
+            }
             m_key = std::move(_another.m_key);
             m_val = std::move(_another.m_val);
             return *this;
