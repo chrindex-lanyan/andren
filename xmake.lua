@@ -52,6 +52,7 @@ example_https2_pattern = example_src .. "./example_http2.cpp"
 example_unixdomain_pattern = example_src .. "./example_unixdomain_socket.cpp"
 example_freelockshmem_pattern = example_src .. "./example_freelockshmem.cpp"
 example_detachtcpserver_pattern = example_src .. "./example_detachtcpserver.cpp"
+example_io_file_pattern = example_src .. "./example_io_file.cpp"
 
 
 
@@ -264,6 +265,12 @@ target("test_freelockshmem")
 target("test_detachtcpserver")
     set_kind("binary")
     add_files(example_detachtcpserver_pattern)
+    add_links("fmt")
+    add_deps("andren", {private = true})   
+
+target("test_io_file")
+    set_kind("binary")
+    add_files(example_io_file_pattern)
     add_links("fmt")
     add_deps("andren", {private = true})   
     

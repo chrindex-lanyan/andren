@@ -6,3 +6,5 @@ bin
 build
 test_key
 setProxy.sh
+io_file.txt
+stdout.log
