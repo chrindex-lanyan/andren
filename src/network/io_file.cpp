@@ -191,8 +191,6 @@ namespace chrindex::andren::network
         return m_fd;
     }
 
-
-
     void io_file::resume(int fd)
     {
         m_fd = fd;
