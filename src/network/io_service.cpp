@@ -215,12 +215,16 @@ namespace chrindex::andren::network
             }
             struct io_uring_cqe * pcqe = 0;
             struct __kernel_timespec kspec;
+            sigset_t sigmask;
 
             kspec.tv_nsec =  std::max(1000u ,std::min(10000u , submit_count * 1));
             kspec.tv_sec = 0;
+            
+            sigemptyset(&sigmask);
+            sigaddset(&sigmask, SIGINT);
 
             ret = io_uring_wait_cqes(puring, &pcqe, 
-                1, &kspec, 0);// 阻塞等待
+                1, &kspec, &sigmask);// 阻塞等待
             if (ret !=0 && errno != ETIME)
             {
                 int eNum = errno;
