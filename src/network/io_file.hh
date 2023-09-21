@@ -23,16 +23,16 @@ namespace chrindex::andren::network
 
         ~io_file();
 
-        void async_open(std::function<void(io_file *self, int32_t ret)> onOpen , IOService & ioservice  ,
+        bool async_open(std::function<void(io_file *self, int32_t ret)> onOpen , IOService & ioservice  ,
             std::string const & path, int dir_fd, uint32_t flags , uint32_t mode = -1);
 
-        void async_write(std::function<void (io_file *self, ssize_t wrsize)> onWrite , 
-            IOService & ioservice ,std::string data , int flags);
+        bool async_write(std::function<void (io_file *self, ssize_t wrsize)> onWrite , 
+            IOService & ioservice ,std::string data );
 
-        void async_read(std::function<void(io_file *self, std::string && data , size_t rdsize )> onRead ,
-            IOService & ioservice , int flags);
+        bool async_read(std::function<void(io_file *self, std::string && data , size_t rdsize )> onRead ,
+            IOService & ioservice );
 
-        void async_close(std::function<void (io_file * self)> onClose , 
+        bool async_close(std::function<void (io_file * self)> onClose , 
             IOService & ioservice );
 
         int immediately_open(std::string const & path, uint32_t flags , uint32_t mode =-1);

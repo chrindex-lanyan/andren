@@ -1,5 +1,6 @@
 ﻿
 #include "io_file.hh"
+#include "io_service.hh"
 #include <memory>
 
 namespace chrindex::andren::network
@@ -25,12 +26,13 @@ namespace chrindex::andren::network
         immediately_close();
     }
 
-    void io_file::async_open(std::function<void(io_file *self, int32_t ret)> onOpen , IOService & ioservice  ,
+    bool io_file::async_open(std::function<void(io_file *self, int32_t ret)> onOpen , IOService & ioservice  ,
         std::string const & path, int dir_fd, uint32_t flags , uint32_t mode )
     {
         io_context context;
         uint64_t uid = base::create_uid_u64();
 
+        context.req_context->general.req = network::io_request::OPEN;
         context.req_context->ioData.file.dfd = dir_fd;
         context.req_context->general.uid = uid;
         context.req_context->general.flags = flags;
@@ -49,11 +51,11 @@ namespace chrindex::andren::network
             }
             return true;
         };
-        ioservice.submitRequest(uid, std::move(context));
+        return ioservice.submitRequest(uid, std::move(context));
     }
 
-    void io_file::async_write(std::function<void (io_file *self, ssize_t wrsize)> onWrite , 
-        IOService & ioservice ,std::string data , int flags)
+    bool io_file::async_write(std::function<void (io_file *self, ssize_t wrsize)> onWrite , 
+        IOService & ioservice ,std::string data)
     {
         io_context context;
         uint64_t uid = base::create_uid_u64();
@@ -61,9 +63,9 @@ namespace chrindex::andren::network
 
         context.userdata = std::make_shared<std::string>(std::move(data));
         pdata = reinterpret_cast<std::string*>(context.userdata.get());
+        context.req_context->general.req = network::io_request::WRITE;
         context.req_context->general.fd = take_handle();
         context.req_context->general.uid = uid;
-        context.req_context->general.flags = flags;
         context.req_context->general.size = pdata->size();
         context.req_context->ioData.bufData.buf_ptr = &(*pdata)[0];
         
@@ -78,19 +80,19 @@ namespace chrindex::andren::network
             }
             return true;
         };
-        ioservice.submitRequest(uid, std::move(context));
+        return ioservice.submitRequest(uid, std::move(context));
     }
 
-    void io_file::async_read(std::function<void(io_file *self, std::string && data , size_t rdsize )> onRead ,
-        IOService & ioservice , int flags)
+    bool io_file::async_read(std::function<void(io_file *self, std::string && data , size_t rdsize )> onRead ,
+        IOService & ioservice)
     {
         io_context context;
         uint64_t uid = base::create_uid_u64();
 
         context.userdata = std::make_unique<std::string>();
+        context.req_context->general.req = network::io_request::READ;
         context.req_context->general.uid = uid;
         context.req_context->general.fd = take_handle();
-        context.req_context->general.flags = flags;
 
         context.onEvents = [onRead = std::move(onRead)](io_context * pcontext, int32_t cqe_res)->bool
         {
@@ -114,15 +116,16 @@ namespace chrindex::andren::network
             return true;
         };
 
-        ioservice.submitRequest(uid, std::move(context));
+        return ioservice.submitRequest(uid, std::move(context));
     }
 
-    void io_file::async_close(std::function<void (io_file * self)> onClose , 
+    bool io_file::async_close(std::function<void (io_file * self)> onClose , 
         IOService & ioservice )
     {
         io_context context;
         uint64_t uid = base::create_uid_u64();
 
+        context.req_context->general.req = network::io_request::CLOSE;
         context.req_context->general.uid = uid;
         context.req_context->general.fd = take_handle();
         context.onEvents = [onClose = std::move(onClose)](io_context * pcontex , int32_t cqe_res)->bool
@@ -136,7 +139,7 @@ namespace chrindex::andren::network
             }
             return true;
         };
-        ioservice.submitRequest(uid, std::move(context));
+        return ioservice.submitRequest(uid, std::move(context));
     }
 
     int io_file::immediately_open(std::string const & path, uint32_t flags , uint32_t mode)
