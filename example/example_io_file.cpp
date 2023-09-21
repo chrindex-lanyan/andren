@@ -22,13 +22,15 @@ int directory_fd = AT_FDCWD ;
 int test_io_file()
 {
     network::EventLoop eventloop(4);
-    network::IOService io_service (base::create_uid_u64());
+    network::IOService io_service (base::create_uid_u64(), 32);
     network::io_file myfile ;
     bool bret ;
 
     eventloop.start();
+
     io_service.init();
     eventloop.addService(&io_service);
+
     bret = myfile.async_open([&io_service](network::io_file * pfile,int32_t ret)
     {
         bool bret;
@@ -47,8 +49,8 @@ int test_io_file()
     io_service, 
     file_path, 
     directory_fd , 
-    O_RDWR,
-    -1);
+    O_RDWR | O_CREAT,
+    0644);
 
     assert(bret);
 
