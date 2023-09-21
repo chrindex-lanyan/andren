@@ -45,7 +45,7 @@ namespace chrindex::andren::network
 
         struct _private_data ;
 
-        bool startNextStep();
+        bool startNextStep(uint32_t index);
 
         void addServiceConfigTask(uint32_t threadindex ,std::function<void(uint32_t index)> task, bool asap);
 

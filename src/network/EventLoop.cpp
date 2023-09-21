@@ -5,6 +5,7 @@
 #include "schedule.hh"
 #include <atomic>
 #include <chrono>
+#include <cstdio>
 #include <future>
 #include <memory>
 #include <thread>
@@ -66,7 +67,12 @@ namespace chrindex::andren::network
             return false;
         }
         data->m_shutdown = false;
-        return startNextStep();
+        bool bret = true;
+        for (uint32_t index = 0; index < data->m_exec.threadCount(); index++)
+        {
+            bret &= startNextStep(index);
+        }
+        return bret;
     }
 
     bool EventLoop::shutdown()
@@ -75,23 +81,23 @@ namespace chrindex::andren::network
         return true;
     }
 
-    bool EventLoop::startNextStep()
+    bool EventLoop::startNextStep(uint32_t index)
     {
         auto self_data = data;
         if (!self_data || self_data->m_shutdown)
         {
+            printf("EventLoop::startNextStep :: 线程[index=%d]即将结束.\n",index);
             return false;
         }
-        for (uint32_t index = 0; index < self_data->m_exec.threadCount(); index++)
+        bool bret= self_data->m_exec.addTask(index,[this,self_data](Executor * , uint32_t index)
         {
-            bool bret= self_data->m_exec.addTask(index,[this,self_data](Executor * , uint32_t index)
-            {
-                processEvents(index, self_data.get());
-            });
-            if (!bret)
-            {
-                return false;
-            }
+           //printf("EventLoop::startNextStep::Add Task for thread[index=%d] Process Events..\n",index);
+            processEvents(index, self_data.get());
+        });
+        if (!bret)
+        {
+            printf("EventLoop::startNextStep :: 线程[index=%d]无法添加任务.\n",index);
+            return false;
         }
         return true;
     }
@@ -103,7 +109,7 @@ namespace chrindex::andren::network
         {
             service.second->processEvents();
         }
-        startNextStep();
+        startNextStep(index);
     }
 
     bool EventLoop::addService(EventsService * _service)
