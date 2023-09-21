@@ -39,6 +39,9 @@ namespace chrindex::andren::network
         context.req_context->ioData.file.mode = mode;
         memcpy(context.req_context->ioData.file.path,path.c_str(), 
             std::min(sizeof(context.req_context->ioData.file.path), path.size())); 
+        context.req_context->ioData
+            .file.path[std::min(sizeof(context
+                .req_context->ioData.file.path),path.size())] = 0;
 
         context.onEvents = [onOpen = std::move(onOpen)](io_context * pcontext , int32_t cqe_res)->bool
         {
