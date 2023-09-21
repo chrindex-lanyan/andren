@@ -118,9 +118,13 @@ namespace chrindex::andren::network
 
         void deinit_io_uring();
 
+        void working_request();
+
+        bool submitRequest_Private(uint64_t uid, std::shared_ptr<io_context> sp_context);
 
     private :
         std::map<uint64_t , io_context> m_fds_context;
+        std::unique_ptr<base::DBuffer<std::function<void()>>> m_request_submit_queue;
         uint32_t m_size;
         std::atomic<uint32_t> m_used;
         std::unique_ptr<io_uring> m_uring;

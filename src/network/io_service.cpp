@@ -6,6 +6,7 @@
 #include <atomic>
 #include <chrono>
 #include <cstdio>
+#include <functional>
 #include <liburing.h>
 #include <memory>
 #include <sys/socket.h>
@@ -24,6 +25,9 @@ namespace chrindex::andren::network
     {
         m_fds_context = std::move(ios.m_fds_context);
         m_uring = std::move(ios.m_uring);
+        m_request_submit_queue = std::move(ios.m_request_submit_queue);
+        m_size = ios.m_size;
+        m_used = ios.m_used.load(std::memory_order_seq_cst);
     }
 
     IOService::~IOService()
@@ -39,11 +43,25 @@ namespace chrindex::andren::network
         m_uring = std::move(ios.m_uring);
     }
 
-    bool IOService::submitRequest(uint64_t uid, io_context && _context)
+    bool IOService::submitRequest (uint64_t uid, io_context && context)
+    {
+        if (!m_uring || !m_request_submit_queue)
+        {
+            return false;
+        }
+        std::shared_ptr<io_context> sp_context = std::make_shared<io_context>(std::move(context));
+        m_request_submit_queue->pushBack([this, uid, sp_context]() mutable
+        {
+            submitRequest_Private(uid, std::move(sp_context));
+        });
+        return true;
+    }
+
+    bool IOService::submitRequest_Private(uint64_t uid, std::shared_ptr<io_context> sp_context)
     {
         auto & context = m_fds_context[uid];
 
-        context = std::move(_context);
+        context = std::move(*sp_context);
 
         if ( context.req_context->general.req == io_request::OTHER 
         || context.req_context->general.req == io_request::HOSTING 
@@ -154,6 +172,7 @@ namespace chrindex::andren::network
 
     io_uring * IOService::init_a_new_io_uring(uint32_t size)
     {
+        m_request_submit_queue = std::make_unique<base::DBuffer<std::function<void()>>>();
         m_uring = std::make_unique<io_uring>();
         io_uring_queue_init(size, m_uring.get(), 0);
         m_size = size;
@@ -174,6 +193,8 @@ namespace chrindex::andren::network
     {
         setNotifier([this](std::vector<base::KVPair<uint64_t, int>> & events)
         {
+            working_request();
+
             uint32_t submit_count = sqe_used();
             auto puring = m_uring.get();
             int ret = 0;
@@ -202,7 +223,8 @@ namespace chrindex::andren::network
                 1, &kspec, 0);// 阻塞等待
             if (ret !=0 && errno != ETIME)
             {
-                printf ("IOService::init:: wait cqe failed. errno str = [%d : %m].\n", errno, errno);
+                int eNum = errno;
+                printf ("IOService::init:: wait cqe failed. errno = [%d : %m].\n", eNum, errno);
                 return ;
             }
             
@@ -253,6 +275,20 @@ namespace chrindex::andren::network
     uint32_t IOService::entries_size() const
     {
         return m_used.load(std::memory_order_seq_cst);
+    }
+
+    void IOService::working_request()
+    {
+        if (!m_request_submit_queue)
+        {
+            return ;
+        }
+        std::deque<std::function<void ()>> results;
+        m_request_submit_queue->takeMulti(results);
+        for (auto & fn : results )
+        {
+            fn();
+        }
     }
 
 }
