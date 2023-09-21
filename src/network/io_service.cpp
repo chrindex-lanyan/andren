@@ -196,7 +196,7 @@ namespace chrindex::andren::network
             struct __kernel_timespec kspec;
 
             kspec.tv_nsec =  std::max(1000u ,std::min(10000u , submit_count * 1));
-            kspec.tv_sec = 1;
+            kspec.tv_sec = 0;
 
             ret = io_uring_wait_cqes(puring, &pcqe, 
                 1, &kspec, 0);// 阻塞等待
