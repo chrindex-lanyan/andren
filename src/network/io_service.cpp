@@ -3,6 +3,7 @@
 
 
 #include <chrono>
+#include <cstdio>
 #include <liburing.h>
 #include <memory>
 #include <sys/socket.h>
@@ -51,7 +52,9 @@ namespace chrindex::andren::network
 
         io_uring * puring = nullptr;
         auto sqe = find_empty_sqe(&puring);
-        sqe->user_data = reinterpret_cast<uint64_t>(&context);
+        io_uring_sqe_set_data(sqe, &context);
+        printf("IOService::submitRequest:: Context Address = %llu.\n",sqe->user_data);
+        printf("IOService::submitRequest:: uring address = %lu.\n", (uint64_t)puring);
 
         switch (context.req_context->general.req) 
         {
@@ -83,7 +86,7 @@ namespace chrindex::andren::network
                 context.req_context->general.flags);
             break;
         }
-        case io_request::READ:
+        case io_request::RECV:
         {
             io_uring_prep_recv(sqe, 
                 context.req_context->general.fd, 
@@ -92,13 +95,31 @@ namespace chrindex::andren::network
                 context.req_context->general.flags);
             break;
         }
-        case io_request::WRITE:
+        case io_request::SEND:
         {
             io_uring_prep_send(sqe, 
                 context.req_context->general.fd, 
                 context.req_context->ioData.bufData.buf_ptr, 
                 context.req_context->general.size, 
                 context.req_context->general.flags);
+            break;
+        }
+        case io_request::READ:
+        {
+            io_uring_prep_read(sqe, 
+                context.req_context->general.fd, 
+                context.req_context->ioData.bufData.buf , 
+                sizeof(context.req_context->ioData.bufData.buf),
+                0);
+            break;
+        }
+        case io_request::WRITE:
+        {
+            io_uring_prep_write(sqe, 
+                context.req_context->general.fd, 
+                context.req_context->ioData.bufData.buf_ptr, 
+                context.req_context->general.size, 
+                0);
             break;
         }
         case io_request::CLOSE:
@@ -129,7 +150,7 @@ namespace chrindex::andren::network
                 {
                     ptr = p;
                     *ppuring = result->value().get();
-                    result = m_uring.extract_min_pair();
+                    auto result = m_uring.extract_min_pair();
                     m_uring.push( {result->key() + 1 , result->value()});
                     break;
                 }
@@ -140,6 +161,7 @@ namespace chrindex::andren::network
         {
             auto puring = init_a_new_io_uring(1);
             ptr = io_uring_get_sqe(puring);
+            *ppuring = puring;
         }
 
         return ptr;
@@ -167,18 +189,30 @@ namespace chrindex::andren::network
 
     void IOService::init()
     {
-        setNotifier([this](std::vector<base::KVPair<uint64_t, int>> & events [[maybe_unused]])
+        setNotifier([this](std::vector<base::KVPair<uint64_t, int>> & events)
         {
+            //printf ("IOService::init:: Notifier .\n");
             auto tmp_uring = std::move(m_uring);
             tmp_uring.foreach_pair([&events, this](base::KVPair<int, std::shared_ptr<io_uring>> & pair)
             {
                 auto submit_count = pair.key();
                 auto puring = pair.value().get();
+
+                if (submit_count <=0)
+                {
+                    /// no request need submit.
+                    return ;
+                }
+
                 int ret = io_uring_submit(puring);
                 if (ret < 0)
                 {
                     /// error
+                    printf ("IOService::init:: submit failed."
+                        " submit count=%d. ret = %d.\n",submit_count,ret);
+                    return ;
                 }
+                printf ("IOService::init:: submit count = %d .\n",submit_count);
                 struct io_uring_cqe * pcqe = 0;
                 struct __kernel_timespec kspec;
 
@@ -189,26 +223,38 @@ namespace chrindex::andren::network
 
                 if (ret !=0)
                 {
-                    /// error
+                    printf ("IOService::init:: wait cqe failed. errno str = %m.\n",errno);
+                    return ;
                 }
                 uint32_t head = 0;
                 int count =0;
                 io_uring_for_each_cqe(puring,head,pcqe)
                 {
-                    uint64_t ioctx_ptr = pcqe->user_data;
+                    uint64_t ioctx_ptr = reinterpret_cast<uint64_t>(io_uring_cqe_get_data(pcqe));
                     events.push_back({ ioctx_ptr, pcqe->res});
+                    printf("IOService::init:: Push Address = %lu.\n",ioctx_ptr);
                     count++;
                 }
                 io_uring_cq_advance(puring, count);
+                printf("IOService::init:: Found %d Request Finished. "
+                    " uring address = %lu.\n",count,(uint64_t)puring);
 
                 /// 更新剩余提交数后放回uring结构
                 m_uring.push({submit_count - count , std::move(pair.value())});
             });
         });
 
-        setEventsHandler([this](uint64_t key [[maybe_unused]] , int cqe_res [[maybe_unused]]) 
+        setEventsHandler([this](uint64_t key, int cqe_res) 
         {
+            printf("IOService::init:: Context Address = %lu.\n",key);
             auto ioctx_ptr = reinterpret_cast<io_context *>(key);
+            if (ioctx_ptr == nullptr)
+            {
+                /// error
+                printf("IOService::init:: cannot get user data from CQE::user_data.\n");
+                return ;
+            }
+
             auto iter = m_fds_context.find(ioctx_ptr->req_context->general.uid);
             bool bret = true;
             

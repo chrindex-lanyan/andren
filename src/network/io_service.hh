@@ -18,7 +18,7 @@ namespace chrindex::andren::network
     struct io_request
     {
         enum REQ { OPEN, CONNECT, ACCEPT, 
-            READ, WRITE, DISCONNECT, CLOSE, HOSTING, OTHER };
+            READ, WRITE , RECV, SEND, DISCONNECT, CLOSE, HOSTING, OTHER };
 
         struct general_t
         {
@@ -99,6 +99,8 @@ namespace chrindex::andren::network
 
         void operator= (IOService && ios) noexcept;
 
+        void init();
+
         bool submitRequest(uint64_t uid, io_context && context);
 
     private :
@@ -111,7 +113,6 @@ namespace chrindex::andren::network
 
         void deinit_io_uring();
 
-        void init();
 
     private :
         std::map<uint64_t , io_context> m_fds_context;
