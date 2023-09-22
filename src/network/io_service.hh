@@ -88,7 +88,8 @@ namespace chrindex::andren::network
         /// events should be removed by io_service; 
         /// otherwise `false` should be returned.
         std::function<bool (io_context *, int32_t cqe_res)> onEvents;
-        std::shared_ptr<void> userdata;
+        //std::shared_ptr<void> userdata;
+        std::any userdata;
         std::unique_ptr<io_request> req_context;
     };
 

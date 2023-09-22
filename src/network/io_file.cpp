@@ -1,6 +1,7 @@
 ﻿
 #include "io_file.hh"
 #include "io_service.hh"
+#include <any>
 #include <memory>
 
 namespace chrindex::andren::network
@@ -62,15 +63,14 @@ namespace chrindex::andren::network
     {
         io_context context;
         uint64_t uid = base::create_uid_u64();
-        std::string *pdata =0;
-
-        context.userdata = std::make_shared<std::string>(std::move(data));
-        pdata = reinterpret_cast<std::string*>(context.userdata.get());
+        
+        context.userdata = std::move(data);
+        std::string & data_ref = std::any_cast<std::string&>(context.userdata);
         context.req_context->general.req = network::io_request::WRITE;
         context.req_context->general.fd = take_handle();
         context.req_context->general.uid = uid;
-        context.req_context->general.size = pdata->size();
-        context.req_context->ioData.bufData.buf_ptr = &(*pdata)[0];
+        context.req_context->general.size = data_ref.size();
+        context.req_context->ioData.bufData.buf_ptr = &data_ref[0];
         
         context.onEvents = [onWrite = std::move(onWrite)](io_context * pcontext, int32_t cqe_res)->bool
         {
