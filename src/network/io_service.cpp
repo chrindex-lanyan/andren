@@ -71,16 +71,12 @@ namespace chrindex::andren::network
             return false;
         }
 
-        auto * p_uring = m_uring.get();
         auto sqe = find_empty_sqe();
         if (sqe == nullptr)
         {
             return false;
         }
-
         io_uring_sqe_set_data(sqe, &context);
-        printf("IOService::submitRequest:: Context Address = %llu.\n",sqe->user_data);
-        printf("IOService::submitRequest:: uring address = %lu.\n", (uint64_t)p_uring);
 
         switch (context.req_context->general.req) 
         {
@@ -211,7 +207,7 @@ namespace chrindex::andren::network
             {
                 /// error
                 printf ("IOService::init:: Submit Failed."
-                    " submit count=%d. ret = %d.\n",submit_count,ret);
+                    " Submit Count=%d. ret = %d.\n",submit_count,ret);
                 return ;
             }
             struct io_uring_cqe * pcqe = 0;
@@ -233,12 +229,16 @@ namespace chrindex::andren::network
             io_uring_for_each_cqe(puring,head,pcqe)
             {
                 uint64_t ioctx_ptr = reinterpret_cast<uint64_t>(io_uring_cqe_get_data(pcqe));
-                if(ioctx_ptr)
+                if(ioctx_ptr && ioctx_ptr !=(~0UL))
                 {
                     events.push_back({ ioctx_ptr, pcqe->res});    
                 }
+                else 
+                {
+                    printf("IOService::init:: Failed To Deal"
+                        " With Event Due to Context Address = %lu.\n",ioctx_ptr);
+                }
                 count++;
-                printf("IOService::init:: Context Address = %lu.\n",ioctx_ptr);
             }
             
             // if(pcqe)
