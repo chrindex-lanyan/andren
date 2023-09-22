@@ -92,7 +92,6 @@ namespace chrindex::andren::network
         io_context context;
         uint64_t uid = base::create_uid_u64();
 
-        context.userdata = std::make_unique<std::string>();
         context.req_context->general.req = network::io_request::READ;
         context.req_context->general.uid = uid;
         context.req_context->general.fd = take_handle();
@@ -100,12 +99,11 @@ namespace chrindex::andren::network
         context.onEvents = [onRead = std::move(onRead)](io_context * pcontext, int32_t cqe_res)->bool
         {
             ssize_t readsize =0;
-            std::string * pstr = reinterpret_cast<std::string*>(pcontext->userdata.get());
+            std::string str;
 
-            if (cqe_res >0 && cqe_res >= sizeof(pcontext->req_context->ioData.bufData.buf))
+            if (cqe_res >0 && cqe_res <= sizeof(pcontext->req_context->ioData.bufData.buf))
             {
-                pstr->append(std::string (pcontext->req_context->ioData.bufData.buf, cqe_res));
-                return false;
+                str.append(std::string (pcontext->req_context->ioData.bufData.buf, cqe_res));
             }
 
             io_file iofile;
@@ -113,8 +111,8 @@ namespace chrindex::andren::network
             iofile.resume(pcontext->req_context->general.fd);
             if (onRead)
             {
-                readsize = pstr->size();
-                onRead(&iofile, std::move(*pstr),readsize);
+                readsize = str.size();
+                onRead(&iofile, std::move(str),readsize);
             }
             return true;
         };
