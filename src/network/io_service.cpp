@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <functional>
 #include <liburing.h>
+#include <liburing/io_uring.h>
 #include <memory>
 #include <sys/socket.h>
 #include <utility>
@@ -18,10 +19,16 @@ namespace chrindex::andren::network
 {
     
 
-    IOService::IOService (int64_t key, uint32_t entries_size) : EventsService(key)
+    IOService::IOService (int64_t key, uint32_t entries_size, DriverMode mode) : EventsService(key)
     {
-        init_a_new_io_uring(entries_size);
+        init_a_new_io_uring(entries_size,mode,nullptr);
     }
+
+    IOService::IOService(int64_t key, uint32_t entries_size , std::unique_ptr<io_uring> && another): EventsService(key)
+    {
+        init_a_new_io_uring(entries_size,DriverMode::DEFAULT_IRQ,std::move(another));
+    }
+
     IOService::IOService (IOService && ios) noexcept : EventsService(std::move(ios))
     {
         m_fds_context = std::move(ios.m_fds_context);
@@ -167,11 +174,32 @@ namespace chrindex::andren::network
         return io_uring_get_sqe(m_uring.get());
     }
 
-    io_uring * IOService::init_a_new_io_uring(uint32_t size)
+    io_uring * IOService::init_a_new_io_uring(uint32_t size,DriverMode _mode,std::unique_ptr<io_uring> && another)
     {
         m_request_submit_queue = std::make_unique<base::DBuffer<std::function<void()>>>();
-        m_uring = std::make_unique<io_uring>();
-        io_uring_queue_init(size, m_uring.get(), 0);
+        if (another)
+        {
+            m_uring = std::move(another);
+        }
+        else 
+        {
+            uint32_t mode =0;
+
+            if (_mode == DriverMode::DEFAULT_IRQ)
+            {
+    ;           mode = 0;
+            }
+            else if(_mode == DriverMode::SETUP_SQPOLL)
+            { 
+                mode = IORING_SETUP_SQPOLL;
+            }
+            else if(_mode == DriverMode::SETUP_IOPOLL)
+            {
+                mode = IORING_SETUP_IOPOLL;
+            }
+            m_uring = std::make_unique<io_uring>();
+            io_uring_queue_init(size, m_uring.get(), mode);
+        }
         m_size = size;
         m_used.store(0,std::memory_order_seq_cst);
         return m_uring.get();

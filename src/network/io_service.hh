@@ -96,7 +96,15 @@ namespace chrindex::andren::network
     {
     public :
 
-        IOService (int64_t key, uint32_t entries_size = DEFAULT_QUEUE_SIZE);
+        enum class DriverMode:int32_t
+        {
+            DEFAULT_IRQ,  // Interrupt ReQuest
+            SETUP_SQPOLL, // polling used kernel-thread 
+            SETUP_IOPOLL, // Need DIO and more...
+        };
+
+        IOService (int64_t key, uint32_t entries_size = DEFAULT_QUEUE_SIZE, DriverMode mode = DriverMode::DEFAULT_IRQ);
+        IOService(int64_t key, uint32_t entries_size ,std::unique_ptr<io_uring> && another);
         IOService (IOService && ios) noexcept;
         ~IOService();
 
@@ -112,7 +120,7 @@ namespace chrindex::andren::network
 
     private :
 
-        io_uring * init_a_new_io_uring(uint32_t size);
+        io_uring * init_a_new_io_uring(uint32_t size, DriverMode mode,std::unique_ptr<io_uring> && another);
 
         io_uring_sqe * find_empty_sqe();
 
