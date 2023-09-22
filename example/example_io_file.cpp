@@ -59,12 +59,16 @@ int test_io_file()
 
     assert(bret);
 
-    // while (m_exit != 1)
-    // {
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    // }
-    
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    int count = 500;
+
+    while (m_exit != 1)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        if ( 0 > count--)
+        {
+            break;
+        }
+    }
 
     eventloop = network::EventLoop{};
 
