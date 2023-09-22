@@ -41,6 +41,8 @@ namespace chrindex::andren::network
 
         std::thread::id threadId(uint32_t index)const;
 
+        void shutdown_all();
+
     private :
         Schedule m_schedule;
         std::shared_ptr<TaskDistributor> m_ev;

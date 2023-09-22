@@ -26,6 +26,11 @@ namespace chrindex::andren::network
 
     Executor::~Executor()
     {
+        shutdown_all();
+    }
+
+    void Executor::shutdown_all()
+    {
         if (m_ev)
         {
             m_ev->shutdown();
