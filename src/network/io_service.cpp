@@ -76,8 +76,7 @@ namespace chrindex::andren::network
         {
             return false;
         }
-        io_uring_sqe_set_data(sqe, &context);
-
+        
         switch (context.req_context->general.req) 
         {
         case io_request::OPEN:
@@ -154,6 +153,7 @@ namespace chrindex::andren::network
             return false;
         }
         }
+        io_uring_sqe_set_data(sqe, &context);
         m_used.fetch_add(1,std::memory_order_seq_cst);
         return true;
     }
@@ -240,17 +240,6 @@ namespace chrindex::andren::network
                 }
                 count++;
             }
-            
-            // if(pcqe)
-            // {
-            //     uint64_t ioctx_ptr = reinterpret_cast<uint64_t>(io_uring_cqe_get_data(pcqe));
-            //     if(ioctx_ptr)
-            //     {
-            //         events.push_back({ ioctx_ptr, pcqe->res});    
-            //     }
-            //     count++;
-            //     printf("IOService::init:: Context Address = %lu.\n",ioctx_ptr);
-            // }
 
             /// 更新剩余
             if(count > 0)

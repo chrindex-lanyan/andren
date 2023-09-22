@@ -63,11 +63,10 @@ namespace chrindex::andren::network
         {
             _private_data ()
             {
-                printf("eventloop :: _private_data 构造.\n");
+                //
             }
             ~_private_data ()
             {
-                printf("eventloop :: _private_data 析构.\n");
                 m_exec = Executor{};
                 m_pdata.clear();
             }
