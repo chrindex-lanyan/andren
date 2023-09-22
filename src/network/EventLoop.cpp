@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <future>
 #include <memory>
+#include <mutex>
 #include <thread>
 #include <utility>
 
@@ -21,7 +22,6 @@ namespace chrindex::andren::network
     EventLoop::EventLoop(uint32_t nthread)
     {
         data = std::make_shared<_private_data>();
-        data->m_shutdown = false;
         data->m_exec = Executor(nthread);
         for (uint32_t i = 0; i < nthread ; i++)
         {
@@ -32,7 +32,6 @@ namespace chrindex::andren::network
     EventLoop::EventLoop(Executor && _move_executor)
     {
         data = std::make_shared<_private_data>();
-        data->m_shutdown = false;
         data->m_exec = std::move(_move_executor);
         for (uint32_t i = 0; i < data->m_exec.threadCount() ; i++)
         {
@@ -44,7 +43,7 @@ namespace chrindex::andren::network
     {
         if (data)
         {
-            data->m_shutdown.exchange(true,std::memory_order_seq_cst);
+            data->m_exec.shutdown_all();
         }
     }
 
@@ -70,7 +69,6 @@ namespace chrindex::andren::network
         {
             return false;
         }
-        data->m_shutdown = false;
         bool bret = true;
         for (uint32_t index = 0; index < data->m_exec.threadCount(); index++)
         {
@@ -81,22 +79,21 @@ namespace chrindex::andren::network
 
     bool EventLoop::shutdown()
     {
-        data->m_shutdown = true;
         return true;
     }
 
     bool EventLoop::startNextStep(uint32_t index)
     {
         auto self_data = data;
-        if (!self_data || self_data->m_shutdown)
+        if (!self_data)
         {
             printf("EventLoop::startNextStep :: 线程[index=%d]即将结束.\n",index);
             return false;
         }
-        bool bret= self_data->m_exec.addTask(index,[this,self_data](Executor * , uint32_t index)
+        bool bret= self_data->m_exec.addTask(index,[this /*,self_data = data*/](Executor * , uint32_t index)
         {
            //printf("EventLoop::startNextStep::Add Task for thread[index=%d] Process Events..\n",index);
-            processEvents(index, self_data.get());
+            processEvents(index,data.get());
         });
         if (!bret)
         {

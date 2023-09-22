@@ -63,16 +63,17 @@ namespace chrindex::andren::network
         {
             _private_data ()
             {
-                //printf("eventloop :: _private_data 构造.\n");
+                printf("eventloop :: _private_data 构造.\n");
             }
             ~_private_data ()
             {
-                //printf("eventloop :: _private_data 析构.\n");
+                printf("eventloop :: _private_data 析构.\n");
+                m_exec = Executor{};
+                m_pdata.clear();
             }
             
-            std::atomic<bool> m_shutdown;
-            Executor m_exec;
             std::vector<std::shared_ptr<_Private_Thread_Local>> m_pdata;
+            Executor m_exec;
         };
         std::shared_ptr<_private_data> data;
         
