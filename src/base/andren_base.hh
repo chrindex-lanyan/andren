@@ -36,7 +36,8 @@
 #include "textcode.h"
 #include "socket.hh"
 #include "EndPoint.h"
-#include "coroutine.hpp"
+#include "corotemplate.hpp"
+#include "cotaskrunner.hpp"
 #include "sCombinator.hpp"
 #include "epoll.hh"
 
