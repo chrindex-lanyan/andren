@@ -12,37 +12,6 @@ static constexpr int _limit = 6;
 #define genout(...) fprintf(stdout, __VA_ARGS__)
 
 
-struct MyAwaitable : public awaitable_template<int>
-{
-
-    MyAwaitable() :  m_val(0) {}
-
-    ~MyAwaitable() {}
-
-    bool await_ready() final 
-    {
-        return false;
-    }
-
-    void await_suspend(std::coroutine_handle<> handle) final 
-    {
-        fprintf(stdout, "MyAwaitable:: 挂起 :: I am Awaitable Func.\n");
-
-        handle.resume();
-    }
-
-    int await_resume() final
-    {
-        return m_val ;
-    }
-
-private:
-
-    int m_val;
-};
-
-
-
 coro_base<int> coroexample1(int a)
 {
     int b = a;
@@ -54,8 +23,6 @@ coro_base<int> coroexample1(int a)
     }
     co_return b * 2;
 }
-
-
 
 struct Awaitable_WaitExit : public awaitable_template<bool>
 {
@@ -110,15 +77,11 @@ int main(int argc , char ** argv)
                 if (p_co) 
                 {
                     fprintf(stdout,"lambda 456 :: corotinue example 1 is not exit!!.\n");
-
-                    int ret = co_await MyAwaitable{};
-
-                    co_yield ret; 
+                    co_yield 0; 
                 }
-
                 p_co = runner.find_handle(123);
-
-            } while(p_co && p_co->handle().done() == false);
+            } 
+            while(p_co && p_co->handle().done() == false);
 
             p_co = runner.find_handle(123);
 
@@ -150,6 +113,21 @@ int main(int argc , char ** argv)
         }
         
     },0 );
+
+    runner.push_back(789 , [](std::string s)->coro_base<int>
+    {
+        uint64_t count = 0;
+
+        genout("%s.\n",s.c_str());
+
+        while(1)
+        {
+            count ++;
+            genout("第[%lu]轮.\n",count);
+            co_yield 0;
+        }
+        co_return 0;
+    }, "lambda 789:: started" );
 
     m_exit = false;
     if (signal(SIGINT,
