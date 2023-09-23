@@ -52,6 +52,17 @@ namespace chrindex::andren::base
             return nullptr;
         }
 
+        bool notify_one_resume(uint64_t key)
+        {
+            auto p_coro = find_handle(key);
+            if (p_coro)
+            {
+                p_coro->handle().resume();
+                return true;
+            }
+            return false;
+        }
+
         void start() 
         {
             m_exit = false;
@@ -65,7 +76,8 @@ namespace chrindex::andren::base
 
     private :
 
-        void work() 
+
+        coro_base<int> real_work(int)
         {
             while (!m_exit)
             {
@@ -84,6 +96,14 @@ namespace chrindex::andren::base
                     }
                 }
             }
+            co_return 0;
+        }
+
+
+        void work() 
+        {
+            auto main_coro = real_work(0);
+            main_coro.handle().resume();
         }
 
     private :
