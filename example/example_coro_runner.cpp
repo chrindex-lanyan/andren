@@ -109,7 +109,7 @@ int main(int argc , char ** argv)
             {
                 if (p_co) 
                 {
-                    fprintf(stdout,"lambda :: corotinue example 1 is not exit!!.\n");
+                    fprintf(stdout,"lambda 456 :: corotinue example 1 is not exit!!.\n");
 
                     int ret = co_await MyAwaitable{};
 
@@ -124,7 +124,7 @@ int main(int argc , char ** argv)
 
             if (p_co)
             {
-                fprintf(stdout, "lambda :: corotinue example 1 is exit , return value = %d.\n",
+                fprintf(stdout, "lambda 456 :: corotinue example 1 is exit , return value = %d.\n",
                     p_co->handle().promise().m_value);
             }
 
@@ -139,10 +139,12 @@ int main(int argc , char ** argv)
             bool isExit = co_await wait_exit;
             if (isExit){
                 runner.stop();
+                genout("lambda 678 :: return...\n");
                 co_return 0;
             }
             else 
             {
+                genout("lambda 678 :: yield...\n");
                 co_yield 1;
             }
         }
