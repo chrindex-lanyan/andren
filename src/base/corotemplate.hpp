@@ -130,7 +130,7 @@ namespace chrindex::andren::base
         virtual ~awaitable_template() {}
 
         // 询问其是否就绪
-        virtual bool await_ready() const = 0;
+        virtual bool await_ready() = 0;
 
         // 挂起时的操作。
         virtual void await_suspend(std::coroutine_handle<> handle) = 0;
