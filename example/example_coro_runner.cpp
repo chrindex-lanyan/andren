@@ -6,6 +6,8 @@ using namespace chrindex::andren::base;
 
 std::atomic<bool> m_exit =false;
 
+static constexpr int _limit = 6;
+
 #define errout(...) fprintf(stderr, __VA_ARGS__)
 #define genout(...) fprintf(stdout, __VA_ARGS__)
 
@@ -17,14 +19,14 @@ struct MyAwaitable : public awaitable_template<int>
 
     ~MyAwaitable() {}
 
-    bool await_ready() const final 
+    bool await_ready() final 
     {
         return false;
     }
 
     void await_suspend(std::coroutine_handle<> handle) final 
     {
-        fprintf(stdout, "I am Awaitable Func.\n");
+        fprintf(stdout, "MyAwaitable:: 挂起 :: I am Awaitable Func.\n");
 
         handle.resume();
     }
@@ -45,7 +47,7 @@ coro_base<int> coroexample1(int a)
 {
     int b = a;
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < _limit / 2 ; i++)
     {
         b++;
         co_yield b;
@@ -57,24 +59,37 @@ coro_base<int> coroexample1(int a)
 
 struct Awaitable_WaitExit : public awaitable_template<bool>
 {
-    Awaitable_WaitExit() {}
+    Awaitable_WaitExit() :m_val(0) {}
 
     ~Awaitable_WaitExit() {}
 
-    bool await_ready() const final 
+    bool await_ready() final 
     {
-        return false;
+        genout("Awaitable_WaitExit:: Ready :: 当前值 : %d.\n",m_val);
+        if (m_val < _limit)
+        {
+            m_val ++ ;
+            return false;
+        }
+        return true;
     }
 
     void await_suspend(std::coroutine_handle<> handle) final 
     {
-        handle.resume();
+        genout("Awaitable_WaitExit:: 挂起...\n");
     }
 
     bool await_resume() final
     {
-        return m_exit ;
+        genout("Awaitable_WaitExit:: 恢复....\n");
+        return m_exit || m_val >= _limit ;
     }
+
+private :
+    // 为了演示我加了个变量
+    int m_val;
+
+    /// .... 假设以下还有一段字段
 
 };
 
@@ -94,7 +109,7 @@ int main(int argc , char ** argv)
             {
                 if (p_co) 
                 {
-                    fprintf(stdout,"corotinue example 1 is not exit!!.\n");
+                    fprintf(stdout,"lambda :: corotinue example 1 is not exit!!.\n");
 
                     int ret = co_await MyAwaitable{};
 
@@ -109,7 +124,7 @@ int main(int argc , char ** argv)
 
             if (p_co)
             {
-                fprintf(stdout, "corotinue example 1 is exit , return value = %d.\n",
+                fprintf(stdout, "lambda :: corotinue example 1 is exit , return value = %d.\n",
                     p_co->handle().promise().m_value);
             }
 
