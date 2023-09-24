@@ -28,6 +28,13 @@ namespace chrindex::andren::base
             m_tque[key]=std::move(coro_task);
         }
 
+        template <typename FN >
+        void push_back(uint64_t key, FN && fn ) 
+        {
+            coro_type co = fn();
+            m_tque[key]=std::move(co);
+        }
+
         template <typename FN , typename ...ARGS>
         void push_back(uint64_t key, FN && fn , ARGS && ... args ) 
         {
