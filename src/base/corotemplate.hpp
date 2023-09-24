@@ -34,6 +34,14 @@ namespace chrindex::andren::base
             _.m_handle = nullptr;
         }
 
+        template< typename FN>
+        coro_base(FN&& fn) 
+        { 
+            SelfType tmp = fn(); 
+            m_handle = std::move(tmp.m_handle); 
+            tmp.m_handle = nullptr;
+        }
+
         template< typename FN, typename  ... ARGS>
         coro_base(FN&& fn, ARGS ... args) 
         { 
