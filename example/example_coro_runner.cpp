@@ -129,6 +129,12 @@ int main(int argc , char ** argv)
         co_return 0;
     }, "lambda 789:: started" );
 
+    runner.push_back(890 , []()->coro_base<int>
+    {
+        genout("无参.\n");
+        co_return 0;
+    });
+
     m_exit = false;
     if (signal(SIGINT,
                [](int sig) -> void
