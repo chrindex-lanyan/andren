@@ -112,11 +112,11 @@ namespace chrindex::andren::base
             unhandled_exception_t() noexcept {}
             const char* what() const noexcept  override { return "unhandled"; } };
 
-        virtual void unhandled_exception() { throw unhandled_exception_t{}; }
+        void unhandled_exception() { throw unhandled_exception_t{}; }
 
-        virtual std::suspend_always initial_suspend() { return std::suspend_always{}; };
+        std::suspend_always initial_suspend() { return std::suspend_always{}; };
         
-        virtual std::suspend_always final_suspend() noexcept { return std::suspend_always{}; };
+        std::suspend_always final_suspend() noexcept { return std::suspend_always{}; };
 
     public :
 
