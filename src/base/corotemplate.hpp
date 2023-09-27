@@ -10,34 +10,34 @@
 namespace chrindex::andren::base
 {
     template <typename T>
-    struct coro_base;
+    struct co_task;
 
     template<typename T>
-    struct promise_base;
+    struct co_promise;
 
     template<typename T>
     class awaitable_template;
 
 
     template <typename T>
-    struct coro_base
+    struct co_task
     {
-        using SelfType = coro_base<T>;
-        using promise_type = promise_base<T>;
+        using SelfType = co_task<T>;
+        using promise_type = co_promise<T>;
         using corohandle = std::coroutine_handle<promise_type>;
 
-        coro_base() : m_handle(nullptr) {}
+        co_task() : m_handle(nullptr) {}
 
-        coro_base(corohandle han) : m_handle(han) {}
+        co_task(corohandle han) : m_handle(han) {}
 
-        coro_base(coro_base&& _) noexcept 
+        co_task(co_task&& _) noexcept 
         { 
             m_handle = std::move(_.m_handle); 
             _.m_handle = nullptr;
         }
 
         template< typename FN>
-        coro_base(FN&& fn) 
+        co_task(FN&& fn) 
         { 
             SelfType tmp = fn(); 
             m_handle = std::move(tmp.m_handle); 
@@ -45,21 +45,21 @@ namespace chrindex::andren::base
         }
 
         template< typename FN, typename  ... ARGS>
-        coro_base(FN&& fn, ARGS ... args) 
+        co_task(FN&& fn, ARGS ... args) 
         { 
             SelfType tmp = fn(std::forward<ARGS>(args)...); 
             m_handle = std::move(tmp.m_handle); 
             tmp.m_handle = nullptr;
         }
 
-        void operator=(coro_base&& _) noexcept
+        void operator=(co_task&& _) noexcept
         { 
-            this->~coro_base();
+            this->~co_task();
             m_handle = std::move(_.m_handle);  
             _.m_handle = nullptr;
         }
 
-        virtual ~coro_base() { if (m_handle) { m_handle.destroy(); } }
+        virtual ~co_task() { if (m_handle) { m_handle.destroy(); } }
 
         corohandle handle() { return m_handle; }
 
@@ -70,21 +70,21 @@ namespace chrindex::andren::base
 
 
     template<typename T>
-    struct promise_base
+    struct co_promise
     {
     public:
 
-        promise_base() : m_value{} {}
+        co_promise() : m_value{} {}
 
-        promise_base(T&& value) : m_value(std::move(value)) {   }
+        co_promise(T&& value) : m_value(std::move(value)) {   }
 
-        promise_base(T const& value) :m_value(value) {}
+        co_promise(T const& value) :m_value(value) {}
 
-        virtual ~promise_base() {}
+        virtual ~co_promise() {}
 
     public:
 
-        coro_base<T> get_return_object() { return coro_base<T>::corohandle::from_promise(*this); }
+        co_task<T> get_return_object() { return co_task<T>::corohandle::from_promise(*this); }
 
         void return_value(T&& v)
         {

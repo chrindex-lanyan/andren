@@ -12,7 +12,7 @@ static constexpr int _limit = 6;
 #define genout(...) fprintf(stdout, __VA_ARGS__)
 
 
-coro_base<int> coroexample1(int a)
+co_task<int> coroexample1(int a)
 {
     int b = a;
 
@@ -64,13 +64,13 @@ private :
 int main(int argc , char ** argv)
 {
     TaskRunner runner;
-    coro_base<int> co{ coroexample1, 0 };
+    co_task<int> co{ coroexample1, 0 };
 
     runner.push_back( 123 , std::move(co) );
 
-    runner.push_back( 456 , [ &runner ](int)->coro_base<int> 
+    runner.push_back( 456 , [ &runner ](int)->co_task<int> 
         {
-            coro_base<int> *p_co = 0;
+            co_task<int> *p_co = 0;
 
             do 
             {
@@ -94,7 +94,7 @@ int main(int argc , char ** argv)
             co_return 0;
         }, 0);
 
-    runner.push_back(678,[&runner](int)->coro_base<int>
+    runner.push_back(678,[&runner](int)->co_task<int>
     {
         auto wait_exit = Awaitable_WaitExit {};
         while (1)
@@ -114,7 +114,7 @@ int main(int argc , char ** argv)
         
     },0 );
 
-    runner.push_back(789 , [](std::string s)->coro_base<int>
+    runner.push_back(789 , [](std::string s)->co_task<int>
     {
         uint64_t count = 0;
 
@@ -129,7 +129,7 @@ int main(int argc , char ** argv)
         co_return 0;
     }, "lambda 789:: started" );
 
-    runner.push_back(890 , []()->coro_base<int>
+    runner.push_back(890 , []()->co_task<int>
     {
         genout("无参.\n");
         co_return 0;
