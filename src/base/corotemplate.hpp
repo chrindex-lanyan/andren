@@ -5,6 +5,8 @@
 #include <utility>
 #include <exception>
 
+#include "memclear.hpp"
+
 namespace chrindex::andren::base
 {
     template <typename T>
