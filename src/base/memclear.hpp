@@ -29,24 +29,32 @@ namespace chrindex::andren::base
 
 
     template <typename T, typename = std::enable_if_t<std::is_integral_v<T>
-        || std::is_same_v<double, T>|| std::is_same_v<float, T> || std::is_pointer_v<T>>>
-    struct InitialBox 
+    || std::is_same_v<double, T> || std::is_same_v<float, T> || std::is_pointer_v<T>>>
+        struct InitialBox
     {
-        InitialBox() 
+        InitialBox()
         {
             if constexpr (std::is_pointer_v<T>)
             {
                 val = nullptr; // 初始化指针类型
-            } else if  constexpr (std::is_integral_v<T>) 
+            }
+            else if  constexpr (std::is_integral_v<T>)
             {
                 val = 0; // 初始化整数类型和char类型
-            } else if constexpr (std::is_same_v<double, T>|| std::is_same_v<float, T>) 
+            }
+            else if constexpr (std::is_same_v<double, T> || std::is_same_v<float, T>)
             {
-                val = 0.0f; 
+                val = 0.0f;
+            }
+            else 
+            {
+                val = 0;
             }
         }
 
-        operator T& (){ return val; }
+        InitialBox(T v) :val(v) {}
+
+        operator T& () { return val; }
 
         operator T const () const { return val; }
 
