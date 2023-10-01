@@ -4,155 +4,113 @@
 
 using namespace chrindex::andren::base;
 
-std::atomic<bool> m_exit =false;
-
-static constexpr int _limit = 6;
-
-#define errout(...) fprintf(stderr, __VA_ARGS__)
-#define genout(...) fprintf(stdout, __VA_ARGS__)
+using namespace chrindex::andren::base;
 
 
-co_task<int> coroexample1(int a)
+struct test_await : public co_awaitable<int>
 {
-    int b = a;
-
-    for (int i = 0; i < _limit / 2 ; i++)
+    // 询问其是否就绪
+    virtual bool await_ready()
     {
-        b++;
-        co_yield b;
-    }
-    co_return b * 2;
-}
-
-struct Awaitable_WaitExit : public awaitable_template<bool>
-{
-    Awaitable_WaitExit() :m_val(0) {}
-
-    ~Awaitable_WaitExit() {}
-
-    bool await_ready() final 
-    {
-        genout("Awaitable_WaitExit:: Ready :: 当前值 : %d.\n",m_val);
-        if (m_val < _limit)
-        {
-            m_val ++ ;
-            return false;
-        }
-        return true;
+        return false;
     }
 
-    void await_suspend(std::coroutine_handle<> handle) final 
+    // 挂起时的操作。
+    virtual void await_suspend(std::coroutine_handle<> handle)
     {
-        genout("Awaitable_WaitExit:: 挂起...\n");
+        fprintf(stdout,"Awaitable...Suspend.\n");
+        handle.resume();
     }
 
-    bool await_resume() final
+    // 恢复时被调用。通常用于返回所需数据。
+    virtual int await_resume()
     {
-        genout("Awaitable_WaitExit:: 恢复....\n");
-        return m_exit || m_val >= _limit ;
+        return 0;
     }
-
-private :
-    // 为了演示我加了个变量
-    int m_val;
-
-    /// .... 假设以下还有一段字段
-
 };
 
-
-int main(int argc , char ** argv)
+co_task<void> example_1() 
 {
-    TaskRunner runner;
-    co_task<int> co{ coroexample1, 0 };
+    fprintf(stdout, "Hello World - 1 .\n");
 
-    runner.push_back( 123 , std::move(co) );
+    co_yield 0;
 
-    runner.push_back( 456 , [ &runner ](int)->co_task<int> 
-        {
-            co_task<int> *p_co = 0;
+    fprintf(stdout, "Hello World - 2 .\n");
 
-            do 
-            {
-                if (p_co) 
-                {
-                    fprintf(stdout,"lambda 456 :: corotinue example 1 is not exit!!.\n");
-                    co_yield 0; 
-                }
-                p_co = runner.find_handle(123);
-            } 
-            while(p_co && p_co->handle().done() == false);
+    co_return;
+}
 
-            p_co = runner.find_handle(123);
+co_task<int> example_2() 
+{
+    fprintf(stdout, "Hello World - 3 .\n");
 
-            if (p_co)
-            {
-                fprintf(stdout, "lambda 456 :: corotinue example 1 is exit , return value = %d.\n",
-                    p_co->handle().promise().m_value);
-            }
+    co_yield 0;
 
-            co_return 0;
-        }, 0);
+    fprintf(stdout, "Hello World - 4 .\n");
 
-    runner.push_back(678,[&runner](int)->co_task<int>
-    {
-        auto wait_exit = Awaitable_WaitExit {};
-        while (1)
-        {
-            bool isExit = co_await wait_exit;
-            if (isExit){
-                runner.stop();
-                genout("lambda 678 :: return...\n");
-                co_return 0;
-            }
-            else 
-            {
-                genout("lambda 678 :: yield...\n");
-                co_yield 1;
-            }
-        }
-        
-    },0 );
+    co_return 1;
+}
 
-    runner.push_back(789 , [](std::string s)->co_task<int>
-    {
-        uint64_t count = 0;
 
-        genout("%s.\n",s.c_str());
+co_task<void> example_3(int a)
+{
+    fprintf(stdout, "Hello World - 5 .\n");
 
-        while(1)
-        {
-            count ++;
-            genout("第[%lu]轮.\n",count);
-            co_yield 0;
-        }
-        co_return 0;
-    }, "lambda 789:: started" );
+    co_yield a+1;
 
-    runner.push_back(890 , []()->co_task<int>
-    {
-        genout("无参.\n");
-        co_return 0;
-    });
+    fprintf(stdout, "Hello World - 6 .\n");
 
-    m_exit = false;
-    if (signal(SIGINT,
-               [](int sig) -> void
-               {
-                   genout(" \n::准备退出....\n");
-                   m_exit = true;
-               }) == SIG_ERR)
-    {
-        errout("Cannot registering signal handler");
-        return -3;
-    }
+    co_return ;
+}
 
-    runner.start();
+
+co_task<int> example_4(int a)
+{
+    fprintf(stdout, "Hello World - 7 .\n");
+
+    co_yield a+1;
+
+    int b = co_await test_await{};
+
+    fprintf(stdout, "Hello World - 8 .\n");
+
+    co_return a+b;
+}
+
+
+
+
+
+
+int main(int argc, char* argv[])
+{
+    
+    auto handle1 = example_1();
+
+    handle1.handle().resume();
+
+    handle1.handle().resume();
+
+    auto handle2 = example_2();
+
+    handle2.handle().resume();
+
+    handle2.handle().resume();
+
+    auto handle3 = example_3(12);
+
+    handle3.handle().resume();
+
+    handle3.handle().resume();
+
+    auto handle4 = example_4(23);
+
+    handle4.handle().resume();
+
+    handle4.handle().resume();
 
     return 0;
 }
-
-
 
 
 
