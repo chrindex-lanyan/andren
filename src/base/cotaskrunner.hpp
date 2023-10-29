@@ -18,7 +18,7 @@ namespace chrindex::andren::base
     {
     public :
 
-        using coro_type = coro_base<int>;
+        using coro_type = coroutine_template<int>;
 
         TaskRunner() : m_exit(false) {}
         ~TaskRunner() { stop(); }
@@ -84,7 +84,7 @@ namespace chrindex::andren::base
     private :
 
 
-        coro_base<int> real_work(int)
+        coroutine_template<int> real_work(int)
         {
             while (!m_exit)
             {

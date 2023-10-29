@@ -12,7 +12,7 @@ static constexpr int _limit = 6;
 #define genout(...) fprintf(stdout, __VA_ARGS__)
 
 
-coro_base<int> coroexample1(int a)
+coroutine_template<int> coroexample1(int a)
 {
     int b = a;
 
@@ -24,53 +24,19 @@ coro_base<int> coroexample1(int a)
     co_return b * 2;
 }
 
-struct Awaitable_WaitExit : public awaitable_template<bool>
-{
-    Awaitable_WaitExit() :m_val(0) {}
 
-    ~Awaitable_WaitExit() {}
-
-    bool await_ready() final 
-    {
-        genout("Awaitable_WaitExit:: Ready :: 当前值 : %d.\n",m_val);
-        if (m_val < _limit)
-        {
-            m_val ++ ;
-            return false;
-        }
-        return true;
-    }
-
-    void await_suspend(std::coroutine_handle<> handle) final 
-    {
-        genout("Awaitable_WaitExit:: 挂起...\n");
-    }
-
-    bool await_resume() final
-    {
-        genout("Awaitable_WaitExit:: 恢复....\n");
-        return m_exit || m_val >= _limit ;
-    }
-
-private :
-    // 为了演示我加了个变量
-    int m_val;
-
-    /// .... 假设以下还有一段字段
-
-};
 
 
 int main(int argc , char ** argv)
 {
     TaskRunner runner;
-    coro_base<int> co{ coroexample1, 0 };
+    coroutine_template<int> co{ coroexample1, 0 };
 
     runner.push_back( 123 , std::move(co) );
 
-    runner.push_back( 456 , [ &runner ](int)->coro_base<int> 
+    runner.push_back( 456 , [ &runner ](int)->coroutine_template<int> 
         {
-            coro_base<int> *p_co = 0;
+            coroutine_template<int> *p_co = 0;
 
             do 
             {
@@ -88,33 +54,32 @@ int main(int argc , char ** argv)
             if (p_co)
             {
                 fprintf(stdout, "lambda 456 :: corotinue example 1 is exit , return value = %d.\n",
-                    p_co->handle().promise().m_value);
+                    p_co->handle().promise().result());
             }
 
             co_return 0;
         }, 0);
 
-    runner.push_back(678,[&runner](int)->coro_base<int>
-    {
-        auto wait_exit = Awaitable_WaitExit {};
-        while (1)
-        {
-            bool isExit = co_await wait_exit;
-            if (isExit){
-                runner.stop();
-                genout("lambda 678 :: return...\n");
-                co_return 0;
-            }
-            else 
-            {
-                genout("lambda 678 :: yield...\n");
-                co_yield 1;
-            }
-        }
-        
-    },0 );
+    // runner.push_back(678,[&runner](int)->coroutine_template<int>
+    // {
+    //     auto wait_exit = Awaitable_WaitExit {};
+    //     while (1)
+    //     {
+    //         bool isExit = co_await wait_exit;
+    //         if (isExit){
+    //             runner.stop();
+    //             genout("lambda 678 :: return...\n");
+    //             co_return 0;
+    //         }
+    //         else 
+    //         {
+    //             genout("lambda 678 :: yield...\n");
+    //             co_yield 1;
+    //         }
+    //     }
+    // },0 );
 
-    runner.push_back(789 , [](std::string s)->coro_base<int>
+    runner.push_back(789 , [](std::string s)->coroutine_template<int>
     {
         uint64_t count = 0;
 
@@ -129,7 +94,7 @@ int main(int argc , char ** argv)
         co_return 0;
     }, "lambda 789:: started" );
 
-    runner.push_back(890 , []()->coro_base<int>
+    runner.push_back(890 , []()->coroutine_template<int>
     {
         genout("无参.\n");
         co_return 0;
