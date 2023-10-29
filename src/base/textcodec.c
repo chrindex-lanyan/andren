@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <unistr.h>
-
 /// UTF8 <=> UTF16
 
 int TextUtf8ToUtf16(char const *utf8Str, size_t size_1, char16_t *utf16Str, size_t size_2)

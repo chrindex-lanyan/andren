@@ -28,3 +28,4 @@
 #include "io_datagram.hh"
 #include "io_tcp.hh"
 #include "database_pgsql.hh"
+#include "user_event_service.hh"

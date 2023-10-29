@@ -6,7 +6,7 @@ sudo apt update
 sudo apt install gcc gdb g++ clangd
 
 ### third-part library
-sudo apt install libssl-dev zlib1g-dev libhiredis-dev libarchive-dev libpq-dev libmysqlclient-dev uuid-dev libgrpc-dev libgrpc++-dev libfmt-dev libnghttp2-dev libnghttp3-dev liburing-dev
+sudo apt install libssl-dev zlib1g-dev libhiredis-dev libarchive-dev libpq-dev libmysqlclient-dev uuid-dev libgrpc-dev libgrpc++-dev libfmt-dev libnghttp2-dev libnghttp3-dev liburing-dev  protobuf-compiler
 
     # add_links("ssl") -- OpenSSL
     # add_links("crypto") -- OpenSSL need
