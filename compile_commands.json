@@ -1,0 +1,371 @@
+[
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/thread.cpp.o", "source/base/thread.cpp"],
+  "file": "source/base/thread.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/ufile.cpp.o", "source/base/ufile.cpp"],
+  "file": "source/base/ufile.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/uid_creator.cpp.o", "source/base/uid_creator.cpp"],
+  "file": "source/base/uid_creator.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/smem.cpp.o", "source/base/smem.cpp"],
+  "file": "source/base/smem.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/string_tool.cpp.o", "source/base/string_tool.cpp"],
+  "file": "source/base/string_tool.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/epoll.cpp.o", "source/base/epoll.cpp"],
+  "file": "source/base/epoll.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/signal.cpp.o", "source/base/signal.cpp"],
+  "file": "source/base/signal.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/socket.cpp.o", "source/base/socket.cpp"],
+  "file": "source/base/socket.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/end_point.cpp.o", "source/base/end_point.cpp"],
+  "file": "source/base/end_point.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/pgsql_api.cpp.o", "source/base/pgsql_api.cpp"],
+  "file": "source/base/pgsql_api.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/mysql_statement.cpp.o", "source/base/mysql_statement.cpp"],
+  "file": "source/base/mysql_statement.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/ssl.cpp.o", "source/base/ssl.cpp"],
+  "file": "source/base/ssl.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/threadpool.cpp.o", "source/base/threadpool.cpp"],
+  "file": "source/base/threadpool.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/zlibstream.cpp.o", "source/base/zlibstream.cpp"],
+  "file": "source/base/zlibstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/base/pipe.cpp.o", "source/base/pipe.cpp"],
+  "file": "source/base/pipe.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/freelock_smem.cpp.o", "source/extention/freelock_smem.cpp"],
+  "file": "source/extention/freelock_smem.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/schedule.cpp.o", "source/extention/schedule.cpp"],
+  "file": "source/extention/schedule.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/acceptor.cpp.o", "source/extention/acceptor.cpp"],
+  "file": "source/extention/acceptor.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/executor.cpp.o", "source/extention/executor.cpp"],
+  "file": "source/extention/executor.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/http1.1.cpp.o", "source/extention/http1.1.cpp"],
+  "file": "source/extention/http1.1.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/io_tcp.cpp.o", "source/extention/io_tcp.cpp"],
+  "file": "source/extention/io_tcp.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/database_pgsql.cpp.o", "source/extention/database_pgsql.cpp"],
+  "file": "source/extention/database_pgsql.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/datagram.cpp.o", "source/extention/datagram.cpp"],
+  "file": "source/extention/datagram.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/io_file.cpp.o", "source/extention/io_file.cpp"],
+  "file": "source/extention/io_file.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/afile.cpp.o", "source/extention/afile.cpp"],
+  "file": "source/extention/afile.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/io_datagram.cpp.o", "source/extention/io_datagram.cpp"],
+  "file": "source/extention/io_datagram.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/sockstream.cpp.o", "source/extention/sockstream.cpp"],
+  "file": "source/extention/sockstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/io_service.cpp.o", "source/extention/io_service.cpp"],
+  "file": "source/extention/io_service.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/events_service.cpp.o", "source/extention/events_service.cpp"],
+  "file": "source/extention/events_service.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/task_distributor.cpp.o", "source/extention/task_distributor.cpp"],
+  "file": "source/extention/task_distributor.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/database_service.cpp.o", "source/extention/database_service.cpp"],
+  "file": "source/extention/database_service.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/repoller.cpp.o", "source/extention/repoller.cpp"],
+  "file": "source/extention/repoller.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/event_loop.cpp.o", "source/extention/event_loop.cpp"],
+  "file": "source/extention/event_loop.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/sslstream.cpp.o", "source/extention/sslstream.cpp"],
+  "file": "source/extention/sslstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/user_event_service.cpp.o", "source/extention/user_event_service.cpp"],
+  "file": "source/extention/user_event_service.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/http3.cpp.o", "source/extention/http3.cpp"],
+  "file": "source/extention/http3.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren_a/linux/x86_64/debug/source/extention/http2.cpp.o", "source/extention/http2.cpp"],
+  "file": "source/extention/http2.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/thread.cpp.o", "source/base/thread.cpp"],
+  "file": "source/base/thread.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/ufile.cpp.o", "source/base/ufile.cpp"],
+  "file": "source/base/ufile.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/uid_creator.cpp.o", "source/base/uid_creator.cpp"],
+  "file": "source/base/uid_creator.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/smem.cpp.o", "source/base/smem.cpp"],
+  "file": "source/base/smem.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/string_tool.cpp.o", "source/base/string_tool.cpp"],
+  "file": "source/base/string_tool.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/epoll.cpp.o", "source/base/epoll.cpp"],
+  "file": "source/base/epoll.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/signal.cpp.o", "source/base/signal.cpp"],
+  "file": "source/base/signal.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/socket.cpp.o", "source/base/socket.cpp"],
+  "file": "source/base/socket.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/end_point.cpp.o", "source/base/end_point.cpp"],
+  "file": "source/base/end_point.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/pgsql_api.cpp.o", "source/base/pgsql_api.cpp"],
+  "file": "source/base/pgsql_api.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/mysql_statement.cpp.o", "source/base/mysql_statement.cpp"],
+  "file": "source/base/mysql_statement.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/ssl.cpp.o", "source/base/ssl.cpp"],
+  "file": "source/base/ssl.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/threadpool.cpp.o", "source/base/threadpool.cpp"],
+  "file": "source/base/threadpool.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/zlibstream.cpp.o", "source/base/zlibstream.cpp"],
+  "file": "source/base/zlibstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/base/pipe.cpp.o", "source/base/pipe.cpp"],
+  "file": "source/base/pipe.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/freelock_smem.cpp.o", "source/extention/freelock_smem.cpp"],
+  "file": "source/extention/freelock_smem.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/schedule.cpp.o", "source/extention/schedule.cpp"],
+  "file": "source/extention/schedule.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/acceptor.cpp.o", "source/extention/acceptor.cpp"],
+  "file": "source/extention/acceptor.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/executor.cpp.o", "source/extention/executor.cpp"],
+  "file": "source/extention/executor.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/http1.1.cpp.o", "source/extention/http1.1.cpp"],
+  "file": "source/extention/http1.1.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/io_tcp.cpp.o", "source/extention/io_tcp.cpp"],
+  "file": "source/extention/io_tcp.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/database_pgsql.cpp.o", "source/extention/database_pgsql.cpp"],
+  "file": "source/extention/database_pgsql.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/datagram.cpp.o", "source/extention/datagram.cpp"],
+  "file": "source/extention/datagram.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/io_file.cpp.o", "source/extention/io_file.cpp"],
+  "file": "source/extention/io_file.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/afile.cpp.o", "source/extention/afile.cpp"],
+  "file": "source/extention/afile.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/io_datagram.cpp.o", "source/extention/io_datagram.cpp"],
+  "file": "source/extention/io_datagram.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/sockstream.cpp.o", "source/extention/sockstream.cpp"],
+  "file": "source/extention/sockstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/io_service.cpp.o", "source/extention/io_service.cpp"],
+  "file": "source/extention/io_service.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/events_service.cpp.o", "source/extention/events_service.cpp"],
+  "file": "source/extention/events_service.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/task_distributor.cpp.o", "source/extention/task_distributor.cpp"],
+  "file": "source/extention/task_distributor.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/database_service.cpp.o", "source/extention/database_service.cpp"],
+  "file": "source/extention/database_service.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/repoller.cpp.o", "source/extention/repoller.cpp"],
+  "file": "source/extention/repoller.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/event_loop.cpp.o", "source/extention/event_loop.cpp"],
+  "file": "source/extention/event_loop.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/sslstream.cpp.o", "source/extention/sslstream.cpp"],
+  "file": "source/extention/sslstream.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/user_event_service.cpp.o", "source/extention/user_event_service.cpp"],
+  "file": "source/extention/user_event_service.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/http3.cpp.o", "source/extention/http3.cpp"],
+  "file": "source/extention/http3.cpp"
+},
+{
+  "directory": "/home/lanyan/c++/libchrindex/andren",
+  "arguments": ["/usr/bin/gcc", "-c", "-m64", "-fPIC", "-g", "-O0", "-std=c++20", "-Wall", "-I", "./include/base/", "-I", "./include/extention/", "-o", "build/.objs/andren/linux/x86_64/debug/source/extention/http2.cpp.o", "source/extention/http2.cpp"],
+  "file": "source/extention/http2.cpp"
+}]
