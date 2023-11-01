@@ -3,7 +3,7 @@
 这是一个学习性质的库，目前存在着未解决的问题，以及潜在的bug，对于某些比较复杂的类，其实现是尝试性的。<br>
 
 ## 分支
-暂不开dev和release分支  <br>
+金master分支。其他分支待整理。  <br>
 
 ## 开发环境：
     Ubuntu  = Ubuntu 22.04 LTS x86_64 
@@ -19,20 +19,19 @@
 lua脚本`xmake.lua`用于生成库（.so或者.a），然后生成example。注意不要使用过多的线程编译，否则可能会爆内存。
 
 ## 其他第三方库
-third-part文件夹下有三个子文件夹，对应着三个引用的库。
-json库我没有直接引用仓库，而是自己下了一个版本。
-llhttp需要自己生成，我自己生成了一个。
-base64库理论上可以直接用OpenSSL的替换掉。
+third-part文件夹是第三方库的存放地。
+
 
 ## 关于注释
     暂时没时间补完注释。总之看情况吧。
 
 ## 1. Base 
 一些基本的class的集合，要求编译器不能低于C++20，但实际上可以降低到C++17甚至更低（C++11），这会使得某些代码发生一些细微变更。 <br>
+Note 位于chrindex::andren::base命名空间。<br>
 
 ### 有什么类:
     {
-        File、Thread、Thread Pool、Log、GZIP File、Json、Timer、协程、Singal、Pipe、ShareMem、Socket、Epoll、编码转换、Base64、PGSQL、MYSQL。
+        File、Thread、Thread Pool、Log、GZIP File、Timer、协程、Singal、Pipe、ShareMem、Socket、Epoll、PGSQL、MYSQL。
     }
 
 <br>上述所有的类，尤其是封装的类，都不保证提供所有的方法（如部分System call），因为实在太多了，只能等到用的时候补充。
@@ -56,8 +55,7 @@ base64库理论上可以直接用OpenSSL的替换掉。
 
 ### Log：
     {
-        使用File提供异步日志功能。日志仅提供4个等级(Err、Warn、Debug、Info)，并打印行数。
-        目前它不是ThreadLocal的，而且我也没有使用它。我打算参考学习一下其他库的LOG模块，然后再重写一个。
+        以后将使用SPDLOG。
     } （搁置）
 
 ### Json：
@@ -120,21 +118,8 @@ base64库理论上可以直接用OpenSSL的替换掉。
 ### 协程 Coroutine：
     {
         使用C++20的协程做。
-        目前实现了一个简单的的协程runner。在example_coro_runner里可以看到如何使用。
+        目前实现了简单的协程模板。
     }（正在）
-
-### 编码转换TextCodec:
-    {
-        UTF8、UTF16、UTF32、GBK编码互转支持。
-        涉及到GBK就会麻烦起来。
-    }（搁置）
-
-### 编码转换BASE64：
-    {
-        依赖base64库。
-        出处： https://renenyffenegger.ch/notes/development/Base64/Encoding-and-decoding-base-64-with-cpp
-        其实OpenSSL也带有BASE64的编码解码支持，因此这个库随时可以替换成使用OpenSSL的。
-    } OK
 
 ### PGSQL：
     {
@@ -150,8 +135,9 @@ base64库理论上可以直接用OpenSSL的替换掉。
     } OK 
 
 
-## 2. Network Classes 集合
+## 2. Extention Classes 集合
     指的是提供网络功能的类的集合。
+    Note 位于chrindex::andren::network命名空间，将来将会改成chrindex::andren::extention。
 
 ### 有什么类:
     {
@@ -179,7 +165,6 @@ base64库理论上可以直接用OpenSSL的替换掉。
     {
         使用liburing ，而不是直接使用系统调用。
         io_uring在此主要是处理网络io的fd和文件io的fd。
-        目前仅仅完成了Socket FD和文件FD的最基本的支持，暂未测试。
         io_uring实例存在于IOService类中。
     } （OK）
 
@@ -191,7 +176,7 @@ base64库理论上可以直接用OpenSSL的替换掉。
             3. 网络IO任务（仅线程1）。 （约定）处理网络断开事件，新连接事件、可读事件、可写事件。断开的网络在此一次性清理。
             4. 文件IO任务（仅线程1）。 （约定）处理IO可读可写事件。
             5. 普通任务（线程1 ~ n）。 处理任务队列里的任务。
-            6.自定义分配。允许手动指定要运行task的线程。
+            6.自定义分配。允许手动指定要运行task的线程。（EventLoop使用自定义分配）
         }
         根据具体的情况，该部分可能会存在增删。
         第四项，因为Linux的异步IO不好整，目前用线程池做的模拟。
@@ -228,30 +213,20 @@ base64库理论上可以直接用OpenSSL的替换掉。
         RePoller还附带有一个简单的对象生命周期托管功能。
     } （OK）
 
-### GRPC ：
-    {
-        GRPC有C++库,已经足够好用了，也就无需包装。
-        编写一个example示例。
-        后续考虑怎么融入事件循环中。
-    } （OK）
-
 ### HTTP：
     {
         使用nghttp2，nghttp3以支持http2/3。
-        其实nghttp2也支持http3.0。但nghttp3却是专门用于支持http3.0。
         nghttp2支持http1.1和http2.0。
-        这个部分目前仍在开发，已完成的功能是接收Request；因为我对nghttp2的理解还不够，导致目前进度比较缓慢。
+        该部分目前仍在开发，进度缓慢。
     } （正在） 
 
 ### Redis：
     {
-        Redis客户端 c api。以hiredis为基础，只做基本的包装。
-        可替代的客户端库很多，比如ACL的，体验就不错。
+        Redis客户端 c api。以hiredis为基础做基本的包装。
     } （计划）
 
 ### FreeLock SharedMemory ：
     {
         使用内存屏障在共享内存的基础上，把锁去掉了。
-        目前它的性能，在虚拟机上测出来比较弱，而且还有内存拷贝的花销没解决。
-        未来打算弄一个环形队列，队列的每一个节点都是一个动态大小的缓冲区。
+        性能一般。
     }（OK）
