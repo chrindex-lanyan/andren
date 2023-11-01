@@ -1,6 +1,7 @@
 # andren
-一个库，由两部分组成，分别为base部分和network部分。但是这个区分并不很严格，因为base也可以提供网络功能。<br>
-这是一个学习性质的库，目前存在着未解决的问题，以及潜在的bug，对于某些比较复杂的类，其实现是尝试性的。<br>
+一个库，由两部分组成，分别为base部分和extention部分。<br>
+目前extention部分的某些类存在着未解决的问题，以及潜在的bug。<br>
+base类通常是可以放心使用的，并且易出现错误的地方会提供注释说明。
 
 ## 分支
 仅master分支。其他分支待整理。  <br>
@@ -10,7 +11,7 @@
     GCC = gcc version 11.3.0 (Ubuntu 11.3.0-1ubuntu1~22.04.1) 
     Make Tool = xmake v2.8.1+20230711, A cross-platform build utility based on Lua 
 
-可以将xmake替换成cmake或者make或者其他；我觉得xmake更方便些。<br>
+可以将xmake替换成cmake或者make或者其他；对于简单项目，我觉得xmake更方便些。<br>
 
 ## 安装
 脚本`install_xmake.sh`用于安装xmake构建工具。xmake的官网是`https://xmake.io/#/` 。<br>
@@ -21,17 +22,19 @@ lua脚本`xmake.lua`用于生成库（.so或者.a），然后生成example。注
 ## 其他第三方库
 third-part文件夹是第三方库的存放地。
 
-
 ## 关于注释
     暂时没时间补完注释。总之看情况吧。
 
+## C/C++版本
+    目前编译器设置为c++20。某些类也要求使用C++17或20的版本；更高的版本通常提供了更多的特性。
+
 ## 1. Base 
-一些基本的class的集合，要求编译器不能低于C++20，但实际上可以降低到C++17甚至更低（C++11），这会使得某些代码发生一些细微变更。 <br>
+一些基本的class的集合。 <br>
 Note 位于chrindex::andren::base命名空间。<br>
 
 ### 有什么类:
     {
-        File、Thread、Thread Pool、Log、GZIP File、Timer、协程、Singal、Pipe、ShareMem、Socket、Epoll、PGSQL、MYSQL。
+        File、Thread、Thread Pool、Log、GZIP File、Timer、协程任务、Singal、Pipe、ShareMem、Socket、Epoll、PGSQL、MYSQL。
     }
 
 <br>上述所有的类，尤其是封装的类，都不保证提供所有的方法（如部分System call），因为实在太多了，只能等到用的时候补充。
@@ -171,15 +174,10 @@ Note 位于chrindex::andren::base命名空间。<br>
 ### TaskDistributor：
     {
         TaskDistributor 每次循环按顺序处理各类事件：{
-            1. TaskDistributor 基于ThreadPool 和 DBuffer（或其他队列）。（强制）各线程依照顺序标记为1 ~ n，线程池中线程数量不能少于2个。
-            2. 定时器任务（仅线程2）。 （约定）截取且仅截取一次当前时间，并取出所有超时任务进行执行。
-            3. 网络IO任务（仅线程1）。 （约定）处理网络断开事件，新连接事件、可读事件、可写事件。断开的网络在此一次性清理。
-            4. 文件IO任务（仅线程1）。 （约定）处理IO可读可写事件。
-            5. 普通任务（线程1 ~ n）。 处理任务队列里的任务。
-            6.自定义分配。允许手动指定要运行task的线程。（EventLoop使用自定义分配）
+            1. TaskDistributor 强制各线程依照顺序标记为 0 ~ n-1，线程池中线程数量不能少于2个。
+            2. 自定义分配。允许手动指定要运行task的线程。
+            3. 默认分配。类也提供了默认分配策略。
         }
-        根据具体的情况，该部分可能会存在增删。
-        第四项，因为Linux的异步IO不好整，目前用线程池做的模拟。
     } （OK）
 
 ### EventLoop：
@@ -191,32 +189,31 @@ Note 位于chrindex::andren::base命名空间。<br>
             4.数据库IO异步事件集。（由数据库客户端库的封装类提供事件）
             5.特定事件集。（由用户手动控制其是否发生）
 
-        EventLoop依赖TaskDistributor（自定义分配），因为事件的分发需要使用到任务分发机制。
+        EventLoop依赖TaskDistributor（自定义分配），因为事件的分发依赖任务分发。
         EventLoop对所有的事件集，都使用统一的int64_t类型的key作为事件fd，
         EventLoop支持上诉事件集，是由EventsService提供的，
         目前实现了IOService（继承自EventsService，使用liburing）。
 
-        因为每个线程都有一个EventsService表，因此理论上每种EventsService都能在
+        因为每个线程都有一组EventsService，因此理论上每种EventsService都能在
         每个线程中创建一个各自不同的实例，以更好地利用多核处理器的性能。
 
         通常使用Schedule类可以自动分配具体的功能到某个线程对应的Service，其分配结果是稳定的。
 
-    }（计划中）
+    }（正在）
 
 ### RePoller：
     {
-        使用base部分的EPOLL封装，并且结合 TaskDistributor ，做到事件分发。
+        使用base部分的EPOLL封装，并且结合 TaskDistributor ，做到事件分发。（事件被包装为任务）
         支持手动发送事件（如果你觉得Epoll Wait不出来）。同时也支持非Epoll的fd（即FD <=-2 ，该FD不被EPOLL_CTL_ADD），用于支持可控触发。
         对于文件或者自定义的FD，可以对其取负值，这样RePoller不会将之注册监听到EPOLL。
-        此RePoller不对Channel服务，也没有提供一个Channel抽象，而是做进一步的事件分派，并帮助FD Provider接入 TaskDistributor 。
+        此RePoller仅帮助FD Provider接入 TaskDistributor 。
         具体怎么去处理这个事件，是FD Provider的事情。
-        RePoller还附带有一个简单的对象生命周期托管功能。
+        RePoller还附带有一个简单的对象生命周期托管功能，但它是单线程的，在大量删减对象时会严重影响性能。
     } （OK）
 
 ### HTTP：
     {
-        使用nghttp2，nghttp3以支持http2/3。
-        nghttp2支持http1.1和http2.0。
+        使用nghttp2，nghttp3以支持http1.1/2/3。
         该部分目前仍在开发，进度缓慢。
     } （正在） 
 
