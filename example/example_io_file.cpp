@@ -51,7 +51,7 @@ int test_io_file()
         }
         bret = pfile->async_read([](network::io_file * pfile, std::string && data, size_t size) 
         {
-            genout("Read Done. Size = %zu , Contents = %s.\n", size, data.c_str());
+            genout("Read Done. Size = %zu , Contents = \n%s.\n", size, data.c_str());
         }, 
         io_service);
         assert(bret);

@@ -234,8 +234,8 @@ namespace chrindex::andren::network
             if (ret < 0)
             {
                 /// error
-                printf ("IOService::init:: Submit Failed."
-                    " Submit Count=%d. ret = %d.\n",submit_count,ret);
+                // printf ("IOService::init:: Submit Failed."
+                //     " Submit Count=%d. ret = %d.\n",submit_count,ret);
                 return ;
             }
             struct io_uring_cqe * pcqe = 0;
@@ -248,7 +248,7 @@ namespace chrindex::andren::network
                 1, &kspec, &sigmask);// 阻塞等待
             if (ret !=0 && errno != ETIME)
             {
-                printf ("IOService::init:: Wait CQE Failed. errno = [%d : %m].\n", errno, errno);
+                //printf ("IOService::init:: Wait CQE Failed. errno = [%d : %m].\n", errno, errno);
                 return ;
             }
             
@@ -263,8 +263,8 @@ namespace chrindex::andren::network
                 }
                 else 
                 {
-                    printf("IOService::init:: Failed To Deal"
-                        " With Event Due to Context Address = %lu.\n",ioctx_ptr);
+                    // printf("IOService::init:: Failed To Deal"
+                    //     " With Event Due to Context Address = %lu.\n",ioctx_ptr);
                 }
                 count++;
             }
@@ -283,7 +283,7 @@ namespace chrindex::andren::network
             if (ioctx_ptr == nullptr)
             {
                 /// error
-                printf("IOService::init:: cannot get user data from CQE::user_data.\n");
+                //printf("IOService::init:: cannot get user data from CQE::user_data.\n");
                 return ;
             }
 
