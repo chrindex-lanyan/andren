@@ -12,8 +12,8 @@
 #include <chrono>
 
 
-using MYSQL = struct MYSQL;
-using MYSQL_STMT = struct MYSQL_STMT;
+// using MYSQL = struct MYSQL;
+// using MYSQL_STMT = struct MYSQL_STMT;
 
 namespace chrindex::andren::base
 {
