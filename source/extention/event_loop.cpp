@@ -89,7 +89,7 @@ namespace chrindex::andren::network
         auto self_data = data;
         if (!self_data)
         {
-            printf("EventLoop::startNextStep :: 线程[index=%d]即将结束.\n",index);
+            //printf("EventLoop::startNextStep :: 线程[index=%d]即将结束.\n",index);
             return false;
         }
         bool bret= self_data->m_exec.addTask(index,[this /*,self_data = data*/](Executor * , uint32_t index)
@@ -99,7 +99,7 @@ namespace chrindex::andren::network
         });
         if (!bret)
         {
-            printf("EventLoop::startNextStep :: 线程[index=%d]无法添加任务.\n",index);
+            //printf("EventLoop::startNextStep :: 线程[index=%d]无法添加任务.\n",index);
             return false;
         }
         return true;
