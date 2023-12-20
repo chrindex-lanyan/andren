@@ -21,14 +21,14 @@ namespace chrindex::andren::base
 
         CircularQueue() 
         {
-            m_vec.resize(4);
+            m_vec.resize(16);
             m_current = 0; 
             m_head = 0;
         }
 
         CircularQueue(size_t presize) 
         {
-            m_vec.resize(presize);
+            m_vec.resize(std::max(presize, static_cast<size_t>(16)));
             m_current = 0;
             m_head = 0;
         }
@@ -111,7 +111,7 @@ namespace chrindex::andren::base
         {
             if (m_head < m_current) ///   0 ... head ... current ... max_size
             {
-                m_vec[m_current] = std::move(v);
+                m_vec[m_current] = std::forward<T>(v);
                 if (m_current == m_vec.size() - 1)  // 到vector最后的位置是空闲了。
                 {
                     if (m_head == 0) // 该扩容 。   0 == head ..... current == old_size
@@ -155,6 +155,7 @@ namespace chrindex::andren::base
                 {
                     //  0 ... current == head ... max_size
                     std::vector<T> tmp;
+                    // 考虑到T可能是大对象，还是手动Move一下吧。
                     for (size_t i = m_head; i < m_vec.size(); i++)
                     {
                         tmp.emplace_back(std::move(m_vec[i]));
@@ -165,7 +166,7 @@ namespace chrindex::andren::base
                     }
                     m_head = 0;
                     m_current = m_vec.size();
-                    tmp.resize(tmp.size() * 2);
+                    tmp.resize(std::max(tmp.size() * 2, static_cast<size_t>(1)));
                     m_vec = std::move(tmp);
                     //  0 == head ... current ... new_size
                 }
