@@ -93,7 +93,7 @@ namespace chrindex::andren::base
             return m_head == m_current;
         }
 
-        size_t size() const 
+        size_t capacity() const 
         {
             return m_vec.size();
         }
@@ -103,6 +103,15 @@ namespace chrindex::andren::base
             std::swap(m_vec,_.m_vec);
             std::swap(m_current , _.m_current);
             std::swap(m_head , _.m_head);
+        }
+        
+        void clear()
+        {
+            size_t _capacity = m_vec.size();
+            m_current = 0;
+            m_head = 0;
+            m_vec.clear();
+            m_vec.resize(_capacity);
         }
 
     private :
