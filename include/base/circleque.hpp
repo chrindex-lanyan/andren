@@ -98,6 +98,15 @@ namespace chrindex::andren::base
             return m_vec.size();
         }
 
+        size_t size() const 
+        {
+            if (m_current >= m_head)
+            {
+                return m_current - m_head;
+            }
+            return capacity() - (m_head - m_current);
+        }
+
         void swap(CircularQueue_Type & _)
         {
             std::swap(m_vec,_.m_vec);
