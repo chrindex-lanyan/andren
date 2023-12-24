@@ -5,8 +5,6 @@
 
 #include <fcntl.h>
 
-#include "noncopyable.hpp"
-
 namespace chrindex::andren::base
 {
     class SysUnnamedPipe 

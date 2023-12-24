@@ -8,8 +8,6 @@
 #include <memory_resource>
 #include <stdint.h>
 
-#include "noncopyable.hpp"
-
 #include "circleque.hpp"
 
 namespace chrindex::andren::base{
